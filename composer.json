@@ -1,0 +1,30 @@
+{
+  "name":        "nyx/utils",
+  "description": "Static utilities and global helper functions for common tasks.",
+  "keywords":    ["nyx", "utility", "utils", "array", "string", "system"],
+  "license":     "MIT",
+  "homepage":    "https://labs.muyo.io/nyx/nyx",
+  "authors": [
+    {"name": "Michał Chojnacki", "email": "m.chojnacki@muyo.io",     "homepage": "http://muyo.io",   "role": "Developer"}
+  ],
+
+  "support": {
+    "source": "http://labs.muyo.io/nyx/nyx",
+    "issues": "http://labs.muyo.io/nyx/nyx/issues",
+    "email":  "labs@muyo.io"
+  },
+
+  "require": {
+    "php": ">=7.0.0b2"
+  },
+
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  },
+
+  "autoload": {
+    "psr-4": {"nyx\\utils\\": ""}
+  },
+
+  "minimum-stability": "dev"
+}
