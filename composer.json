@@ -15,7 +15,7 @@
   },
 
   "require": {
-    "php": ">=7.0.0b2"
+    "php": ">=7.0.0-dev"
   },
 
   "require-dev": {
