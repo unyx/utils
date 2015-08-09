@@ -7,16 +7,16 @@
 
 -----
 
+<p align="center">
+  <img src="http://s7.postimg.org/6cruwesi3/Nyx.png" />
+</p>
+
 Contains various utilities which are aimed at common day-to-day operations within PHP - dealing with arrays, strings,
 the filesystem etc.
 
 All classes in this package are static by design. Aside from how you would normally extend a static class, all of them
 can also be dynamically extended with methods (names -> callables) at runtime if you want to use them at the core
 of a larger project where others might want to provide additional functionality as well.
-
-> #### Note: In development (read: unusable)
-> It is currently in its **design** phase and therefore considered **unusable**. The API will fluctuate, solar flares will
-> appear, wormholes will consume your data, gremlins will chase your cat. You've been warned.
 
 -----
 
