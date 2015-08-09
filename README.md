@@ -7,9 +7,7 @@
 
 -----
 
-<p align="center">
-  <img src="http://s7.postimg.org/6cruwesi3/Nyx.png" />
-</p>
+![Dev warning](http://s7.postimg.org/6cruwesi3/Nyx.png)
 
 Contains various utilities which are aimed at common day-to-day operations within PHP - dealing with arrays, strings,
 the filesystem etc.
