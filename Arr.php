@@ -131,6 +131,23 @@ class Arr
     }
 
     /**
+     * Collapses an array of arrays into a single array.
+     *
+     * @param   array   $array  The array to collapse.
+     * @return  array           The resulting array.
+     */
+    public static function collapse(array $array) : array
+    {
+        $results = [];
+
+        foreach ($array as $item) {
+            $results = array_merge($results, $item);
+        }
+
+        return $results;
+    }
+
+    /**
      * Checks if the given value is contained within the given array. Equivalent of a recursive in_array. When you
      * are sure you are dealing with a 1-dimensional array, use in_array instead to avoid the overhead.
      *
