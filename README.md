@@ -3,8 +3,8 @@
 [![Total Downloads](https://poser.pugx.org/nyx/utils/downloads.png)](https://packagist.org/packages/nyx/utils)
 [![Build Status](https://travis-ci.org/unyx/utils.png)](https://travis-ci.org/unyx/utils)
 [![Dependency Status](https://www.versioneye.com/user/projects/55c5433165376200200034e2/badge.png)](https://www.versioneye.com/user/projects/55c5433165376200200034e2)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/unyx/utils/badges/quality-score.png?s=2327a52d17cb074b3bf8652dc5429ae49a688d53)](https://scrutinizer-ci.com/g/unyx/utils/)
-
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/unyx/utils/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/unyx/utils)
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://alcore.mit-license.org)
 -----
 
 ![Dev warning](http://s7.postimg.org/6cruwesi3/Nyx.png)
@@ -43,4 +43,4 @@ the MIT license and (c) 2012 [Jan Sorgalla](https://github.com/jsor).
 
 ### License
 
-Nyx is open source software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+Nyx is open source software licensed under the [MIT license](http://alcore.mit-license.org).
