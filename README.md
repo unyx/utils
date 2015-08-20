@@ -5,6 +5,7 @@
 [![Dependency Status](https://www.versioneye.com/user/projects/55c5433165376200200034e2/badge.png)](https://www.versioneye.com/user/projects/55c5433165376200200034e2)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/unyx/utils/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/unyx/utils)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://alcore.mit-license.org)
+
 -----
 
 ![Dev warning](http://s7.postimg.org/6cruwesi3/Nyx.png)
