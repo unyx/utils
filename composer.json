@@ -16,7 +16,7 @@
 
   "require": {
     "php": ">=7.0.0-dev",
-    "nyx/core": "dev-master"
+    "nyx/core": "*"
   },
 
   "require-dev": {
