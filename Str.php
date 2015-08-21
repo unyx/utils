@@ -1,8 +1,5 @@
 <?php namespace nyx\utils;
 
-// External dependencies
-use nyx\core;
-
 /**
  * Str
  *
@@ -34,7 +31,7 @@ class Str
     /**
      * The traits of the Str class.
      */
-    use core\traits\StaticallyExtendable;
+    use traits\StaticallyExtendable;
 
     /**
      * @var string  The default encoding to use when we fail to determine it based on a given string. UTF-8 will

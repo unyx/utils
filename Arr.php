@@ -1,8 +1,5 @@
 <?php namespace nyx\utils;
 
-// External dependencies
-use nyx\core;
-
 /**
  * Arr
  *
@@ -42,7 +39,7 @@ class Arr
     /**
      * The traits of the Arr class.
      */
-    use core\traits\StaticallyExtendable;
+    use traits\StaticallyExtendable;
 
     /**
      * @var string  The delimiter to use to separate array dimensions.
