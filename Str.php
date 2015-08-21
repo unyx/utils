@@ -268,6 +268,24 @@ class Str
     }
 
     /**
+     * Determines whether the given string matches the given pattern.
+     *
+     * Asterisks are translated into zero or more regexp wildcards, allowing for glob-style patterns.
+     *
+     * @param   string  $pattern
+     * @param   string  $value
+     * @return  bool
+     */
+    public static function matches($pattern, $value)
+    {
+        if ($pattern == $value) {
+            return true;
+        }
+
+        return (bool) preg_match('#^'.str_replace('\*', '.*', preg_quote($pattern, '#')).'\z'.'#', $value);
+    }
+
+    /**
      * Creates a string of the specified length containing random alpha-numeric characters.
      *
      * @param   int     $length     the expected length of the resulting string.
