@@ -11,10 +11,10 @@
  * - Function: exec() (checking whether TTY is available on this system)
  *
  * @package     Nyx\Utils\Platform
- * @version     0.0.3
+ * @version     0.1.0
  * @author      Michal Chojnacki <m.chojnacki@muyo.io>
  * @copyright   2012-2016 Nyx Dev Team
- * @link        http://docs.muyo.io/nyx/utils/index.html
+ * @link        http://docs.muyo.io/nyx/utils/platform.html
  */
 class Platform
 {
@@ -24,7 +24,7 @@ class Platform
     use traits\StaticallyExtendable;
 
     /**
-     * Platform constants.
+     * Platform type constants.
      */
     const TYPE_UNIX    = 1;
     const TYPE_WINDOWS = 2;
@@ -54,7 +54,7 @@ class Platform
      *
      * @return  int     One of the platform TYPE_ constants defined in this class.
      */
-    public static function getType()
+    public static function getType() : int
     {
         // Return the cached result if it's already available.
         if (null !== static::$type) {
@@ -76,12 +76,12 @@ class Platform
             return static::$type = self::TYPE_BSD;
         }
 
-        if (false !== strpos($os, 'cygwin')) {
-            return static::$type = self::TYPE_CYGWIN;
-        }
-
         if (false !== strpos($os, 'darwin')) {
             return static::$type = self::TYPE_DARWIN;
+        }
+
+        if (false !== strpos($os, 'cygwin')) {
+            return static::$type = self::TYPE_CYGWIN;
         }
 
         // Use the default otherwise.
@@ -93,7 +93,7 @@ class Platform
      *
      * @return  bool    True when PHP is running on a Unix platform, false otherwise.
      */
-    public static function isUnix()
+    public static function isUnix() : bool
     {
         // Return the cached result if it's already available.
         if (null !== static::$type) {
@@ -108,7 +108,7 @@ class Platform
      *
      * @return  bool    True when PHP is running on a Windows platform, false otherwise.
      */
-    public static function isWindows()
+    public static function isWindows() : bool
     {
         // Return the cached result if it's already available.
         if (null !== static::$type) {
@@ -123,7 +123,7 @@ class Platform
      *
      * @return  bool    True when PHP is running on a BSD platform, false otherwise.
      */
-    public static function isBsd()
+    public static function isBsd() : bool
     {
         // Return the cached result if it's already available.
         if (null !== static::$type) {
@@ -134,26 +134,11 @@ class Platform
     }
 
     /**
-     * Checks whether PHP is running on a Cygwin platform
-     *
-     * @return  bool    True when PHP is running on a Cygwin platform, false otherwise.
-     */
-    public static function isCygwin()
-    {
-        // Return the cached result if it's already available.
-        if (null !== static::$type) {
-            return static::$type === self::TYPE_CYGWIN;
-        }
-
-        return static::getType() === self::TYPE_CYGWIN;
-    }
-
-    /**
      * Checks whether PHP is running on a Darwin platform
      *
      * @return  bool    True when PHP is running on a Darwin platform, false otherwise.
      */
-    public static function isDarwin()
+    public static function isDarwin() : bool
     {
         // Return the cached result if it's already available.
         if (null !== static::$type) {
@@ -164,16 +149,29 @@ class Platform
     }
 
     /**
-     * Returns the path to the given shell's binary or false when it is not available.
+     * Checks whether PHP is running on a Cygwin platform
+     *
+     * @return  bool    True when PHP is running on a Cygwin platform, false otherwise.
+     */
+    public static function isCygwin() : bool
+    {
+        // Return the cached result if it's already available.
+        if (null !== static::$type) {
+            return static::$type === self::TYPE_CYGWIN;
+        }
+
+        return static::getType() === self::TYPE_CYGWIN;
+    }
+
+    /**
+     * Returns the path to the given shell's binary or null when it is not available.
      *
      * @param   string          $name
-     * @return  string|bool
+     * @return  string|null
      */
     public static function getShell($name)
     {
-        $shells = static::getShells();
-
-        return isset($shells[$name]) ? $shells[$name] : false;
+        return static::getShells()[$name] ?? null;
     }
 
     /**
@@ -182,31 +180,31 @@ class Platform
      * @param   string  $name
      * @return  bool
      */
-    public static function hasShell($name)
+    public static function hasShell($name) : bool
     {
         return isset(static::getShells()[$name]);
     }
 
     /**
-     * Returns an array of shell names and the paths to their binaries once populated or false when PHP is
-     * running on a system that does not support them (Windows).
+     * Returns an array of shell names and the paths to their binaries once populated. Will return an empty
+     * array on unsupported platforms (Windows).
      *
-     * @return  array|bool
+     * @return  array
      */
-    public static function getShells()
+    public static function getShells() : array
     {
         // Return the cached result if it's already available.
         if (static::$shells !== null) {
             return static::$shells;
         }
 
-        // Definitely no shells on Windows.
-        if (static::isWindows()) {
-            return static::$shells = false;
-        }
-
         // Ensure this method will be ran once at most.
         static::$shells = [];
+
+        // Can't easily check on Windows even if Cygwin or the likes are available.
+        if (static::isWindows()) {
+            return static::$shells;
+        }
 
         if (file_exists($file = '/etc/shells')) {
             $cat = trim(shell_exec('cat '.$file.' 2> /dev/null'));
@@ -231,7 +229,7 @@ class Platform
      *
      * @return  bool    True when 'stty' is available on this platform, false otherwise (always false on Windows).
      */
-    public static function hasStty()
+    public static function hasStty() : bool
     {
         // Return the cached result if it's already available.
         if (static::$hasStty !== null) {
