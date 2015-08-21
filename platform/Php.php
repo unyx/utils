@@ -1,18 +1,18 @@
-<?php namespace nyx\utils;
+<?php namespace nyx\utils\platform;
 
-// External dependencies
-use nyx\core;
+// Internal dependencies
+use nyx\utils;
 
 /**
  * PHP
  *
  * Utils for introspecting information about PHP itself.
  *
- * @package     Nyx\Utils\System
+ * @package     Nyx\Utils\Platform
  * @version     0.0.1
  * @author      Michal Chojnacki <m.chojnacki@muyo.io>
  * @copyright   2012-2016 Nyx Dev Team
- * @link        http://docs.muyo.io/nyx/utils/system.html
+ * @link        http://docs.muyo.io/nyx/utils/platform.html
  * @todo        Bitwise checks for combined phpinfo() sections when parsing information.
  */
 class Php
@@ -20,7 +20,7 @@ class Php
     /**
      * The traits of the Php class.
      */
-    use traits\StaticallyExtendable;
+    use utils\traits\StaticallyExtendable;
 
     /**
      * @var bool    Whether PHP has been compiled with the "--enable-sigchild" flag.
