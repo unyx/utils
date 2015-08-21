@@ -39,10 +39,10 @@ class Php
      * @param   string  $flag   The name of the flag to check. The two initial hyphens can be omitted.
      * @return  bool            True when PHP has been compiled with the given flag, false otherwise.
      */
-    public static function hasFlag($flag)
+    public static function hasFlag(string $flag) : bool
     {
         // Standardize the flag name - remove starting hyphens.
-        $flag = ltrim((string) $flag, '-');
+        $flag = ltrim($flag, '-');
 
         // Return the check right away if it's already cached.
         if (isset(static::$flags[$flag])) {
@@ -52,7 +52,7 @@ class Php
         // Grab the output of phpinfo(). If INFO_ALL is already available, we will just parse it instead of
         // fetching INFO_GENERAL specifically for our case. Then we are simply going to check if the --string
         // appears in the info.
-        $result = strpos(isset(static::$info[INFO_ALL]) ? static::$info[INFO_ALL] : static::getInfo(INFO_GENERAL), '--'.$flag);
+        $result = strpos(static::$info[INFO_ALL] ?? static::getInfo(INFO_GENERAL), '--'.$flag);
 
         // Cache the result and return it.
         return static::$flags[$flag] = false !== $result;
@@ -64,7 +64,7 @@ class Php
      * @param   int     $for    One of the INFO_* constants {@see http://php.net/manual/en/function.phpinfo.php}.
      * @return  string          The raw output of phpinfo.
      */
-    public static function getInfo($for = INFO_ALL)
+    public static function getInfo(int $for = INFO_ALL) : string
     {
         // Return the data right away if we've already cached the given section.
         if (isset(static::$info[$for])) {
