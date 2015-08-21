@@ -45,27 +45,6 @@ class Str
     protected static $ascii;
 
     /**
-     * Returns a Closure which will return the subsequent given value (argument to this method( on each call.
-     * While this is primarily meant for strings, it can be used with any type of values.
-     *
-     * When the Closure gets called with false as its argument, it will return the current internal value without
-     * alternating the next time (ie. the same value will be returned with the next call).
-     *
-     * @param   mixed       $first      Two or more values to alternate between, given as separate arguments.
-     * @param   mixed       $second     See above. More than two arguments can be given.
-     * @return  \Closure
-     */
-    public static function alternator($first, $second)
-    {
-        $values = func_get_args();
-
-        return function ($next = true) use ($values) {
-            static $i = 0;
-            return $values[($next ? $i++ : $i) % count($values)];
-        };
-    }
-
-    /**
      * Ensures the given string begins with a single instance of a given substring.
      *
      * @param   string  $str    The string to cap.

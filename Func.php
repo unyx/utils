@@ -50,6 +50,24 @@ class Func
     }
 
     /**
+     * Returns a Closure which will return the subsequent given value (argument to this method) on each call.
+     * While this is primarily a utility for strings, it can be used with any type of values.
+     *
+     * When the Closure gets called with false as its argument, it will return the current internal value without
+     * alternating the next time (ie. the same value will be returned with the next call).
+     *
+     * @param   mixed       ...$between    Two or more values to alternate between, given as separate arguments.
+     * @return  \Closure
+     */
+    public static function alternator(...$between) : \Closure
+    {
+        return function ($next = true) use ($between) {
+            static $i = 0;
+            return $between[($next ? $i++ : $i) % count($between)];
+        };
+    }
+
+    /**
      * Generates a hash (signature) for a given callable with the given arguments.
      *
      * @param   callable    $callable   The callable to hash.
