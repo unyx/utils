@@ -66,17 +66,6 @@ class Str
     }
 
     /**
-     * Returns the base class name of a class contained in a namespace.
-     *
-     * @param   string|object   $value  Either a class name or an object of which the class name will be determined.
-     * @return  string                  The base class name.
-     */
-    public static function baseClass($value)
-    {
-        return basename(str_replace('\\', '/', is_object($value) ? get_class($value) : $value));
-    }
-
-    /**
      * Ensures the given string begins with a single instance of a given substring.
      *
      * @param   string  $str    The string to cap.
