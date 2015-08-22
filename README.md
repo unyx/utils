@@ -23,7 +23,7 @@ of a larger project where others might want to provide additional functionality 
 
 - PHP 7.0+
 
-Specific classess may have specific requirements outlined in their descriptions (see `utils\Str` for an example).
+Specific classes may have specific requirements outlined in their descriptions (see `utils\Str` for an example).
 Dependency checks are **not** put in place to keep the overhead as small as possible.
 
 ### Installation

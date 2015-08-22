@@ -21,10 +21,10 @@ class Math
     /**
      * @var array   Mathematical constants map.
      */
-    public static $constants = [
+    const CONSTANTS = [
         'pi'               => M_PI,
         'e'                => M_E,
-        'euler_mascheroni' => M_EULER,
+        'euler-mascheroni' => M_EULER,
         'conway'           => 1.303577269
     ];
 
@@ -34,15 +34,10 @@ class Math
      * @param   float       $value      The number to count the decimal places of.
      * @return  int|bool                The number of decimal places or false if the given $value was not numeric.
      */
-    public static function countDecimals($value)
+    public static function countDecimals(float $value)
     {
-        // Only work with numeric values.
-        if (!is_numeric($value)) {
-            return false;
-        }
-
         // When the value when cast to an integer is about the same, return 0 decimal places. Otherwise count them.
-        return (int) $value == $value ? 0 : strlen($value) - strrpos($value, '.') - 1;
+        return (int) $value == $value ? 0 : (strlen($value) - strrpos($value, '.') - 1);
     }
 
     /**
@@ -54,9 +49,9 @@ class Math
      * @return  string                  The name of the constant (one of the keys of self::$constants) or null if
      *                                  the given value is not a constant.
      */
-    public static function detectConstant($value, $precision = 6)
+    public static function detectConstant(float $value, int $precision = 6)
     {
-        foreach (static::$constants as $name => $constant) {
+        foreach (static::CONSTANTS as $name => $constant) {
             if (0 === bccomp($value, $constant, max($precision - 1, 4))) {
                 return $name;
             }

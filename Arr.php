@@ -424,7 +424,7 @@ class Arr
     }
 
     /**
-     * Returns all but the łast value of the given array.
+     * Returns all but the last value of the given array.
      *
      * If a callable is passed, elements at the end of the array are excluded from the result as long as the
      * callback returns a truthy value. If a number is passed, the last n values are excluded from the result.
@@ -451,7 +451,7 @@ class Arr
                 $i++;
             }
 
-            // If we didn't get at least a single truthy value, return the default-
+            // If we didn't get at least a single truthy value, return the default.
             if ($i === 0) {
                 return $default;
             }
