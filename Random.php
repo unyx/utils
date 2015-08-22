@@ -37,11 +37,11 @@ class Random
     public static function bytes(int $length) : string
     {
         if ($length < 1) {
-            throw new \InvalidArgumentException('The expected amount of random bytes must be at least 1.');
+            throw new \InvalidArgumentException('The expected number of random bytes must be at least 1.');
         }
 
         if (false === $result = random_bytes($length)) {
-            throw new \RuntimeException('No sufficient source of randomness is available on this platform.');
+            throw new \RuntimeException('No sufficient source of entropy is available on this platform.');
         }
 
         return $result;
@@ -49,6 +49,9 @@ class Random
 
     /**
      * Generates a pseudo-random integer in the specified range. {0 .. PHP_INT_MAX} by default.
+     *
+     * The arguments can be passed in in any order. The resulting range must be <= PHP_INT_MAX and neither of the
+     * arguments may exceed PHP_INT_MIN nor PHP_INT_MAX.
      *
      * Note: This is just a wrapper for random_bytes() provided for completeness of the API.
      *       However, as opposed to the native function simply returning false and raising a warning,
@@ -58,37 +61,63 @@ class Random
      * @param   int     $min                The minimal expected value of the generated integer (>= than PHP_INT_MIN).
      * @param   int     $max                The maximal expected value of the generated integer (<= than PHP_INT_MAX).
      * @return  int                         The generated integer.
-     * @throws  \InvalidArgumentException   When the minimal expected value is bigger than the maximal expected value.
+     * @throws  \RangeException             When the specified range is invalid.
      * @throws  \RuntimeException           When the platform specific RNG couldn't be used for some reason.
      */
     public static function int(int $min = 0, int $max = PHP_INT_MAX) : int
     {
-        if ($min > $max) {
-            throw new \DomainException('The minimal expected value must be smaller than the maximal expected value.');
+        // Allow for passing in the range in reverse order.
+        $tmp   = max($min, $max);
+        $min   = min($min, $max);
+        $max   = $tmp;
+        $range = $max - $min;
+
+        if ($range == 0) {
+            return $max;
+        }
+
+        // A range < 0 shouldn't happen at this point but may denote an arithmetic error.
+        if ($range < 0 || $range > PHP_INT_MAX) {
+            throw new \RangeException('The supplied range is too broad to generate a random integer from.');
         }
 
         if (false === $result = random_int($min, $max)) {
-            throw new \RuntimeException('No sufficient source of randomness is available on this platform.');
+            throw new \RuntimeException('No sufficient source of entropy is available on this platform.');
         }
 
         return $result;
     }
 
     /**
-     * Generates a pseudo-random float in the specified range
+     * Generates a pseudo-random float in the specified range.
      *
-     * @param   int     $min        The minimal value of the generated float. Must be >= than PHP_INT_MIN.
-     * @param   int     $max        The maximal value of the generated float. Must be <= than PHP_INT_MAX.
-     * @return  float               The generated float.
+     * The arguments can be passed in in any order. The resulting range must be <= PHP_INT_MAX and neither of the
+     * arguments may exceed PHP_INT_MIN nor PHP_INT_MAX.
+     *
+     * @param   float   $min                The minimal value of the generated float. Must be >= than PHP_INT_MIN.
+     * @param   float   $max                The maximal value of the generated float. Must be <= than PHP_INT_MAX.
+     * @return  float                       The generated float.
+     * @throws  \RangeException             When the specified range is invalid.
      * @throws  \InvalidArgumentException   When the minimal expected value is bigger than the maximal expected value.
      */
-    public static function float(int $min = 0, int $max = 1) : float
+    public static function float(float $min = 0, float $max = 1) : float
     {
-        if ($min > $max) {
-            throw new \DomainException('The minimal expected value must be smaller than the maximal expected value.');
+        // Allow for passing in the range in reverse order.
+        $tmp   = max($min, $max);
+        $min   = min($min, $max);
+        $max   = $tmp;
+        $range = $max - $min;
+
+        if ($range == 0) {
+            return $max;
         }
 
-        return $min + static::int() / PHP_INT_MAX * ($max - $min);
+        // A range < 0 shouldn't happen at this point but may denote an arithmetic error.
+        if ($range < 0 || $range > PHP_INT_MAX) {
+            throw new \RangeException('The supplied range is too broad to generate a random floating point number from.');
+        }
+
+        return $min + static::int() / PHP_INT_MAX * $range;
     }
 
     /**
