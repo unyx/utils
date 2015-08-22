@@ -77,13 +77,17 @@ class Random
     }
 
     /**
-     * Generates a pseudo-random string.
+     * Generates a pseudo-random string of the specified length using random alpha-numeric (base64)
+     * characters or the characters provided.
+     *
+     * Aliases:
+     *  - @see Str::random()
      *
      * @param   int     $length     The expected length of the generated string.
      * @param   string  $characters The character list to use. If not given, the method will fall back
      *                              to the Base64 character set.
      * @return  float               The generated string.
-     * @throws  \DomainException    When the platform specific RNG couldn't be used for some reason.
+     * @throws  \DomainException    When a expected length smaller than 1 was given.
      */
     public static function string(int $length = 8, string $characters = null) : string
     {

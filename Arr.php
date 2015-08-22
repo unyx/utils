@@ -67,7 +67,8 @@ class Arr
     /**
      * Checks if all elements in the given array pass the given truth test.
      *
-     * Aliases: self::every()
+     * Aliases:
+     *  - @see Arr::every()
      *
      * @param   array       $array      The array to traverse.
      * @param   callable    $callback   The truth test the elements should pass.
@@ -84,7 +85,8 @@ class Arr
     /**
      * Checks if any of the elements in the given array passes the given truth test.
      *
-     * Aliases: self::some()
+     * Aliases:
+     *  - @see Arr::some()
      *
      * @param   array       $array      The array to traverse.
      * @param   callable    $callback   The truth test the elements should pass.
@@ -198,7 +200,7 @@ class Arr
     }
 
     /**
-     * Alias for {@see static::find()}
+     * Alias for @see Arr::find()
      */
     public static function detect(array $array, callable $callback, $default = null)
     {
@@ -217,7 +219,7 @@ class Arr
     }
 
     /**
-     * Alias for {@see static::all()}
+     * Alias for @see Arr::all()
      */
     public static function every(array $array, callable $callback, bool $strict = true)
     {
@@ -273,7 +275,8 @@ class Arr
     /**
      * Returns the first value which passes the given truth test.
      *
-     * Aliases: self::detect()
+     * Aliases:
+     *  - @see Arr::detect()
      *
      * @param   array       $array      The array to traverse.
      * @param   callable    $callback   The truth test the value should pass.
@@ -295,7 +298,9 @@ class Arr
      * Returns the first element of the array, the first $callback elements of the array when $callback is a number,
      * or the first element which passes the given truth test when the $callback is a callable.
      *
-     * Aliases: self::head(), self::take()
+     * Aliases:
+     *  - @see Arr::head()
+     *  - @see Arr::take()
      *
      * @param   array               $array      The array to traverse.
      * @param   callable|int|bool   $callback   The truth test the value should pass or an integer denoting how many
@@ -724,7 +729,8 @@ class Arr
      * Returns all but the first value of the given array, all but the first elements for which the $callback
      * returns true if $callback is a callable, or all but the first $callback elements if $callback is a number.
      *
-     * Aliases: self::tail()
+     * Aliases:
+     *  - @see Arr::tail()
      *
      * @param   array               $array      The array to traverse.
      * @param   callable|int|bool   $callback   The truth test the value should pass or an integer denoting how many

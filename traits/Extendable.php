@@ -5,6 +5,11 @@
  *
  * An Extendable object is one that can be dynamically extended with additional methods during runtime.
  *
+ * If you extend the object with Closures instead of other callables, remember that you can also bind them
+ * to the scope ($this) of the object you're extending, giving you easier access to it. While it is possible
+ * to automatically invoke extending Closures in this scope, the decision about the scope is by design left
+ * to the extension, also to provide consistency with other types of callables for which this is not possible.
+ *
  * Do, however, note that this relies on the magic __call() method which introduces considerable overhead
  * for each call, especially for very simple code. If possible, extend the exhibitors of this trait casually
  * to avoid the performance hit.

@@ -254,20 +254,14 @@ class Str
     }
 
     /**
-     * Creates a string of the specified length containing random alpha-numeric characters.
+     * Generates a pseudo-random string of the specified length using random alpha-numeric (base64)
+     * characters or the characters provided.
      *
-     * @param   int     $length     the expected length of the resulting string.
-     * @return  string              the resulting string,
-     * @throws  \RuntimeException   When generation of random bytes fails.
+     * @see Random::string()
      */
-    public static function random($length = 16)
+    public static function random(int $length = 8, string $characters = null) : string
     {
-        // Make sure this succeeds.
-        if (false === $bytes = openssl_random_pseudo_bytes($length * 2)) {
-            throw new \RuntimeException('Failed to generate the random string. Is the OpenSSL extension installed and configured?');
-        }
-
-        return substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $length);
+        return Random::string($length, $characters);
     }
 
     /**
