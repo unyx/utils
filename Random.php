@@ -1,12 +1,18 @@
 <?php namespace nyx\utils;
 
+// External dependencies
+use nyx\core;
+
 /**
  * Random
  *
  * Utilities for generating and dealing with (pseudo-)random values.
  *
- * If you need an utility for generating random/fake real-world data,
- * you should take a look at Faker {@see https://github.com/fzaninotto/Faker}
+ * Based on Zend/Math {@see https://github.com/zendframework/zend-math}
+ * and RandomLib {@see https://github.com/ircmaxell/RandomLib}
+ *
+ * If you need an utility for generating random/fake real-world data, you should take a look
+ * at Faker {@see https://github.com/fzaninotto/Faker}
  *
  * @package     Nyx\Utils
  * @version     0.0.5
@@ -132,24 +138,28 @@ class Random
      * Aliases:
      *  - @see Str::random()
      *
-     * @param   int     $length             The expected length of the generated string.
-     * @param   string  $characters         The character list to use. If not given, the method will
-     *                                      fall back to the Base64 character set.
+     * @param   int         $length         The expected length of the generated string.
+     * @param   string|int  $characters     The character list to use. Can be either a string
+     *                                      with the characters to use or an int | nyx\core\Mask
+     *                                      to generate a list (@see utils\Str::buildCharacterSet()).
+     *                                      If not provided or an invalid mask, the method will fall
+     *                                      back to the Base64 charset.
      * @return  float                       The generated string.
      * @throws  \InvalidArgumentException   When a expected length smaller than 1 was given.
      */
-    public static function string(int $length = 8, string $characters = null) : string
+    public static function string(int $length = 8, $characters = Str::CHARS_BASE64) : string
     {
         if ($length < 1) {
             throw new \InvalidArgumentException('The expected length of the generated string must be at least 1.');
         }
 
-        // Expected most common use case is using the base64 character set, ie. when no
-        // character list was given, so let's handle it right away.
-        if (empty($characters)) {
-            $bytes = static::bytes((int) ceil($length * 0.75));
+        if (is_int($characters) || $characters instanceof core\Mask) {
+            $characters = Str::buildCharacterSet($characters);
+        }
 
-            return substr(rtrim(base64_encode($bytes), '='), 0, $length);
+        // Fall back to the Base64 character set if necessary.
+        if (empty($characters)) {
+            $characters = Str::buildCharacterSet(Str::CHARS_BASE64);
         }
 
         // If only a single character was given...
