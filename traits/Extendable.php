@@ -67,7 +67,7 @@ trait Extendable
     public function __call($method, array $parameters)
     {
         if (isset($this->extensions[$method])) {
-            return call_user_func_array($this->extensions[$method], $parameters);
+            return call_user_func($this->extensions[$method], ...$parameters);
         }
 
         throw new \BadMethodCallException("The method [$method] does not exist.");

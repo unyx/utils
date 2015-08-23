@@ -63,7 +63,7 @@ trait StaticallyExtendable
     public static function __callStatic(string $method, array $parameters)
     {
         if (isset(self::$extensions[$method])) {
-            return call_user_func_array(self::$extensions[$method], $parameters);
+            return call_user_func(self::$extensions[$method], ...$parameters);
         }
 
         throw new \BadMethodCallException("The method [$method] does not exist.");
