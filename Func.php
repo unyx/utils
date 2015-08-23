@@ -40,11 +40,11 @@ class Func
      */
     public static function after($times = 1, callable $callback)
     {
-        return function () use ($callback, $times) {
+        return function (...$args) use ($callback, $times) {
             static $count = 0;
 
             if (++$count >= $times) {
-                return call_user_func_array($callback, func_get_args());
+                return call_user_func($callback, ...$args);
             }
         };
     }
@@ -104,9 +104,7 @@ class Func
      */
     public static function memoize(callable $callback, $key = null)
     {
-        return function () use ($callback, $key) {
-            // The arguments for the callback.
-            $args = func_get_args();
+        return function (...$args) use ($callback, $key) {
 
             // Determine which cache key to use.
             $key = null === $key
@@ -115,7 +113,7 @@ class Func
 
             // If we don't already have a hit for the cache key, populate it with the result of invocation.
             if (!array_key_exists($key, static::$memory)) {
-                static::$memory[$key] = call_user_func_array($callback, $args);
+                static::$memory[$key] = call_user_func($callback, ...$args);
             }
 
             return static::$memory[$key];
@@ -142,13 +140,13 @@ class Func
      */
     public static function only($times = 1, callable $callback)
     {
-        return function () use ($callback, $times) {
+        return function (...$args) use ($callback, $times) {
             // Keep track of how many times the Closure was already called.
             static $called = 0;
 
             // Invoke the callback when we didn't hit our limit yet.
             if ($times >= ++$called) {
-                return call_user_func_array($callback, func_get_args());
+                return call_user_func($callback, ...$args);
             }
         };
     }
@@ -157,26 +155,30 @@ class Func
      * Creates a Closure that, when called, invokes the wrapped callable with any additional partial arguments
      * prepended to those provided to the new Closure.
      *
-     * @param   callable    $callback   The callable to wrap.
-     * @param   mixed[]     ...         The arguments to prepend to the callback.
-     * @return  \Closure                The wrapper.
+     * @param   callable    $callback           The callable to wrap.
+     * @param   mixed       ...$prependedArgs   The arguments to prepend to the callback.
+     * @return  \Closure                        The wrapper.
      */
-    public static function partial(callable $callback /*, [$arg1, $arg2...$argN] */)
+    public static function partial(callable $callback, ...$prependedArgs)
     {
-        return static::partialInternal(func_get_args(), true);
+        return function (...$args) use ($callback, $prependedArgs) {
+            return call_user_func($callback, ...$prependedArgs, ...$args);
+        };
     }
 
     /**
      * Creates a Closure that, when called, invokes the wrapped callable with any additional partial arguments
      * appended to those provided to the new Closure.
      *
-     * @param   callable    $callback   The callable to wrap.
-     * @param   mixed[]     ...         The arguments to prepend to the callback.
-     * @return  \Closure                The wrapper.
+     * @param   callable    $callback           The callable to wrap.
+     * @param   mixed       ...$appendedArgs    The arguments to append to the callback.
+     * @return  \Closure                        The wrapper.
      */
-    public static function partialRight(callable $callback /*, [$arg1, $arg2...$argN] */)
+    public static function partialRight(callable $callback, ...$appendedArgs)
     {
-        return static::partialInternal(func_get_args(), false);
+        return function (...$args) use ($callback, $appendedArgs) {
+            return call_user_func($callback, ...$args, ...$appendedArgs);
+        };
     }
 
     /**
@@ -191,7 +193,7 @@ class Func
      */
     public static function throttle(callable $callback, $wait = null)
     {
-        return function () use ($callback, $wait) {
+        return function (...$args) use ($callback, $wait) {
             static $timer  = 0;
             static $result = null;
 
@@ -200,7 +202,7 @@ class Func
                 $timer = $microtime + $wait / 1000;
 
                 // And call the actual callable.
-                $result = call_user_func_array($callback, func_get_args());
+                $result = call_user_func($callback, ...$args);
             }
 
             return $result;
@@ -247,31 +249,8 @@ class Func
      */
     public static function wrap($value, callable $wrapper)
     {
-        return function () use ($value, $wrapper) {
-            return call_user_func_array($wrapper, array_merge([$value], func_get_args()));
-        };
-    }
-
-    /**
-     * Creates a Closure that, when called, invokes the wrapped callable with any additional partial arguments
-     * prepended or appended to those provided to the new Closure. Used internally by self::partial() and
-     * self::partialRight() to reduce code duplication.
-     *
-     * @param   array       $args       The arguments to prepend/append to the callback. First key in the array
-     *                                  is expected to be the callback to be invoked.
-     * @param   bool        $prepend    True to prepend the arguments, false to append them.
-     * @return  \Closure                The wrapper.
-     */
-    protected static function partialInternal(array $args, $prepend = true)
-    {
-        // Since the concrete partial* methods have a callable as the first parameter in their signature, we can
-        // DRY some code here since we'd have to remove the callback from the args anyways.
-        $callback = array_shift($args);
-
-        return function () use ($callback, $args, $prepend) {
-            return call_user_func_array($callback, $prepend
-                ? array_merge($args, func_get_args())
-                : array_merge(func_get_args(), $args));
+        return function (...$args) use ($value, $wrapper) {
+            return call_user_func($wrapper, $value, ...$args);
         };
     }
 
@@ -289,13 +268,12 @@ class Func
      */
     protected static function whenInternal(callable $test, callable $callback, $testArgs = null, $expect = true)
     {
-        return function () use ($callback, $test, $testArgs, $expect) {
-            $callbackArgs = func_get_args();
-            $testArgs     = $testArgs === self::PASSTHROUGH ? $callbackArgs : (array) $testArgs;
+        return function (...$callbackArgs) use ($callback, $test, $testArgs, $expect) {
+            $testArgs = $testArgs === self::PASSTHROUGH ? $callbackArgs : (array) $testArgs;
 
             // Loose comparison on purpose to make this more elastic.
-            if ($expect == call_user_func_array($test, $testArgs)) {
-                return call_user_func_array($callback, $callbackArgs);
+            if ($expect == call_user_func($test, ...$testArgs)) {
+                return call_user_func($callback, ...$callbackArgs);
             }
         };
     }
