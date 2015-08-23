@@ -3,7 +3,7 @@
 /**
  * Func
  *
- * Utilities related to functions/methods/callables/closures..
+ * Utilities related to functions/methods/callables/closures.
  *
  * @package     Nyx\Utils\Func
  * @version     0.0.4
@@ -237,21 +237,6 @@ class Func
     public static function when(callable $test, callable $callback, $testArgs = null)
     {
         return static::whenInternal($test, $callback, $testArgs, true);
-    }
-
-    /**
-     * Creates a Closure that provides the given value to the wrapper as its first argument. Additional arguments
-     * provided to the created Closure will be appended to the value given here.
-     *
-     * @param   mixed       $value      The value to wrap and pass to the wrapper on each invocation.
-     * @param   callable    $wrapper    The wrapper.
-     * @return  \Closure                The created Closure.
-     */
-    public static function wrap($value, callable $wrapper)
-    {
-        return function (...$args) use ($value, $wrapper) {
-            return call_user_func($wrapper, $value, ...$args);
-        };
     }
 
     /**
