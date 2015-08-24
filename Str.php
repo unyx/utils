@@ -265,22 +265,30 @@ class Str
     /**
      * Inserts the given substring into the string at the provided index.
      *
-     * @param   string  $str        The string to insert into.
-     * @param   string  $substring  The string to be inserted.
-     * @param   int     $index      The index at which to insert the substring.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The resulting string.
+     * @param   string  $str                The string to insert into.
+     * @param   string  $substring          The string to be inserted.
+     * @param   int     $index              The index at which to insert the substring (>= 0). Can be 0, but you're
+     *                                      introducing needless overhead over simply prepending your string if you
+     *                                      do that.
+     * @param   string  $encoding           The encoding to use.
+     * @return  string                      The resulting string.
+     * @throws  \InvalidArgumentException   When trying to insert a substring at a negative index.
+     * @throws  \OutOfRangeException        When trying to insert a substring at an index above the length of the
+     *                                      initial string.
      */
     public static function insert(string $str, string $substring, int $index, string $encoding = null) : string
     {
         $encoding = $encoding ?: static::encoding($str);
 
-        // Return the initial string when the index exceeds the length of the string.
-        if ($index > mb_strlen($str, $encoding)) {
-            return $str;
+        if ($index < 0) {
+            throw new \InvalidArgumentException('Cannot insert a string at a negative index.');
         }
 
-        return mb_substr($str, 0, $index, $encoding) . $substring . mb_substr($str, $index, mb_strlen($str, $encoding), $encoding);
+        if ($index > $length = mb_strlen($str, $encoding)) {
+            throw new \OutOfRangeException('Cannot insert a string at a negative index.');
+        }
+
+        return mb_substr($str, 0, $index, $encoding) . $substring . mb_substr($str, $index, $length, $encoding);
     }
 
     /**
