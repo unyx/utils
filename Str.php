@@ -361,15 +361,32 @@ class Str
         return (bool) preg_match('#^'.str_replace('\*', '.*', preg_quote($pattern, '#')).'\z'.'#', $value);
     }
 
-    /**
-     * Generates a pseudo-random string of the specified length using random alpha-numeric (base64)
-     * characters or the characters provided.
+    /** --
+     *   Do *not* use this method in a cryptographic context without passing in a higher $strength
+     *   parameter or better yet, use Random::string() directly instead.
+     *  --
      *
-     * @see Random::string()
+     * Generates a pseudo-random string of the specified length using random alpha-numeric characters
+     * or the characters provided.
+     *
+     * @see     Random::string()
+
+     * @param   int         $length         The expected length of the generated string.
+     * @param   string|int  $characters     The character list to use. Can be either a string
+     *                                      with the characters to use or an int | nyx\core\Mask
+     *                                      to generate a list (@see Str::buildCharacterSet()).
+     *                                      If not provided or an invalid mask, the method will fall
+     *                                      back to a base alphanumeric character set.
+     * @param   int         $strength       The requested strength of entropy (one of the Random::STRENGTH_*
+     *                                      class constants)
+     * @return  float                       The generated string.
      */
-    public static function random(int $length = 8, string $characters = null) : string
+    public static function random(int $length = 8, string $characters = null, int $strength = Random::STRENGTH_NONE) : string
     {
-        return Random::string($length, $characters);
+        // Note: We're duplicating ourselves by specifying the character pool directly instead of
+        // relying on self::buildCharacterSet(), but this skips this process in Random::string()
+        // and is therefore faster.
+        return Random::string($length, $characters ?: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', $strength);
     }
 
     /**
