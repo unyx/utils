@@ -638,6 +638,46 @@ class Str
     }
 
     /**
+     * Checks whether the given string represents a boolean value. Case insensitive.
+     *
+     * Works different than simply casting a string to a bool in that strings like "yes"/"no"
+     * and "on"/"off", "1"/"0" and "true"/"false" are interpreted based on the natural language
+     * value they represent.
+     *
+     * Numeric strings are left as in native PHP typecasting, ie. only 0 represents false. Every
+     * other numeric string, including negative numbers, will be treated as a truthy value.
+     *
+     * Non-empty strings containing only whitespaces, tabs or newlines will also be interpreted
+     * as empty (false) strings.
+     *
+     * @param   string  $str    The string to check.
+     * @return  bool            True when the string represents a boolean value, false otherwise.
+     * @todo    Grab the map from a separate method to allow easier extending with locale specific values?
+     * @todo    Rename to asBool() to make a more explicit distinction between this and normal typecasting?
+     */
+    public function toBool(string $str) : bool
+    {
+        static $map = [
+            'true'  => true,
+            'false' => false,
+            '1'     => true,
+            '0'     => false,
+            'on'    => true,
+            'off'   => false,
+            'yes'   => true,
+            'no'    => false
+        ];
+
+        $key = static::lower($str);
+
+        if (isset($map[$key])) {
+            return $map[$key];
+        }
+
+        return (bool) trim($str);
+    }
+
+    /**
      * Converts each tab in the given string to the defined number of spaces (4 by default).
      *
      * @param   string  $str        The string in which to convert the tabs to whitespaces.
