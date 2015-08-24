@@ -18,7 +18,7 @@ use nyx\core;
  *   you should take a look at Stringy {@see https://github.com/danielstjules/Stringy}
  *
  * Requires:
- * - Extension: mb
+ * - Extension: mbstring
  * - Extension: intl (Normalizer)
  * - Extension: iconv
  *
@@ -360,6 +360,35 @@ class Str
         }
 
         return (bool) preg_match('#^'.str_replace('\*', '.*', preg_quote($pattern, '#')).'\z'.'#', $str);
+    }
+
+    /**
+     * Returns a string with common Windows-125* (used in MS Office documents) characters replaced
+     * by their ASCII counterparts.
+     *
+     * @param   string  $str        The string to normalize.
+     * @return  string              The normalized string.
+     * @throws  \RuntimeException   Upon failing to replace the characters.
+     */
+    public function normalizeCopypasta(string $str) : string
+    {
+        static $map = [[
+            '/\x{2026}/u',
+            '/[\x{201C}\x{201D}]/u',
+            '/[\x{2018}\x{2019}]/u',
+            '/[\x{2013}\x{2014}]/u',
+        ], [
+            '...',
+            '"',
+            "'",
+            '-',
+        ]];
+
+        if (null === $result = preg_replace($map[0], $map[1], $str)) {
+            throw new \RuntimeException('Failed to normalize the string ['.$str.'].');
+        }
+
+        return $result;
     }
 
     /** --
