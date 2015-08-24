@@ -31,6 +31,7 @@ use nyx\core;
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/strings.html
  * @todo        Snake case, camel case, studly caps, dashed, underscored?
+ * @todo        Decide on support for Stringable and/or simply loosening the type hints.
  */
 class Str
 {
@@ -101,7 +102,7 @@ class Str
      * @param   string  $with   The substring to begin with.
      * @return  string          The resulting string.
      */
-    public static function begin($str, $with)
+    public static function begin(string $str, string $with) : string
     {
         return ltrim($str, $with).$with;
     }
@@ -170,7 +171,7 @@ class Str
      * @param   string  $str    The string to clean.
      * @return  string          The resulting string.
      */
-    public static function clean($str)
+    public static function clean(string $str) : string
     {
         return preg_replace('/\s+/u', ' ', trim($str));
     }
@@ -188,7 +189,7 @@ class Str
      * @param   bool            $strict     Set this to false to use case-insensitive comparisons.
      * @return  bool
      */
-    public static function contains($haystack, $needle, $encoding = null, $all = false, $strict = true)
+    public static function contains(string $haystack, $needle, string $encoding = null, bool $all = false, bool $strict = true) : bool
     {
         $func     = $strict ? 'mb_strpos' : 'mb_stripos';
         $encoding = $encoding ?: static::encoding($haystack);
@@ -216,7 +217,7 @@ class Str
      * @param   string  $str
      * @return  string
      */
-    public static function encoding($str = null)
+    public static function encoding(string $str = null) : string
     {
         // If a string was given, we attempt to detect the encoding of the string. If we succeed, just return it.
         if (null !== $str and false !== $encoding = mb_detect_encoding($str)) {
@@ -228,19 +229,20 @@ class Str
     }
 
     /**
-     * Determines if the given string ends with the given needle or one of the given needles in an array is provided.
+     * Determines if the given string ends with the given needle or one of the given needles if an array
+     * of needles is provided. The comparison is case sensitive.
      *
      * @param   string          $haystack   The string to search in.
      * @param   string|array    $needles    The needle(s) to look for.
      * @param   string          $encoding   The encoding to use.
      * @return  bool                        True when the string ends with one of the given needles, false otherwise.
      */
-    public static function endsWith($haystack, $needles, $encoding = null)
+    public static function endsWith(string $haystack, $needles, string $encoding = null) : bool
     {
         $encoding = $encoding ?: static::encoding($haystack);
 
         foreach ((array) $needles as $needle) {
-            if ($needle != '' and $needle == mb_substr($haystack, -mb_strlen($needle, $encoding), $encoding)) {
+            if ($needle != '' and $needle === mb_substr($haystack, -mb_strlen($needle, $encoding), $encoding)) {
                 return true;
             }
         }
@@ -255,7 +257,7 @@ class Str
      * @param   string  $with   The substring to cap with.
      * @return  string          The resulting string.
      */
-    public static function finish($str, $with)
+    public static function finish(string $str, string $with) : string
     {
         return rtrim($str, $with).$with;
     }
@@ -269,7 +271,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string              The resulting string.
      */
-    public static function insert($str, $substring, $index, $encoding = null)
+    public static function insert(string $str, string $substring, int $index, string $encoding = null) : string
     {
         $encoding = $encoding ?: static::encoding($str);
 
@@ -288,7 +290,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string              The converted string.
      */
-    public static function lcfirst($str, $encoding = null)
+    public static function lcfirst(string $str, string $encoding = null) : string
     {
         // Need to check for the existence of the first character to avoid notices.
         if (isset($str[0])) {
@@ -305,7 +307,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  int                 The character count.
      */
-    public static function length($str, $encoding = null)
+    public static function length(string $str, string $encoding = null) : int
     {
         return mb_strlen($str, $encoding ?: static::encoding($str));
     }
@@ -320,7 +322,7 @@ class Str
      * @param   string  $end        The replacement.
      * @return  string              The resulting string.
      */
-    public static function limit($str, $limit = 100, $encoding = null, $end = '...')
+    public static function limit(string $str, int $limit = 100, string $encoding = null, string $end = '...') : string
     {
         $encoding = $encoding ?: static::encoding($str);
 
@@ -338,27 +340,26 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string
      */
-    public static function lower($str, $encoding = null)
+    public static function lower(string $str, string $encoding = null) : string
     {
         return mb_strtolower($str, $encoding ?: static::encoding($str));
     }
 
     /**
-     * Determines whether the given string matches the given pattern.
+     * Determines whether the given string matches the given pattern. Asterisks are translated into zero or more
+     * regexp wildcards, allowing for glob-style patterns.
      *
-     * Asterisks are translated into zero or more regexp wildcards, allowing for glob-style patterns.
-     *
-     * @param   string  $pattern
-     * @param   string  $value
+     * @param   string  $str        The string to match.
+     * @param   string  $pattern    The pattern to match the string against.
      * @return  bool
      */
-    public static function matches($pattern, $value)
+    public static function matches(string $str, string $pattern) : bool
     {
-        if ($pattern == $value) {
+        if ($pattern === $str) {
             return true;
         }
 
-        return (bool) preg_match('#^'.str_replace('\*', '.*', preg_quote($pattern, '#')).'\z'.'#', $value);
+        return (bool) preg_match('#^'.str_replace('\*', '.*', preg_quote($pattern, '#')).'\z'.'#', $str);
     }
 
     /** --
@@ -396,7 +397,7 @@ class Str
      * @param   string|array    $what   What to remove from the string.
      * @return  string                  The resulting string.
      */
-    public static function remove($str, $what)
+    public static function remove(string $str, string $what) : string
     {
         return static::replace($str, $what, '');
     }
@@ -409,7 +410,7 @@ class Str
      * @param   string          $with   The replacement value.
      * @return  string                  The resulting string.
      */
-    public static function replace($str, $what, $with)
+    public static function replace(string $str, $what, string $with) : string
     {
         // If multiple values to replace were passed.
         if (is_array($what)) {
@@ -426,7 +427,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string              The resulting string.
      */
-    public static function reverse($str, $encoding = null)
+    public static function reverse(string $str, string $encoding = null) : string
     {
         $encoding = $encoding ?: static::encoding($str);
 
@@ -448,7 +449,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string              The resulting string.
      */
-    public static function shuffle($str, $encoding = null)
+    public static function shuffle(string $str, string $encoding = null) : string
     {
         $encoding = $encoding ?: static::encoding($str);
 
@@ -468,11 +469,11 @@ class Str
     /**
      * Generates an URL-friendly slug from the given string.
      *
-     * @param   string  $str        The string to sluggify.
+     * @param   string  $str        The string to slugify.
      * @param   string  $separator  The separator to use instead of non-alphanumeric characters.
      * @return  string              The resulting slug.
      */
-    public static function slug($str, $separator = '-')
+    public static function slug(string $str, string $separator = '-') : string
     {
         $str = static::toAscii($str);
 
@@ -497,7 +498,7 @@ class Str
      * @param   string          $encoding   The encoding to use.
      * @return  bool                        True when the string starts with one of the given needles, false otherwise.
      */
-    public static function startsWith($haystack, $needles, $encoding = null)
+    public static function startsWith(string $haystack, $needles, string $encoding = null) : string
     {
         $encoding = $encoding ?: static::encoding($haystack);
 
@@ -519,7 +520,7 @@ class Str
      * @param   string    $encoding     The encoding to use.
      * @return  string                  The resulting string.
      */
-    public static function sub($str, $start, $length = null, $encoding = null)
+    public static function sub(string $str, int $start, int $length = null, string $encoding = null) : string
     {
         return mb_substr($str, $start, $length, $encoding ?: static::encoding($str));
     }
@@ -530,7 +531,7 @@ class Str
      * @param   string  $str    The UTF-8 encoded string to transliterate.
      * @return  string          The ASCII equivalent of the input string.
      */
-    public static function toAscii($str)
+    public static function toAscii(string $str) : string
     {
         if (preg_match("/[\x80-\xFF]/", $str)) {
             // Grab the transliteration table since we'll need it.
@@ -554,7 +555,7 @@ class Str
      * @param   int     $length     The number of spaces to replace each tab with.
      * @return  string              The resulting string.
      */
-    public static function toSpaces($str, $length = 4)
+    public static function toSpaces(string $str, int $length = 4) : string
     {
         return str_replace("\t", str_repeat(' ', $length), $str);
     }
@@ -566,7 +567,7 @@ class Str
      * @param   int     $length     The number of consecutive spaces to replace with a tab.
      * @return  string              The resulting string.
      */
-    public static function toTabs($str, $length = 4)
+    public static function toTabs(string $str, int $length = 4) : string
     {
         return str_replace(str_repeat(' ', $length), "\t", $str);
     }
@@ -578,7 +579,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string              The converted string.
      */
-    public static function ucfirst($str, $encoding = null)
+    public static function ucfirst(string $str, string $encoding = null) : string
     {
         // Need to check for the existence of the first character to avoid notices.
         if (isset($str[0])) {
@@ -595,7 +596,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string              The converted string.
      */
-    public static function ucwords($str, $encoding = null)
+    public static function ucwords(string $str, string $encoding = null) : string
     {
         return mb_convert_case($str, MB_CASE_TITLE, $encoding ?: static::encoding($str));
     }
@@ -607,7 +608,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string
      */
-    public static function upper($str, $encoding = null)
+    public static function upper(string $str, string $encoding = null) : string
     {
         return mb_strtoupper($str, $encoding ?: static::encoding($str));
     }
@@ -622,17 +623,13 @@ class Str
      * @param   string  $end        The replacement.
      * @return  string              The resulting string.
      */
-    public static function words($str, $words = 100, $encoding = null, $end = '...')
+    public static function words(string $str, int $words = 100, string $encoding = null, string $end = '...') : string
     {
         $encoding = $encoding ?: static::encoding($str);
 
         preg_match('/^\s*+(?:\S++\s*+){1,'.$words.'}/u', $str, $matches);
 
-        if (!isset($matches[0])) {
-            return $str;
-        }
-
-        if (mb_strlen($str, $encoding) === mb_strlen($matches[0], $encoding)) {
+        if (!isset($matches[0]) || mb_strlen($str, $encoding) === mb_strlen($matches[0], $encoding)) {
             return $str;
         }
 
