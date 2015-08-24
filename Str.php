@@ -103,7 +103,7 @@ class Str
      *                          the $index-th character counting from the end of the string.
      * @return  string          The character at the specified $index.
      */
-    public function at(string $str, int $index, string $encoding = null)
+    public static function at(string $str, int $index, string $encoding = null)
     {
         return static::sub($str, $index, 1, $encoding);
     }
@@ -334,27 +334,6 @@ class Str
     }
 
     /**
-     * Trims the string to the given length, replacing the cut off characters from the end with another string.
-     *
-     * @param   string  $str        The string to limit.
-     * @param   int     $limit      The maximal number of characters to be contained in the string, not counting
-     *                              the replacement.
-     * @param   string  $encoding   The encoding to use.
-     * @param   string  $end        The replacement.
-     * @return  string              The resulting string.
-     */
-    public static function limit(string $str, int $limit = 100, string $encoding = null, string $end = '...') : string
-    {
-        $encoding = $encoding ?: static::encoding($str);
-
-        if (mb_strlen($str, $encoding) <= $limit) {
-            return $str;
-        }
-
-        return mb_substr($str, 0, $limit, $encoding).$end;
-    }
-
-    /**
      * Converts the given string to lower case.
      *
      * @param   string  $str        The string to convert.
@@ -391,7 +370,7 @@ class Str
      * @return  string              The normalized string.
      * @throws  \RuntimeException   Upon failing to replace the characters.
      */
-    public function normalizeCopypasta(string $str) : string
+    public static function normalizeCopypasta(string $str) : string
     {
         static $map = [[
             '/\x{2026}/u',
@@ -655,7 +634,7 @@ class Str
      * @todo    Grab the map from a separate method to allow easier extending with locale specific values?
      * @todo    Rename to asBool() to make a more explicit distinction between this and normal typecasting?
      */
-    public function toBool(string $str) : bool
+    public static function toBool(string $str) : bool
     {
         static $map = [
             'true'  => true,
@@ -699,6 +678,27 @@ class Str
     public static function toTabs(string $str, int $length = 4) : string
     {
         return str_replace(str_repeat(' ', $length), "\t", $str);
+    }
+
+    /**
+     * Trims the string to the given length, replacing the cut off characters from the end with another string.
+     *
+     * @param   string  $str        The string to limit.
+     * @param   int     $limit      The maximal number of characters to be contained in the string, not counting
+     *                              the replacement.
+     * @param   string  $encoding   The encoding to use.
+     * @param   string  $end        The replacement.
+     * @return  string              The resulting string.
+     */
+    public static function truncate(string $str, int $limit = 100, string $end = '...', string $encoding = null) : string
+    {
+        $encoding = $encoding ?: static::encoding($str);
+
+        if (mb_strlen($str, $encoding) <= $limit) {
+            return $str;
+        }
+
+        return mb_substr($str, 0, $limit, $encoding).$end;
     }
 
     /**
