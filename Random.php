@@ -13,10 +13,14 @@ use nyx\core;
  * All methods in this class can be called with a strength setting, being one of the STRENGTH_* class
  * constants and STRENGTH_MEDIUM being the default for each method.
  *
+ *   - STRENGTH_STRONG is cryptographically secure but may be the slowest setting;
+ *   - STRENGTH_MEDIUM is cryptographically secure and can be safely used for generating keys and salts;
  *   - STRENGTH_WEAK is *not* cryptographically secure but should be used in a non-crypto context for
  *     generating randomized values (it's the fastest out of the settings);
- *   - STRENGTH_MEDIUM is cryptographically secure and can be safely used for generating keys and salts;
- *   - STRENGTH_STRONG is cryptographically secure but may be the slowest setting;
+ *   - STRENGTH_NONE is *absolutely not* cryptographically secure - it should only be used is a context
+ *     with absolutely no relation to encryption or authentication. Currently it only affects Random::string()
+ *     in that this method will use str_shuffle() instead of generating a string based on a stronger
+ *     pseudo-random seed (which is, simply, considerably faster);
  *
  * Important note: This class *is not* a cryptography class and does not perform any sort of mixing
  * of the generated values. For stronger input vectors for actual encryption algorithms you may want
@@ -76,6 +80,7 @@ class Random
      * Strength constants. The default for all methods is STRENGTH_MEDIUM. Consult the class description
      * for more information on when and how to use these constants.
      */
+    const STRENGTH_NONE    = 1;
     const STRENGTH_WEAK    = 3;
     const STRENGTH_MEDIUM  = 5;
     const STRENGTH_STRONG  = 7;
@@ -283,6 +288,14 @@ class Random
 
             // We're gonna repeat it $length times in a *totally random* order, d'oh.
             return str_repeat($charactersLen, $length);
+        }
+
+        // With a STRENGTH_NONE (exclusively) setting we will simply shuffle the characters.
+        // This is faster but not doesn't come close to random. Every higher setting will go through
+        // the process of getting a random seed of the specified strength and actually generating
+        // the string.
+        if (self::STRENGTH_NONE) {
+            return substr(str_shuffle(str_repeat($characters, $length)), 0, $length);
         }
 
         $result = '';
