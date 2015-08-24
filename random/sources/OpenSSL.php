@@ -53,7 +53,7 @@ class OpenSSL implements interfaces\Source
 
         $bytes = openssl_random_pseudo_bytes($length, $strong);
 
-        if (false === $strong || $length !== mb_strlen($bytes, '8bit')) {
+        if (false === $bytes || false === $strong || $length !== mb_strlen($bytes, '8bit')) {
             throw new \RuntimeException('Failed to generate sufficiently random bytes with a length of ['.$length.'].');
         }
 
