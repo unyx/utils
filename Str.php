@@ -96,6 +96,19 @@ class Str
     protected static $ascii;
 
     /**
+     * Returns the character at the specified $index (0-indexed).
+     *
+     * @see     Str::sub()
+     * @param   int     $index  The requested index. If a negative index is given, this method will return
+     *                          the $index-th character counting from the end of the string.
+     * @return  string          The character at the specified $index.
+     */
+    public function at(string $str, int $index, string $encoding = null)
+    {
+        return static::sub($str, $index, 1, $encoding);
+    }
+
+    /**
      * Ensures the given string begins with a single instance of a given substring.
      *
      * @param   string  $str    The string to cap.
@@ -551,15 +564,40 @@ class Str
     /**
      * Returns a part of the given string starting at the given index.
      *
-     * @param   string    $str          The input string.
-     * @param   int       $start        The index at which to start the slice.
-     * @param   int|null  $length       The length of the slice.
-     * @param   string    $encoding     The encoding to use.
-     * @return  string                  The resulting string.
+     * @param   string    $str              The input string.
+     * @param   int       $start            The index at which to start the slice. If a negative index is given,
+     *                                      the slice will start at the $start-th character counting from the end
+     *                                      of the input string.
+     * @param   int|null  $length           The length of the slice. Must be a positive integer or null. If null,
+     *                                      the full string starting from $start will be returned. If a length
+     *                                      which is longer than the input string is requested the method will
+     *                                      silently ignore this and will act as if null was passed as length.
+     * @param   string    $encoding         The encoding to use.
+     * @return  string                      The resulting string.
+     * @throws  \InvalidArgumentException   When $length is negative.
+     * @throws  \OutOfRangeException        When the $start index is not contained in the input string.
      */
     public static function sub(string $str, int $start, int $length = null, string $encoding = null) : string
     {
-        return mb_substr($str, $start, $length, $encoding ?: static::encoding($str));
+        if ($length === 0) {
+            return $str;
+        }
+
+        // We could silently return the initial string, but a negative $length may be an indicator of
+        // mismatching $start with $length in the method call.
+        if ($length < 0) {
+            throw new \InvalidArgumentException('The length of the requested substring must be > 0, ['.$length.'] requested.');
+        }
+
+        $encoding = $encoding ?: static::encoding($str);
+
+        // Check if the absolute starting index (to account for negative indexes) + 1 (since it's 0-indexed
+        // while length is > 1 at this point) is within the length of the string.
+        if ((abs($start) + 1) > mb_strlen($str, $encoding)) {
+            throw new \OutOfRangeException('The requested $start index ['.$start.'] is not within the string ["'.$str.'"].');
+        }
+
+        return mb_substr($str, $start, $length, $encoding);
     }
 
     /**
