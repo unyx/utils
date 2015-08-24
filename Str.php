@@ -681,24 +681,36 @@ class Str
     }
 
     /**
-     * Trims the string to the given length, replacing the cut off characters from the end with another string.
+     * Trims the string to the given length, replacing the cut off characters from the end with an optional
+     * substring ("..." by default). The final length of the string, including the optionally appended $end
+     * substring, will not exceed $limit.
      *
-     * @param   string  $str        The string to limit.
-     * @param   int     $limit      The maximal number of characters to be contained in the string, not counting
-     *                              the replacement.
-     * @param   string  $encoding   The encoding to use.
-     * @param   string  $end        The replacement.
-     * @return  string              The resulting string.
+     * @param   string  $str                The string to truncate.
+     * @param   int     $limit              The maximal number of characters to be contained in the string. Must be
+     *                                      a positive integer. If 0 is given, an empty string will be returned.
+     * @param   string  $end                The replacement.
+     * @param   string  $encoding           The encoding to use.
+     * @return  string                      The resulting string.
+     * @throws  \InvalidArgumentException   When $limit is a negative integer.
      */
     public static function truncate(string $str, int $limit = 100, string $end = '...', string $encoding = null) : string
     {
+        if ($limit < 0) {
+            throw new \InvalidArgumentException('The limit must be a positive integer, but ['.$limit.'] was given.');
+        }
+
+        if ($limit === 0) {
+            return '';
+        }
+
         $encoding = $encoding ?: static::encoding($str);
 
+        // Is there anything to actually truncate?
         if (mb_strlen($str, $encoding) <= $limit) {
             return $str;
         }
 
-        return mb_substr($str, 0, $limit, $encoding).$end;
+        return mb_substr($str, 0, $limit - mb_strlen($end, $encoding), $encoding).$end;
     }
 
     /**
