@@ -98,7 +98,6 @@ class Str
     /**
      * Returns the character at the specified $index (0-indexed).
      *
-     * @see     Str::sub()
      * @param   int     $index  The requested index. If a negative index is given, this method will return
      *                          the $index-th character counting from the end of the string.
      * @return  string          The character at the specified $index.
@@ -196,13 +195,13 @@ class Str
      * @param   string          $haystack   The string to check in.
      * @param   string|array    $needle     A string or an array of strings. If an array is given, the method returns
      *                                      true if at least one of the values is contained within the $haystack.
-     * @param   string          $encoding   The encoding to use.
      * @param   bool            $all        Set this to true to ensure all elements of the $needle array (if provided)
      *                                      are contained within the haystack.
      * @param   bool            $strict     Set this to false to use case-insensitive comparisons.
+     * @param   string          $encoding   The encoding to use.
      * @return  bool
      */
-    public static function contains(string $haystack, $needle, string $encoding = null, bool $all = false, bool $strict = true) : bool
+    public static function contains(string $haystack, $needle, bool $all = false, bool $strict = true, string $encoding = null) : bool
     {
         $func     = $strict ? 'mb_strpos' : 'mb_stripos';
         $encoding = $encoding ?: static::encoding($haystack);
@@ -305,23 +304,6 @@ class Str
     }
 
     /**
-     * Converts the first character in the given string to lower case.
-     *
-     * @param   string  $str        The string to convert.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The converted string.
-     */
-    public static function lcfirst(string $str, string $encoding = null) : string
-    {
-        // Need to check for the existence of the first character to avoid notices.
-        if (isset($str[0])) {
-            $str[0] = mb_strtolower($str[0], $encoding ?: static::encoding($str));
-        }
-
-        return $str;
-    }
-
-    /**
      * Determines the length of a given multibyte string.
      *
      * @param   string  $str        The string to count.
@@ -340,9 +322,26 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string
      */
-    public static function lower(string $str, string $encoding = null) : string
+    public static function lowerCase(string $str, string $encoding = null) : string
     {
         return mb_strtolower($str, $encoding ?: static::encoding($str));
+    }
+
+    /**
+     * Converts the first character in the given string to lower case.
+     *
+     * @param   string  $str        The string to convert.
+     * @param   string  $encoding   The encoding to use.
+     * @return  string              The converted string.
+     */
+    public static function lowerCaseFirst(string $str, string $encoding = null) : string
+    {
+        // Need to check for the existence of the first character to avoid notices.
+        if (isset($str[0])) {
+            $str[0] = mb_strtolower($str[0], $encoding ?: static::encoding($str));
+        }
+
+        return $str;
     }
 
     /**
@@ -459,16 +458,20 @@ class Str
     public static function reverse(string $str, string $encoding = null) : string
     {
         $encoding = $encoding ?: static::encoding($str);
+        $length   = mb_strlen($str, $encoding);
+        $result   = '';
 
-        $length = mb_strlen($str, $encoding);
-        $reversed = '';
-
-        // One char after another, from the end.
-        for ($i = $length - 1; $i >= 0; $i--) {
-            $reversed .= mb_substr($str, $i, 1, $encoding);
+        // Return early under obvious circumstances.
+        if ($length === 0) {
+            return $result;
         }
 
-        return $reversed;
+        // Reverse one character after the other, counting from the end.
+        for ($i = $length - 1; $i >= 0; $i--) {
+            $result .= mb_substr($str, $i, 1, $encoding);
+        }
+
+        return $result;
     }
 
     /**
@@ -481,18 +484,25 @@ class Str
     public static function shuffle(string $str, string $encoding = null) : string
     {
         $encoding = $encoding ?: static::encoding($str);
+        $length   = mb_strlen($str, $encoding);
 
-        $indexes = range(0, mb_strlen($str, $encoding) - 1);
+        // Note: This doesn't actually account for empty strings but considering multibyte
+        // whitespaces we'd basically introduce more overhead in the checks then it is to
+        // simply let the rest run over a set of whitespaces.
+        if ($length === 0) {
+            return $str;
+        }
+
+        $result  = '';
+        $indexes = range(0, $length - 1);
 
         shuffle($indexes);
 
-        $shuffledStr = '';
+        foreach ($indexes as $i) {
+            $result .= mb_substr($str, $i, 1, $encoding);
+        }
 
-        array_map(function ($i) use ($str, &$shuffledStr, $encoding) {
-            $shuffledStr .= mb_substr($str, $i, 1, $encoding);
-        }, $indexes);
-
-        return $shuffledStr;
+        return $result;
     }
 
     /**
@@ -594,6 +604,18 @@ class Str
     }
 
     /**
+     * Converts the given string to title case. The equivalent of ucwords() albeit for multibyte strings.
+     *
+     * @param   string  $str        The string to convert.
+     * @param   string  $encoding   The encoding to use.
+     * @return  string              The converted string.
+     */
+    public static function titleCase(string $str, string $encoding = null) : string
+    {
+        return mb_convert_case($str, MB_CASE_TITLE, $encoding ?: static::encoding($str));
+    }
+
+    /**
      * Transliterates an UTF-8 encoded string to its ASCII equivalent.
      *
      * @param   string  $str    The UTF-8 encoded string to transliterate.
@@ -647,7 +669,7 @@ class Str
             'no'    => false
         ];
 
-        $key = static::lower($str);
+        $key = static::lowerCase($str);
 
         if (isset($map[$key])) {
             return $map[$key];
@@ -714,13 +736,25 @@ class Str
     }
 
     /**
+     * Converts the given string to upper case.
+     *
+     * @param   string  $str        The string to convert.
+     * @param   string  $encoding   The encoding to use.
+     * @return  string
+     */
+    public static function upperCase(string $str, string $encoding = null) : string
+    {
+        return mb_strtoupper($str, $encoding ?: static::encoding($str));
+    }
+
+    /**
      * Converts the first character in the given string to upper case.
      *
      * @param   string  $str        The string to convert.
      * @param   string  $encoding   The encoding to use.
      * @return  string              The converted string.
      */
-    public static function ucfirst(string $str, string $encoding = null) : string
+    public static function upperCaseFirst(string $str, string $encoding = null) : string
     {
         // Need to check for the existence of the first character to avoid notices.
         if (isset($str[0])) {
@@ -728,30 +762,6 @@ class Str
         }
 
         return $str;
-    }
-
-    /**
-     * Converts the given string to title case. The equivalent of ucwords() albeit for multibyte strings.
-     *
-     * @param   string  $str        The string to convert.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The converted string.
-     */
-    public static function ucwords(string $str, string $encoding = null) : string
-    {
-        return mb_convert_case($str, MB_CASE_TITLE, $encoding ?: static::encoding($str));
-    }
-
-    /**
-     * Converts the given string to upper case.
-     *
-     * @param   string  $str        The string to convert.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string
-     */
-    public static function upper(string $str, string $encoding = null) : string
-    {
-        return mb_strtoupper($str, $encoding ?: static::encoding($str));
     }
 
     /**
