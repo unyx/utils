@@ -178,6 +178,25 @@ class Str
     }
 
     /**
+     * Returns an array containing the characters of the given string. Multi-byte safe.
+     *
+     * @param   string  $str        The string to iterate over.
+     * @param   string  $encoding   The encoding to use.
+     * @return  array
+     */
+    public function characters(string $str, string $encoding = null) : array
+    {
+        $result = [];
+        $length = mb_strlen($str, $encoding ?: static::encoding($str));
+
+        for ($idx = 0; $idx < $length; $idx++) {
+            $result[] = static::at($str, $idx);
+        }
+
+        return $result;
+    }
+
+    /**
      * Trims the given string and replaces multiple consecutive whitespaces with a single space.
      *
      * @param   string  $str    The string to clean.
@@ -613,6 +632,14 @@ class Str
     public static function titleCase(string $str, string $encoding = null) : string
     {
         return mb_convert_case($str, MB_CASE_TITLE, $encoding ?: static::encoding($str));
+    }
+
+    /**
+     * Alias for @see Str::characters()
+     */
+    public static function toArray(string $str, string $encoding = null) : array
+    {
+        return static::characters($str, $encoding);
     }
 
     /**
