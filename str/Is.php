@@ -81,4 +81,22 @@ class Is
     {
         return false !== filter_var($str, FILTER_VALIDATE_URL);
     }
+
+    /**
+     * Determines whether the given string is in a valid XML format.
+     *
+     * Note: Requires ext-libxml.
+     *
+     * @param   string  $str    The string to check.
+     * @return  bool
+     */
+    public static function xml(string $str) : bool
+    {
+        $initialSetting = libxml_use_internal_errors();
+        libxml_use_internal_errors(true);
+        $result = simplexml_load_string($str) !== false;
+        libxml_use_internal_errors($initialSetting);
+
+        return $result;
+    }
 }
