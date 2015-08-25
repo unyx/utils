@@ -806,8 +806,10 @@ class Arr
         // Explode the key according to that delimiter.
         $keys = explode($delimiter, $key);
 
-        while ($key = array_shift($keys)) {
-            if (!isset($array[$key]) or !is_array($array[$key])) {
+        while (count($keys) > 1) {
+            $key = array_shift($keys);
+
+            if (!isset($array[$key]) || !is_array($array[$key])) {
                 $array[$key] = [];
             }
 
