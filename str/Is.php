@@ -35,7 +35,7 @@ class Is
      * @param   string  $encoding   The encoding to use.
      * @return  bool
      */
-    public function alphabetic(string $str, string $encoding = null) : bool
+    public static function alphabetic(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:alpha:]]*$', $encoding);
     }
@@ -47,7 +47,7 @@ class Is
      * @param   string  $encoding   The encoding to use.
      * @return  bool
      */
-    public function alphanumeric(string $str, string $encoding = null) : bool
+    public static function alphanumeric(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:alnum:]]*$', $encoding);
     }
@@ -59,7 +59,7 @@ class Is
      * @param   string  $encoding   The encoding to use.
      * @return  bool
      */
-    public function blank(string $str, string $encoding = null) : bool
+    public static function blank(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:space:]]*$', $encoding);
     }
@@ -82,7 +82,7 @@ class Is
      * @param   string  $encoding   The encoding to use.
      * @return  bool
      */
-    public function hexadecimal(string $str, string $encoding = null) : bool
+    public static function hexadecimal(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:xdigit:]]*$', $encoding);
     }
@@ -97,7 +97,7 @@ class Is
      * @param   string  $encoding   The encoding to use.
      * @return  bool
      */
-    public function numeric(string $str, string $encoding = null) : bool
+    public static function numeric(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:digit:]]*$', $encoding);
     }
@@ -133,7 +133,7 @@ class Is
      * @param   string  $encoding   The encoding to use.
      * @return  bool
      */
-    public function lowercase(string $str, string $encoding = null) : bool
+    public static function lowercase(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:lower:]]*$', $encoding);
     }
@@ -156,7 +156,7 @@ class Is
      * @param   string  $encoding   The encoding to use.
      * @return  bool
      */
-    public function uppercase(string $str, string $encoding = null) : bool
+    public static function uppercase(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:upper:]]*$', $encoding);
     }
