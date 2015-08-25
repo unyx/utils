@@ -46,4 +46,17 @@ class Is
     {
         return false !== filter_var($str, FILTER_VALIDATE_IP);
     }
+
+    /**
+     * Determines whether the given string is JSON-encoded.
+     *
+     * @param   string  $str    The string to check.
+     * @return  bool
+     */
+    public static function json(string $str) : bool
+    {
+        json_decode($str);
+
+        return json_last_error() === JSON_ERROR_NONE;
+    }
 }
