@@ -99,4 +99,22 @@ class Is
 
         return $result;
     }
+
+    /**
+     * Checks whether the given string matches the supplied pattern.
+     *
+     * @param   string  $str        The string to match,
+     * @param   string  $pattern    The regexp pattern to match against.
+     * @param   string  $encoding   The encoding to use.
+     * @return  bool                True if the string matches the pattern, false otherwise.
+     */
+    protected static function matchesPattern(string $str, string $pattern, string $encoding = null) : bool
+    {
+        $initialEncoding = mb_regex_encoding();
+        mb_regex_encoding($encoding ?: utils\Str::encoding($str));
+        $result = mb_ereg_match($pattern, $str);
+        mb_regex_encoding($initialEncoding);
+
+        return $result;
+    }
 }
