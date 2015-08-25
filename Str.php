@@ -305,6 +305,7 @@ class Str
      * @param   int     $offset     The offset from which to search. Negative offsets will start the search $offset
      *                              characters from the end of the $haystack. 0-indexed.
      * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   string  $encoding   The encoding to use.
      * @return  int                 The index of the first occurrence if found, -1 otherwise.
      */
     public function indexOf(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
@@ -329,6 +330,7 @@ class Str
      * @param   int     $offset     The offset from which to search. Negative offsets will start the search $offset
      *                              characters from the end of the $haystack. 0-indexed.
      * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   string  $encoding   The encoding to use.
      * @return  int                 The index of the last occurrence if found, -1 otherwise.
      */
     public function indexOfLast(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
@@ -453,6 +455,52 @@ class Str
 
         if (null === $result = preg_replace($map[0], $map[1], $str)) {
             throw new \RuntimeException('Failed to normalize the string ['.$str.'].');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns an array containing the offsets of all occurrences of $needle in $haystack. The offsets
+     * are 0-indexed. If no occurrences could be found, an empty array will be returned.
+     *
+     * To count the number of occurrences of $needle in $haystack, a simple
+     * `count(Str::occurrences($needle, $haystack));` will do the trick.
+     *
+     * @param   string  $haystack           The string to search in.
+     * @param   string  $needle             The substring to search for.
+     * @param   int     $offset             The offset from which to start the search. Can be negative, in which
+     *                                      case this method will start searching for the occurrences $offset
+     *                                      characters from the end of the $haystack.
+     * @param   bool    $strict             Whether to use case-sensitive comparisons. True by default.
+     * @param   string  $encoding           The encoding to use.
+     * @return  array                       An array containing the 0-indexed offsets of all found occurrences
+     *                                      or an empty array if none were found.
+     * @throws  \OutOfBoundsException       When the $offset index is not contained in the input string.
+     */
+    public static function occurrences(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : array
+    {
+        // Early return in obvious circumstances.
+        if ($haystack === '' || $needle === '') {
+            return [];
+        }
+
+        $encoding = $encoding ?: static::encoding($haystack);
+
+        // Make sure the offset given exists within the $haystack.
+        if ((abs($offset) + 1) > mb_strlen($haystack, $encoding)) {
+            throw new \OutOfBoundsException('The requested $offset ['.$offset.'] does not exist within the string ["'.$haystack.'"].');
+        }
+
+        $func   = $strict ? 'mb_strpos' : 'mb_stripos';
+        $result = [];
+
+        while (false !== $offset = $func($haystack, $needle, $offset, $encoding)) {
+            $result[] = $offset;
+
+            // We could count the length of $needle here but just going +1 ensures we don't catch
+            // the same needle again while at the same time we're avoiding the overhead of mb_strlen.
+            $offset++;
         }
 
         return $result;
