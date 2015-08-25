@@ -41,6 +41,18 @@ class Is
     }
 
     /**
+     * Checks whether the string contains *only* whitespace characters.
+     *
+     * @param   string  $str        The string to match,
+     * @param   string  $encoding   The encoding to use.
+     * @return  bool
+     */
+    public function blank(string $str, string $encoding = null) : bool
+    {
+        return static::matchesPattern($str, '^[[:space:]]*$', $encoding);
+    }
+
+    /**
      * Determines whether the given string represents a valid email address.
      *
      * @param   string  $str    The string to check.
