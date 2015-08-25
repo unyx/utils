@@ -353,7 +353,7 @@ class Str
      * @param   string  $encoding           The encoding to use.
      * @return  string                      The resulting string.
      * @throws  \InvalidArgumentException   When trying to insert a substring at a negative index.
-     * @throws  \OutOfRangeException        When trying to insert a substring at an index above the length of the
+     * @throws  \OutOfBoundsException       When trying to insert a substring at an index above the length of the
      *                                      initial string.
      */
     public static function insert(string $str, string $substring, int $index, string $encoding = null) : string
@@ -365,7 +365,7 @@ class Str
         }
 
         if ($index > $length = mb_strlen($str, $encoding)) {
-            throw new \OutOfRangeException('Cannot insert a string at a negative index.');
+            throw new \OutOfBoundsException('Cannot insert a string at a negative index.');
         }
 
         return mb_substr($str, 0, $index, $encoding) . $substring . mb_substr($str, $index, $length, $encoding);
@@ -632,7 +632,7 @@ class Str
      * @param   string    $encoding         The encoding to use.
      * @return  string                      The resulting string.
      * @throws  \InvalidArgumentException   When $length is negative.
-     * @throws  \OutOfRangeException        When the $start index is not contained in the input string.
+     * @throws  \OutOfBoundsException       When the $start index is not contained in the input string.
      */
     public static function sub(string $str, int $start, int $length = null, string $encoding = null) : string
     {
@@ -651,7 +651,7 @@ class Str
         // Check if the absolute starting index (to account for negative indexes) + 1 (since it's 0-indexed
         // while length is > 1 at this point) is within the length of the string.
         if ((abs($start) + 1) > mb_strlen($str, $encoding)) {
-            throw new \OutOfRangeException('The requested $start index ['.$start.'] is not within the string ["'.$str.'"].');
+            throw new \OutOfBoundsException('The requested $start index ['.$start.'] is not within the string ["'.$str.'"].');
         }
 
         return mb_substr($str, $start, $length, $encoding);
