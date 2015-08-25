@@ -70,4 +70,15 @@ class Is
     {
         return !($str !== 'b:0;' && false === $value = @unserialize($str));
     }
+
+    /**
+     * Determines whether the given string represents a valid URL address.
+     *
+     * @param   string  $str    The string to check.
+     * @return  bool
+     */
+    public static function url(string $str) : bool
+    {
+        return false !== filter_var($str, FILTER_VALIDATE_URL);
+    }
 }
