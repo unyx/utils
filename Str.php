@@ -9,9 +9,9 @@ use nyx\core;
  * Helper methods for dealing with strings. The class is based on Laravel, FuelPHP, Patchwork/UTF-8 and a few others.
  * Some minor performance-related improvements were made.
  *
- * Note: Many of the methods can be circumvented by falling back directly to the builtin functions of the mb
+ * Note: Many of the methods can be circumvented by falling back directly to the builtin functions of the mbstring
  * extension as long as you don't need the additional layer of abstraction and feel comfortable managing the
- * encoding on your own.
+ * encoding and input parameter validity on your own.
  *
  * Suggestions:
  *   If you need an instance-based fluent OO wrapper for strings with similar manipulation capabilities. then
@@ -32,6 +32,7 @@ use nyx\core;
  * @link        http://docs.muyo.io/nyx/utils/strings.html
  * @todo        Snake case, camel case, studly caps, dashed, underscored?
  * @todo        Decide on support for Stringable and/or simply loosening the type hints.
+ * @todo        Split contains() into containsAll() and containsAny() to avoid the complexity?
  */
 class Str
 {
@@ -216,7 +217,7 @@ class Str
      *                                      true if at least one of the values is contained within the $haystack.
      * @param   bool            $all        Set this to true to ensure all elements of the $needle array (if provided)
      *                                      are contained within the haystack.
-     * @param   bool            $strict     Set this to false to use case-insensitive comparisons.
+     * @param   bool            $strict     Whether to use case-sensitive comparisons.
      * @param   string          $encoding   The encoding to use.
      * @return  bool
      */
@@ -291,6 +292,54 @@ class Str
     public static function finish(string $str, string $with) : string
     {
         return rtrim($str, $with).$with;
+    }
+
+    /**
+     * Returns the index (0-indexed) of the first occurrence of $needle in the $haystack.
+     *
+     * Important note: Differs from native PHP strpos() in that if the $needle could not be found, it returns -1
+     * instead of false.
+     *
+     * @param   string  $haystack   The string to search in.
+     * @param   string  $needle     The substring to search for.
+     * @param   int     $offset     The offset from which to search. Negative offsets will start the search $offset
+     *                              characters from the end of the $haystack. 0-indexed.
+     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
+     * @return  int                 The index of the first occurrence if found, -1 otherwise.
+     */
+    public function indexOf(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
+    {
+        $func = $strict ? 'mb_strrpos' : 'mb_strripos';
+
+        if (false === $result = $func($haystack, $needle, $offset, $encoding ?: static::encoding($haystack))) {
+            return -1;
+        }
+
+        return $result;
+    }
+    
+    /**
+     * Returns the index (0-indexed) of the last occurrence of $needle in the $haystack.
+     *
+     * Important note: Differs from native PHP strrpos() in that if the $needle could not be found, it returns -1
+     * instead of false.
+     *
+     * @param   string  $haystack   The string to search in.
+     * @param   string  $needle     The substring to search for.
+     * @param   int     $offset     The offset from which to search. Negative offsets will start the search $offset
+     *                              characters from the end of the $haystack. 0-indexed.
+     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
+     * @return  int                 The index of the last occurrence if found, -1 otherwise.
+     */
+    public function indexOfLast(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
+    {
+        $func = $strict ? 'mb_strrpos' : 'mb_strripos';
+
+        if (false === $result = $func($haystack, $needle, $offset, $encoding ?: static::encoding($haystack))) {
+            return -1;
+        }
+
+        return $result;
     }
 
     /**
