@@ -16,6 +16,7 @@ use nyx\utils;
  * @author      Michal Chojnacki <m.chojnacki@muyo.io>
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/strings.html
+ * @todo        Detect HTML (fixed list of tags?)
  */
 class Is
 {
@@ -33,5 +34,16 @@ class Is
     public static function email(string $str) : bool
     {
         return false !== filter_var($str, FILTER_VALIDATE_EMAIL);
+    }
+
+    /**
+     * Determines whether the given string represents a valid IP address.
+     *
+     * @param   string  $str    The string to check.
+     * @return  bool
+     */
+    public static function ip(string $str) : bool
+    {
+        return false !== filter_var($str, FILTER_VALIDATE_IP);
     }
 }
