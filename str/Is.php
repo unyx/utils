@@ -8,6 +8,9 @@ use nyx\utils;
  *
  * Helper methods for detecting the format/contents of a string.
  *
+ * This class should *not* be used for validation, even though you can use it to perform initial detection
+ * of certain types of values in strings.
+ *
  * Suggestions:
  *  - ext-libxml (for detecting XML strings)
  *
@@ -24,6 +27,18 @@ class Is
      * The traits of the Is class.
      */
     use utils\traits\StaticallyExtendable;
+
+    /**
+     * Checks whether the string contains *only* alphanumeric characters.
+     *
+     * @param   string  $str        The string to match,
+     * @param   string  $encoding   The encoding to use.
+     * @return  bool
+     */
+    public function alphanumeric(string $str, string $encoding = null) : bool
+    {
+        return static::matchesPattern($str, '^[[:alnum:]]*$', $encoding);
+    }
 
     /**
      * Determines whether the given string represents a valid email address.
