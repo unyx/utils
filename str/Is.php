@@ -111,6 +111,18 @@ class Is
     }
 
     /**
+     * Checks whether the string contains *only* uppercase characters.
+     *
+     * @param   string  $str        The string to match,
+     * @param   string  $encoding   The encoding to use.
+     * @return  bool
+     */
+    public function upperCase(string $str, string $encoding = null) : bool
+    {
+        return static::matchesPattern($str, '^[[:upper:]]*$', $encoding);
+    }
+
+    /**
      * Determines whether the given string represents a valid URL address.
      *
      * @param   string  $str    The string to check.
