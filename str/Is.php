@@ -29,6 +29,18 @@ class Is
     use utils\traits\StaticallyExtendable;
 
     /**
+     * Checks whether the string contains *only* alphabetic characters.
+     *
+     * @param   string  $str        The string to match,
+     * @param   string  $encoding   The encoding to use.
+     * @return  bool
+     */
+    public function alphabetic(string $str, string $encoding = null) : bool
+    {
+        return static::matchesPattern($str, '^[[:alpha:]]*$', $encoding);
+    }
+
+    /**
      * Checks whether the string contains *only* alphanumeric characters.
      *
      * @param   string  $str        The string to match,
