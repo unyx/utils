@@ -317,7 +317,7 @@ class Str
 
         return $result;
     }
-    
+
     /**
      * Returns the index (0-indexed) of the last occurrence of $needle in the $haystack.
      *
@@ -384,25 +384,25 @@ class Str
     }
 
     /**
-     * Converts the given string to lower case.
+     * Converts the given string to lowercase.
      *
      * @param   string  $str        The string to convert.
      * @param   string  $encoding   The encoding to use.
      * @return  string
      */
-    public static function lowerCase(string $str, string $encoding = null) : string
+    public static function lowercase(string $str, string $encoding = null) : string
     {
         return mb_strtolower($str, $encoding ?: static::encoding($str));
     }
 
     /**
-     * Converts the first character in the given string to lower case.
+     * Converts the first character in the given string to lowercase.
      *
      * @param   string  $str        The string to convert.
      * @param   string  $encoding   The encoding to use.
      * @return  string              The converted string.
      */
-    public static function lowerCaseFirst(string $str, string $encoding = null) : string
+    public static function lowercaseFirst(string $str, string $encoding = null) : string
     {
         // Need to check for the existence of the first character to avoid notices.
         if (isset($str[0])) {
@@ -812,25 +812,25 @@ class Str
     }
 
     /**
-     * Converts the given string to upper case.
+     * Converts the given string to uppercase.
      *
      * @param   string  $str        The string to convert.
      * @param   string  $encoding   The encoding to use.
      * @return  string
      */
-    public static function upperCase(string $str, string $encoding = null) : string
+    public static function uppercase(string $str, string $encoding = null) : string
     {
         return mb_strtoupper($str, $encoding ?: static::encoding($str));
     }
 
     /**
-     * Converts the first character in the given string to upper case.
+     * Converts the first character in the given string to uppercase.
      *
      * @param   string  $str        The string to convert.
      * @param   string  $encoding   The encoding to use.
      * @return  string              The converted string.
      */
-    public static function upperCaseFirst(string $str, string $encoding = null) : string
+    public static function uppercaseFirst(string $str, string $encoding = null) : string
     {
         // Need to check for the existence of the first character to avoid notices.
         if (isset($str[0])) {

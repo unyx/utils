@@ -94,7 +94,7 @@ class Is
      * @param   string  $encoding   The encoding to use.
      * @return  bool
      */
-    public function lowerCase(string $str, string $encoding = null) : bool
+    public function lowercase(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:lower:]]*$', $encoding);
     }
@@ -117,7 +117,7 @@ class Is
      * @param   string  $encoding   The encoding to use.
      * @return  bool
      */
-    public function upperCase(string $str, string $encoding = null) : bool
+    public function uppercase(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:upper:]]*$', $encoding);
     }
