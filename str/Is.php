@@ -88,6 +88,18 @@ class Is
     }
 
     /**
+     * Checks whether the string contains *only* lowercase characters.
+     *
+     * @param   string  $str        The string to match,
+     * @param   string  $encoding   The encoding to use.
+     * @return  bool
+     */
+    public function lowerCase(string $str, string $encoding = null) : bool
+    {
+        return static::matchesPattern($str, '^[[:lower:]]*$', $encoding);
+    }
+
+    /**
      * Determines whether the given string is a serialized representation of a value.
      *
      * @param   string  $str    The string to check.
