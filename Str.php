@@ -517,14 +517,44 @@ class Str
         $encoding = $encoding ?: static::encoding($from);
 
         // This is a non-DRY version of self::startsWith(). If $from doesn't even start
-        // with the given substring, we'll just return $from;
-        if (0 !== mb_strpos($from, $what, 0, $encoding) || 0 === $length = mb_strlen($what, $encoding)) {
+        // with the given substring, we'll just return $from.
+        if (0 !== mb_strpos($from, $what, 0, $encoding) || 0 === $whatLen = mb_strlen($what, $encoding)) {
             return $from;
         }
 
         // Grab a substring of the full initial string starting from the end of the prefix
         // we're cutting off... and return it.
-        return mb_substr($from, $length, null, $encoding);
+        return mb_substr($from, $whatLen, null, $encoding);
+    }
+
+    /**
+     * Removes the given substring from the end (only) of the string. Only the last occurrence of the substring
+     * will be removed. If the string does not end with the specified substring, nothing will be removed.
+     *
+     * @param   string  $from       The string to remove from.
+     * @param   string  $what       The substring to remove from the end.
+     * @param   string  $encoding   The encoding to use.
+     * @return  string              The resulting string.
+     */
+    public function removeRight(string $from, string $what, string $encoding = null) : string
+    {
+        // Early return in obvious circumstances.
+        if ($from === '' || $what === '') {
+            return $from;
+        }
+
+        $encoding = $encoding ?: static::encoding($from);
+        $whatLen  = mb_strlen($what, $encoding);
+
+        // This is a non-DRY version of self::endsFrom(). If $from doesn't even end
+        // with the given substring, we'll just return $from.
+        if (0 === $whatLen || $what !== mb_substr($from, -$whatLen, null, $encoding)) {
+            return $from;
+        }
+
+        // Grab a substring of the full initial string ending at the beginning of the suffix
+        // we're cutting off... and return it.
+        return mb_substr($from, 0, mb_strlen($from, $encoding) - $whatLen, $encoding);
     }
 
     /**
