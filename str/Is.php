@@ -59,4 +59,15 @@ class Is
 
         return json_last_error() === JSON_ERROR_NONE;
     }
+
+    /**
+     * Determines whether the given string is a serialized representation of a value.
+     *
+     * @param   string  $str    The string to check.
+     * @return  bool
+     */
+    public static function serialized(string $str) : bool
+    {
+        return !($str !== 'b:0;' && false === $value = @unserialize($str));
+    }
 }
