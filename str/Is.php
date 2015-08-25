@@ -88,6 +88,21 @@ class Is
     }
 
     /**
+     * Checks whether the string contains *only* numeric characters.
+     *
+     * Note: Basically an encoding-aware alias for is_numeric(). In the vast majority of cases
+     * you should simply stick to is_numeric() for performance reasons.
+     *
+     * @param   string  $str        The string to match,
+     * @param   string  $encoding   The encoding to use.
+     * @return  bool
+     */
+    public function numeric(string $str, string $encoding = null) : bool
+    {
+        return static::matchesPattern($str, '^[[:digit:]]*$', $encoding);
+    }
+
+    /**
      * Determines whether the given string represents a valid IP address.
      *
      * @param   string  $str    The string to check.
