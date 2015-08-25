@@ -486,9 +486,17 @@ class Str
         }
 
         $encoding = $encoding ?: static::encoding($haystack);
+        $length   = mb_strlen($haystack, $encoding);
+
+        // With a negative offset, we'll be starting at $offset characters from the end of $haystack.
+        // mb_strpos does not natively support negative offsets, which is why we're simply converting
+        // the negative one to a positive one.
+        if ($offset < 0) {
+            $offset = $length + $offset;
+        }
 
         // Make sure the offset given exists within the $haystack.
-        if ((abs($offset) + 1) > mb_strlen($haystack, $encoding)) {
+        if ((abs($offset) + 1) > $length) {
             throw new \OutOfBoundsException('The requested $offset ['.$offset.'] does not exist within the string ["'.$haystack.'"].');
         }
 
