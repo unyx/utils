@@ -310,9 +310,14 @@ class Str
      */
     public function indexOf(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
     {
-        $func = $strict ? 'mb_strrpos' : 'mb_strripos';
+        $func     = $strict ? 'mb_strrpos' : 'mb_strripos';
+        $encoding = $encoding ?: static::encoding($haystack);
 
-        if (false === $result = $func($haystack, $needle, $offset, $encoding ?: static::encoding($haystack))) {
+        if ($offset < 0) {
+            $offset = mb_strlen($haystack, $encoding) + $offset;
+        }
+
+        if (false === $result = $func($haystack, $needle, $offset, $encoding)) {
             return -1;
         }
 
@@ -335,9 +340,14 @@ class Str
      */
     public function indexOfLast(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
     {
-        $func = $strict ? 'mb_strrpos' : 'mb_strripos';
+        $func     = $strict ? 'mb_strrpos' : 'mb_strripos';
+        $encoding = $encoding ?: static::encoding($haystack);
 
-        if (false === $result = $func($haystack, $needle, $offset, $encoding ?: static::encoding($haystack))) {
+        if ($offset < 0) {
+            $offset = mb_strlen($haystack, $encoding) + $offset;
+        }
+
+        if (false === $result = $func($haystack, $needle, $offset, $encoding)) {
             return -1;
         }
 
