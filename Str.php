@@ -499,6 +499,35 @@ class Str
     }
 
     /**
+     * Removes the given substring from the beginning (only) of the string. Only the first occurrence of the substring
+     * will be removed. If the string does not start with the specified substring, nothing will be removed.
+     *
+     * @param   string  $from       The string to remove from.
+     * @param   string  $what       The substring to remove from the beginning.
+     * @param   string  $encoding   The encoding to use.
+     * @return  string              The resulting string.
+     */
+    public function removeLeft(string $from, string $what, string $encoding = null) : string
+    {
+        // Early return in obvious circumstances.
+        if ($from === '' || $what === '') {
+            return $from;
+        }
+
+        $encoding = $encoding ?: static::encoding($from);
+
+        // This is a non-DRY version of self::startsWith(). If $from doesn't even start
+        // with the given substring, we'll just return $from;
+        if (0 !== mb_strpos($from, $what, 0, $encoding) || 0 === $length = mb_strlen($what, $encoding)) {
+            return $from;
+        }
+
+        // Grab a substring of the full initial string starting from the end of the prefix
+        // we're cutting off... and return it.
+        return mb_substr($from, $length, null, $encoding);
+    }
+
+    /**
      * Replaces the $what within the given string with the $with.
      *
      * @param   string          $str    The string to remove from.
@@ -540,37 +569,6 @@ class Str
         }
 
         return $result;
-    }
-
-    /**
-     * Removes the given substring from the beginning (only) of the string. If the string does not start
-     * with the specified substring, nothing will be removed.
-     *
-     * Returns the initial string with the substring removed, *not* the removed substring.
-     *
-     * @param   string  $str        The string to remove from.
-     * @param   string  $what       The string to reverse.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The resulting string.
-     */
-    public function shift(string $from, string $what, string $encoding = null) : string
-    {
-        // Early return in obvious circumstances.
-        if ($from === '' || $what === '') {
-            return $from;
-        }
-
-        $encoding = $encoding ?: static::encoding($from);
-
-        // This is a non-DRY version of self::startsWith(). If $from doesn't even start
-        // with the given substring, we'll just return $from;
-        if (0 !== mb_strpos($from, $what, 0, $encoding) || 0 === $length = mb_strlen($what, $encoding)) {
-            return $from;
-        }
-
-        // Grab a substring of the full initial string starting from the end of the prefix
-        // we're cutting off... and return it.
-        return mb_substr($from, $length, null, $encoding);
     }
 
     /**
