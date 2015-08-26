@@ -352,6 +352,30 @@ class Str
     }
 
     /**
+     * Runs the given callable over each character in the given string and returns the resulting string.
+     *
+     * The callable should accept two arguments (in this order): the character (multibyte string)
+     * and the character's index (int). Additional arguments may also be added and will be appended to the
+     * callable in the order given. The callable should return a string or a value castable to a string.
+     *
+     * @param   string      $str        The string over which to run the callable.
+     * @param   callable    $callable   The callable to apply.
+     * @param   mixed       ...$args    Additional arguments to pass to the callable.
+     * @return  string                  The string after applying the callable to each of its characters.
+     */
+    public static function eachCharacter(string $str, callable $callable, ...$args) : string
+    {
+        $result = [];
+        $length = mb_strlen($str);
+
+        for ($idx = 0; $idx < $length; $idx++) {
+            $result[] = (string) call_user_func($callable, mb_substr($str, $idx, 1), $idx, ...$args);
+        }
+
+        return implode('', $result);
+    }
+
+    /**
      * Runs the given callable over each line of the given string and returns the resulting string.
      *
      * The callable should accept two arguments (in this order): the contents of the line (string)
