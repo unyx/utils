@@ -360,20 +360,22 @@ class Str
      *
      * @param   string      $str        The string over which to run the callable.
      * @param   callable    $callable   The callable to apply.
+     * @param   string      $encoding   The encoding to use.
      * @param   mixed       ...$args    Additional arguments to pass to the callable.
      * @return  string                  The string after applying the callable to each of its characters.
      */
-    public static function eachCharacter(string $str, callable $callable, ...$args) : string
+    public static function eachCharacter(string $str, callable $callable, string $encoding = null, ...$args) : string
     {
         if ($str === '') {
             return $str;
         }
 
-        $result = [];
-        $length = mb_strlen($str);
+        $result   = [];
+        $encoding = $encoding ?: static::encoding($str);
+        $length   = mb_strlen($str, $encoding);
 
         for ($idx = 0; $idx < $length; $idx++) {
-            $result[] = (string) call_user_func($callable, mb_substr($str, $idx, 1), $idx, ...$args);
+            $result[] = (string) call_user_func($callable, mb_substr($str, $idx, 1, $encoding), $idx, ...$args);
         }
 
         return implode('', $result);
