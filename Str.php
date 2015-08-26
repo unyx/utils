@@ -159,6 +159,69 @@ class Str
     }
 
     /**
+     * Returns the substring of $haystack between $firstNeedle and $secondNeedle.
+     *
+     * If all you need is to return part of a string when the offsets you are looking for are known,
+     * you should use Str::sub() instead.
+     *
+     * @param   string  $haystack           The string to search in.
+     * @param   string  $firstNeedle        The needle marking the start of the substring to return.
+     * @param   string  $secondNeedle       The needle marking the end of the substring to return.
+     * @param   int     $offset             The 0-based index at which to start the search for the first needle.
+     *                                      Can be negative, in which case the search will start $offset characters
+     *                                      from the end of the $haystack.
+     * @param   bool    $strict             Whether to use strict comparisons when searching for the needles.
+     * @param   string  $encoding           The encoding to use.
+     * @return  string                      The substring between the needles.
+     * @throws  \InvalidArgumentException   When $haystack or either of the needles is an empty string.
+     * @throws  \OutOfBoundsException       Upon failing to find either $firstNeedle or $secondNeedle in $haystack.
+     */
+    public static function between(string $haystack, string $firstNeedle, string $secondNeedle, int $offset = 0, bool $strict = true, string $encoding = null) : string
+    {
+        // Note: We're throwing here because this method will return unpredictable results otherwise.
+        // If you want to omit $firstNeedle or $secondNeedle, turn to self::after(), self::before()
+        // and self::from() instead.
+        // We're not validating input args any further than the below, however, as there are a lot of
+        // error-inducing combinations of invalid input which all will be caught when we attempt
+        // to actually look for the indices of the needles. Anything else is just way too much overhead.
+        if ($haystack === '' || $firstNeedle === '' || $secondNeedle === '') {
+
+            $secondNeedle === '' && $arg = '$secondNeedle';
+            $firstNeedle  === '' && $arg = '$firstNeedle';
+            $haystack     === '' && $arg = '$haystack';
+
+            throw new \InvalidArgumentException($arg.' must not be an empty string.');
+        }
+
+        $encoding = $encoding ?: static::encoding($haystack);
+
+        // mb_strpos does not natively support negative offsets, so we'll add the negative offset
+        // to the length of the $haystack to get the offset from its end.
+        if ($offset < 0) {
+            $offset = mb_strlen($haystack, $encoding) + $offset;
+        }
+
+        $funcIndexOf = $strict ? 'mb_strpos' : 'mb_stripos';
+
+        // Find the offset of the first needle.
+        if (false === $firstIndex = $funcIndexOf($haystack, $firstNeedle, $offset, $encoding)) {
+            throw new \OutOfBoundsException('Failed to find $firstNeedle ['.$firstNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+        }
+
+        // We're going to adjust the offset for the position of the first needle, ie. we're gonna
+        // start searching for the second one right at the end of the first one.
+        $offset = $firstIndex + mb_strlen($firstNeedle, $encoding);
+
+        // Find the offset of the second needle.
+        if (false === $secondIndex = $funcIndexOf($haystack, $secondNeedle, $offset, $encoding)) {
+            throw new \OutOfBoundsException('Failed to find $secondNeedle ['.$secondNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+        }
+
+        // Return the substring between the needles.
+        return mb_substr($haystack, $offset, $secondIndex - $offset);
+    }
+
+    /**
      * Creates a list of characters based on a set of flags (CHARS_* class constants) given.
      *
      * @param   int|core\Mask   $from       The combination of CHARS_* flags (see the class constants) to use. Can be
@@ -223,7 +286,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  array
      */
-    public function characters(string $str, string $encoding = null) : array
+    public static function characters(string $str, string $encoding = null) : array
     {
         $result = [];
         $length = mb_strlen($str, $encoding ?: static::encoding($str));
@@ -362,7 +425,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  int                 The index of the first occurrence if found, -1 otherwise.
      */
-    public function indexOf(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
+    public static function indexOf(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
     {
         $func     = $strict ? 'mb_strrpos' : 'mb_strripos';
         $encoding = $encoding ?: static::encoding($haystack);
@@ -392,7 +455,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  int                 The index of the last occurrence if found, -1 otherwise.
      */
-    public function indexOfLast(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
+    public static function indexOfLast(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
     {
         $func     = $strict ? 'mb_strrpos' : 'mb_strripos';
         $encoding = $encoding ?: static::encoding($haystack);
@@ -629,7 +692,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string              The resulting string.
      */
-    public function removeLeft(string $from, string $what, string $encoding = null) : string
+    public static function removeLeft(string $from, string $what, string $encoding = null) : string
     {
         // Early return in obvious circumstances.
         if ($from === '' || $what === '') {
@@ -658,7 +721,7 @@ class Str
      * @param   string  $encoding   The encoding to use.
      * @return  string              The resulting string.
      */
-    public function removeRight(string $from, string $what, string $encoding = null) : string
+    public static function removeRight(string $from, string $what, string $encoding = null) : string
     {
         // Early return in obvious circumstances.
         if ($from === '' || $what === '') {
