@@ -547,12 +547,10 @@ class Str
      */
     public static function lowercaseFirst(string $str, string $encoding = null) : string
     {
-        // Need to check for the existence of the first character to avoid notices.
-        if (isset($str[0])) {
-            $str[0] = mb_strtolower($str[0], $encoding ?: static::encoding($str));
-        }
+        $encoding = $encoding ?: static::encoding($str);
 
-        return $str;
+        // Lowercase the first character and append the remainder.
+        return mb_strtolower(mb_substr($str, 0, 1, $encoding), $encoding) . mb_substr($str, 1, null, $encoding);
     }
 
     /**
@@ -1103,12 +1101,10 @@ class Str
      */
     public static function uppercaseFirst(string $str, string $encoding = null) : string
     {
-        // Need to check for the existence of the first character to avoid notices.
-        if (isset($str[0])) {
-            $str[0] = mb_strtoupper($str[0], $encoding ?: static::encoding($str));
-        }
+        $encoding = $encoding ?: static::encoding($str);
 
-        return $str;
+        // Uppercase the first character and append the remainder.
+        return mb_strtoupper(mb_substr($str, 0, 1, $encoding), $encoding) . mb_substr($str, 1, null, $encoding);
     }
 
     /**
