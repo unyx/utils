@@ -810,22 +810,18 @@ class Str
      */
     public static function shuffle(string $str, string $encoding = null) : string
     {
-        $encoding = $encoding ?: static::encoding($str);
-        $length   = mb_strlen($str, $encoding);
-
-        // Note: This doesn't actually account for empty strings but considering multibyte
-        // whitespaces we'd basically introduce more overhead in the checks then it is to
-        // simply let the rest run over a set of whitespaces.
-        if ($length === 0) {
+        if ($str === '') {
             return $str;
         }
 
-        $result  = '';
-        $indexes = range(0, $length - 1);
+        $result   = '';
+        $encoding = $encoding ?: static::encoding($str);
+        $length   = mb_strlen($str, $encoding);
+        $indices  = range(0, $length - 1);
 
-        shuffle($indexes);
+        shuffle($indices);
 
-        foreach ($indexes as $i) {
+        foreach ($indices as $i) {
             $result .= mb_substr($str, $i, 1, $encoding);
         }
 
@@ -1046,11 +1042,13 @@ class Str
      * @param   int     $limit              The maximal number of characters to be contained in the string. Must be
      *                                      a positive integer. If 0 is given, an empty string will be returned.
      * @param   string  $end                The replacement.
+     * @param   bool    $preserveWords      Whether to preserve words, ie. allow splitting only on whitespace
+     *                                      characters.
      * @param   string  $encoding           The encoding to use.
      * @return  string                      The resulting string.
      * @throws  \InvalidArgumentException   When $limit is a negative integer.
      */
-    public static function truncate(string $str, int $limit = 100, string $end = '...', string $encoding = null) : string
+    public static function truncate(string $str, int $limit = 100, string $end = '...', bool $preserveWords = false, string $encoding = null) : string
     {
         if ($limit < 0) {
             throw new \InvalidArgumentException('The limit must be a positive integer, but ['.$limit.'] was given.');
@@ -1067,7 +1065,21 @@ class Str
             return $str;
         }
 
-        return mb_substr($str, 0, $limit - mb_strlen($end, $encoding), $encoding).$end;
+        // Determine the final length of the substring of $str we might return.
+        $length = $limit - mb_strlen($end, $encoding);
+
+        // $result = mb_substr($str, 0, $limit - mb_strlen($end, $encoding), $encoding).$end;
+        $result = mb_substr($str, 0, $length, $encoding);
+
+        // If we are to preserve words, see whether the last word got truncated by checking if
+        // the truncated string would've been directly followed by a whitespace or not. If not,
+        // we're going to get the position of the last whitespace in the truncated string and
+        // cut the whole thing off at that offset instead.
+        if (true === $preserveWords && $length !== mb_strpos($str, ' ', $length - 1, $encoding)) {
+            $result = mb_substr($result, 0, mb_strrpos($result, ' ', 0, $encoding), $encoding);
+        }
+
+        return $result;
     }
 
     /**
