@@ -127,7 +127,15 @@ class Str
      */
     public static function at(string $str, int $index, string $encoding = null)
     {
-        return static::sub($str, $index, 1, $encoding);
+        $encoding = $encoding ?: static::encoding($str);
+
+        // Check if the absolute starting index (to account for negative indexes) + 1 (since it's 0-indexed
+        // while length is > 1 at this point) is within the length of the string.
+        if ((abs($index) + 1) > mb_strlen($str, $encoding)) {
+            throw new \OutOfBoundsException('The requested index ['.$index.'] is not within the string ["'.$str.'"].');
+        }
+
+        return mb_substr($str, $index, 1, $encoding);
     }
 
     /**
@@ -292,7 +300,7 @@ class Str
         $length = mb_strlen($str, $encoding ?: static::encoding($str));
 
         for ($idx = 0; $idx < $length; $idx++) {
-            $result[] = static::at($str, $idx);
+            $result[] = mb_substr($str, $idx, 1, $encoding);
         }
 
         return $result;
