@@ -344,6 +344,29 @@ class Str
     }
 
     /**
+     * Runs the given callable over each line of the given string and returns the resulting string.
+     *
+     * The callable should accept two arguments (in this order): the contents of the line (string)
+     * and the line's number (int). Additional arguments may also be added and will be appended to the
+     * callable in the order given. The callable should return a string or a value castable to a string.
+     *
+     * @param   string      $str        The string over which to run the callable.
+     * @param   callable    $callable   The callable to apply.
+     * @param   mixed       ...$args    Additional arguments to pass to the callable.
+     * @return  string                  The string after applying the callable to each of its lines.
+     */
+    public static function eachLine(string $str, callable $callable, ...$args) : string
+    {
+        $lines = mb_split('[\r\n]{1,2}', $str);
+
+        foreach ($lines as $number => &$line) {
+            $lines[$number] = (string) call_user_func($callable, $line, $number, ...$args);
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
      * Attempts to determine the encoding of a string if a string is given. Upon failure/when no string is given,
      * returns the static encoding set in this class or if that is not set, the hardcoded default of 'utf-8'.
      *
