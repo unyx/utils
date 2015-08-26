@@ -58,7 +58,7 @@ class Str
 
     /**
      * @const Special character flag for alphanumeric characters excluding characters which tend
-     *        to be hard to distinguish from each other (@see self::AMBIGUOUS_CHARS).
+     *        to be hard to distinguish from each other.
      */
     const CHARS_LEGIBLE     = 512;
 
@@ -510,6 +510,20 @@ class Str
     public static function length(string $str, string $encoding = null) : int
     {
         return mb_strlen($str, $encoding ?: static::encoding($str));
+    }
+
+    /**
+     * Returns all lines contained in the given string as an array, ie. splits the string on newline characters
+     * into separate strings as items in an array.
+     *
+     * @param   string  $str    The string to split into separate lines.
+     * @param   int     $limit  The maximal number of lines to return. If null, all lines will be returned.
+     * @return  array           An array of all lines contained in $str. An empty array when $str contains
+     *                          no lines.
+     */
+    public static function lines(string $str, int $limit = null) : array
+    {
+        return mb_split('[\r\n]{1,2}', $str, $limit);
     }
 
     /**
