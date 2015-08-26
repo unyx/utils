@@ -97,6 +97,28 @@ class Str
     protected static $ascii;
 
     /**
+     * Finds the first occurrence of $needle within $haystack and returns the part of $haystack
+     * after the $needle (excluding the $needle).
+     *
+     * @param   string  $haystack   The string to search in.
+     * @param   string  $needle     The substring to search for.
+     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   string  $encoding   The encoding to use.
+     * @return  string              The part of $haystack from where $needle starts.
+     * @throws  \RuntimeException   Upon failing to find $needle in $haystack at all.
+     */
+    public static function after(string $haystack, string $needle, bool $strict = true, string $encoding = null) : string
+    {
+        $encoding = $encoding ?: static::encoding($haystack);
+
+        // We're gonna use strstr internally to grab the part of $haystack starting at $needle
+        // and including the $needle, and then simply remove the starting $needle.
+        // Note: Removing 1 from the length of $needle since we're using it as start offset
+        // for mb_substr, and that is 0-indexed.
+        return mb_substr(static::partOf($haystack, $needle, $strict, false, $encoding), mb_strlen($needle, $encoding) - 1);
+    }
+
+    /**
      * Returns the character at the specified $index (0-indexed).
      *
      * @param   int     $index  The requested index. If a negative index is given, this method will return
