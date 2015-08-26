@@ -69,6 +69,14 @@ class Str
     public static $encoding;
 
     /**
+     * @var bool    Whether self::encoding(), used internally by all methods which accept an encoding,
+     *              should attempt to determine the encoding from the string given to it, if it's not
+     *              explicitly specified. Note: This adds (relatively big) overhead to most methods and
+     *              is therefore set to false, since the default of UTF-8 should satisfy most use-cases.
+     */
+    public static $autoDetectEncoding = false;
+
+    /**
      * @var array   A map of CHARS_* flags to their actual character lists. @todo Make writable, handle cache?
      */
     protected static $characterSetsMap = [
@@ -409,16 +417,19 @@ class Str
     }
 
     /**
-     * Attempts to determine the encoding of a string if a string is given. Upon failure/when no string is given,
-     * returns the static encoding set in this class or if that is not set, the hardcoded default of 'utf-8'.
+     * Attempts to determine the encoding of a string if a string is given.
+     *
+     * Upon failure/when no string is given, returns the static encoding set in this class or if that is not set,
+     * the hardcoded default of 'utf-8'.
      *
      * @param   string  $str
      * @return  string
      */
     public static function encoding(string $str = null) : string
     {
-        // If a string was given, we attempt to detect the encoding of the string. If we succeed, just return it.
-        if (null !== $str and false !== $encoding = mb_detect_encoding($str)) {
+        // If a string was given, we attempt to detect the encoding of the string if we are told to do so.
+        // If we succeed, just return the determined type.
+        if (true === static::$autoDetectEncoding && null !== $str && false !== $encoding = mb_detect_encoding($str)) {
             return $encoding;
         }
 
