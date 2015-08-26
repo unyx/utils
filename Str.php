@@ -109,6 +109,29 @@ class Str
     }
 
     /**
+     * Finds the first occurrence of $needle within $haystack and returns the part of $haystack
+     * *before* the $needle.
+     *
+     * @param   string  $haystack   The string to check in.
+     * @param   string  $needle     The substring to search for.
+     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   string  $encoding   The encoding to use.
+     * @return  string              The part of $haystack before $needle.
+     * @throws  \RuntimeException   Upon failing to find $needle in $haystack at all.
+     */
+    public static function before(string $haystack, string $needle, bool $strict = true, string $encoding = null) : string
+    {
+        $func     = $strict ? 'mb_strstr' : 'mb_stristr';
+        $encoding = $encoding ?: static::encoding($haystack);
+
+        if (false === $result = $func($haystack, $needle, true, $encoding)) {
+            throw new \RuntimeException('Failed to find $needle ['.$needle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+        }
+
+        return $result;
+    }
+
+    /**
      * Ensures the given string begins with a single instance of a given substring.
      *
      * @param   string  $str    The string to cap.
@@ -400,7 +423,7 @@ class Str
      *
      * @param   string  $str        The string to convert.
      * @param   string  $encoding   The encoding to use.
-     * @return  string
+     * @return  string              The converted string.
      */
     public static function lowercase(string $str, string $encoding = null) : string
     {
@@ -474,14 +497,16 @@ class Str
      * Returns an array containing the offsets of all occurrences of $needle in $haystack. The offsets
      * are 0-indexed. If no occurrences could be found, an empty array will be returned.
      *
-     * To count the number of occurrences of $needle in $haystack, a simple
-     * `count(Str::occurrences($needle, $haystack));` will do the trick.
+     * If all you need is to count the number of occurrences, mb_substr_count() should be your
+     * function of choice. Str::occurrences() however has got you covered if you need case-(in)sensitivity
+     * or a count from a specific offset. To count the number of occurrences of $needle in $haystack using
+     * this method, a simple `count(Str::occurrences($needle, $haystack));` will do the trick.
      *
      * @param   string  $haystack           The string to search in.
      * @param   string  $needle             The substring to search for.
      * @param   int     $offset             The offset from which to start the search. Can be negative, in which
      *                                      case this method will start searching for the occurrences $offset
-     *                                      characters from the end of the $haystack.
+     *                                      characters from the end of the $haystack. Starts from 0 by default.
      * @param   bool    $strict             Whether to use case-sensitive comparisons. True by default.
      * @param   string  $encoding           The encoding to use.
      * @return  array                       An array containing the 0-indexed offsets of all found occurrences
