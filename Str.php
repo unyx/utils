@@ -121,14 +121,7 @@ class Str
      */
     public static function before(string $haystack, string $needle, bool $strict = true, string $encoding = null) : string
     {
-        $func     = $strict ? 'mb_strstr' : 'mb_stristr';
-        $encoding = $encoding ?: static::encoding($haystack);
-
-        if (false === $result = $func($haystack, $needle, true, $encoding)) {
-            throw new \RuntimeException('Failed to find $needle ['.$needle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
-        }
-
-        return $result;
+        return static::partOf($haystack, $needle, $strict, true, $encoding);
     }
 
     /**
@@ -330,14 +323,7 @@ class Str
      */
     public static function from(string $haystack, string $needle, bool $strict = true, string $encoding = null) : string
     {
-        $func     = $strict ? 'mb_strstr' : 'mb_stristr';
-        $encoding = $encoding ?: static::encoding($haystack);
-
-        if (false === $result = $func($haystack, $needle, false, $encoding)) {
-            throw new \RuntimeException('Failed to find $needle ['.$needle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
-        }
-
-        return $result;
+        return static::partOf($haystack, $needle, $strict, false, $encoding);
     }
 
     /**
@@ -1035,5 +1021,31 @@ class Str
         }
 
         return rtrim($matches[0]).$end;
+    }
+
+    /**
+     * Finds the first occurrence of $needle within $haystack and returns the part of $haystack
+     * before up to the beginning of the $needle or from the beginning of the $needle and including it,
+     * depending on whether $before is true or false.
+     *
+     * @param   string  $haystack   The string to search in.
+     * @param   string  $needle     The substring to search for.
+     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   bool    $before     Whether to return the part of $haystack before $needle or part of
+     *                              $haystack starting at $needle and including $needle.
+     * @param   string  $encoding   The encoding to use.
+     * @return  string              The part of $haystack before $needle.
+     * @throws  \RuntimeException   Upon failing to find $needle in $haystack at all.
+     */
+    protected static function partOf(string $haystack, string $needle, bool $strict, bool $before, string $encoding = null) : string
+    {
+        $func     = $strict ? 'mb_strstr' : 'mb_stristr';
+        $encoding = $encoding ?: static::encoding($haystack);
+
+        if (false === $result = $func($haystack, $needle, $before, $encoding)) {
+            throw new \RuntimeException('Failed to find $needle ['.$needle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+        }
+
+        return $result;
     }
 }
