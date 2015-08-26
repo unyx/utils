@@ -112,7 +112,7 @@ class Str
      * Finds the first occurrence of $needle within $haystack and returns the part of $haystack
      * *before* the $needle.
      *
-     * @param   string  $haystack   The string to check in.
+     * @param   string  $haystack   The string to search in.
      * @param   string  $needle     The substring to search for.
      * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
      * @param   string  $encoding   The encoding to use.
@@ -315,6 +315,29 @@ class Str
     public static function finish(string $str, string $with) : string
     {
         return rtrim($str, $with).$with;
+    }
+
+    /**
+     * Finds the first occurrence of $needle within $haystack and returns the part of $haystack
+     * starting where the $needle starts (ie. including the $needle).
+     *
+     * @param   string  $haystack   The string to search in.
+     * @param   string  $needle     The substring to search for.
+     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   string  $encoding   The encoding to use.
+     * @return  string              The part of $haystack from where $needle starts.
+     * @throws  \RuntimeException   Upon failing to find $needle in $haystack at all.
+     */
+    public static function from(string $haystack, string $needle, bool $strict = true, string $encoding = null) : string
+    {
+        $func     = $strict ? 'mb_strstr' : 'mb_stristr';
+        $encoding = $encoding ?: static::encoding($haystack);
+
+        if (false === $result = $func($haystack, $needle, false, $encoding)) {
+            throw new \RuntimeException('Failed to find $needle ['.$needle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+        }
+
+        return $result;
     }
 
     /**
