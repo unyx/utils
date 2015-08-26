@@ -365,6 +365,10 @@ class Str
      */
     public static function eachCharacter(string $str, callable $callable, ...$args) : string
     {
+        if ($str === '') {
+            return $str;
+        }
+
         $result = [];
         $length = mb_strlen($str);
 
@@ -389,6 +393,10 @@ class Str
      */
     public static function eachLine(string $str, callable $callable, ...$args) : string
     {
+        if ($str === '') {
+            return $str;
+        }
+
         $lines = mb_split('[\r\n]{1,2}', $str);
 
         foreach ($lines as $number => &$line) {
