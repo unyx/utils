@@ -145,4 +145,42 @@ class Character
         // flag set given so we can avoid the loops later on for the exact same mask.
         return static::$setsBuilt[$from] = count_chars($result, 3);
     }
+
+    /**
+     * Returns the decimal code representation of the given character. Multi-byte safe.
+     *
+     * @param   string  $character    The character to represent.
+     * @return  int
+     */
+    public static function toDecimalCode(string $character) : int
+    {
+        $code = ord($character[0]);
+
+        // Single byte / 0xxxxxxx
+        if (!($code & 0x80)) {
+            return $code;
+        }
+
+        $bytes = 1;
+
+        // 2 bytes / 110xxxxx
+        if (0xc0 === ($code & 0xe0)) {
+            $code  = $code & ~0xc0;
+            $bytes = 2;
+        // 3 bytes / 1110xxxx
+        } elseif (0xe0 === ($code & 0xf0)) {
+            $code  = $code & ~0xe0;
+            $bytes = 3;
+        // 4 bytes / 11110xxx
+        } elseif (0xf0 === ($code & 0xf8)) {
+            $code  = $code & ~0xf0;
+            $bytes = 4;
+        }
+
+        for ($i = 2; $i <= $bytes; $i++) {
+            $code = ($code << 6) + (ord($character[$i - 1]) & ~0x80);
+        }
+
+        return $code;
+    }
 }
