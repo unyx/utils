@@ -39,7 +39,7 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([6, 12], Str::occurrences($source, 'foobar', -12));
 
         // Start at an offset not within the $source
-        $this->setExpectedException('OutOfBoundsException', 'The requested $offset [100]');
+        $this->setExpectedException('OutOfBoundsException', 'The given $offset [100]');
         Str::occurrences($source, 'foobar', 100);
     }
 }

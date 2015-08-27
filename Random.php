@@ -252,26 +252,26 @@ class Random
      * @param   int         $length         The expected length of the generated string.
      * @param   string|int  $characters     The character list to use. Can be either a string
      *                                      with the characters to use or an int | nyx\core\Mask
-     *                                      to generate a list (@see utils\Str::buildCharacterSet()).
+     *                                      to generate a list (@see utils\str\Character::buildSet()).
      *                                      If not provided or an invalid mask, the method will fall
-     *                                      back to the Base64 charset.
+     *                                      back to the Base64 character set.
      * @param   int         $strength       The requested strength of entropy (one of the STRENGTH_* class constants)
      * @return  float                       The generated string.
      * @throws  \InvalidArgumentException   When a expected length smaller than 1 was given.
      */
-    public static function string(int $length = 8, $characters = Str::CHARS_BASE64, int $strength = self::STRENGTH_MEDIUM) : string
+    public static function string(int $length = 8, $characters = str\Character::CHARS_BASE64, int $strength = self::STRENGTH_MEDIUM) : string
     {
         if ($length < 1) {
             throw new \InvalidArgumentException('The expected length of the generated string must be at least 1.');
         }
 
         if (is_int($characters) || $characters instanceof core\Mask) {
-            $characters = Str::buildCharacterSet($characters);
+            $characters = str\Character::buildSet($characters);
         }
 
         // Fall back to the Base64 character set if necessary.
         if (empty($characters)) {
-            $characters = Str::buildCharacterSet(Str::CHARS_BASE64);
+            $characters = str\Character::buildSet(str\Character::CHARS_BASE64);
         }
 
         // If only a single character was given...
