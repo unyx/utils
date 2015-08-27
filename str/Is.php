@@ -31,8 +31,8 @@ class Is
     /**
      * Checks whether the string contains *only* alphabetic characters.
      *
-     * @param   string  $str        The string to match,
-     * @param   string  $encoding   The encoding to use.
+     * @param   string      $str        The string to match,
+     * @param   string|null $encoding   The encoding to use.
      * @return  bool
      */
     public static function alphabetic(string $str, string $encoding = null) : bool
@@ -43,8 +43,8 @@ class Is
     /**
      * Checks whether the string contains *only* alphanumeric characters.
      *
-     * @param   string  $str        The string to match,
-     * @param   string  $encoding   The encoding to use.
+     * @param   string  $str            The string to match,
+     * @param   string|null $encoding   The encoding to use.
      * @return  bool
      */
     public static function alphanumeric(string $str, string $encoding = null) : bool
@@ -55,8 +55,8 @@ class Is
     /**
      * Checks whether the string contains *only* whitespace characters.
      *
-     * @param   string  $str        The string to match,
-     * @param   string  $encoding   The encoding to use.
+     * @param   string  $str            The string to match,
+     * @param   string|null $encoding   The encoding to use.
      * @return  bool
      */
     public static function blank(string $str, string $encoding = null) : bool
@@ -78,8 +78,8 @@ class Is
     /**
      * Checks whether the string contains *only* hexadecimal characters.
      *
-     * @param   string  $str        The string to match,
-     * @param   string  $encoding   The encoding to use.
+     * @param   string  $str            The string to match,
+     * @param   string|null $encoding   The encoding to use.
      * @return  bool
      */
     public static function hexadecimal(string $str, string $encoding = null) : bool
@@ -93,8 +93,8 @@ class Is
      * Note: Basically an encoding-aware alias for is_numeric(). In the vast majority of cases
      * you should simply stick to is_numeric() for performance reasons.
      *
-     * @param   string  $str        The string to match,
-     * @param   string  $encoding   The encoding to use.
+     * @param   string      $str        The string to match,
+     * @param   string|null $encoding   The encoding to use.
      * @return  bool
      */
     public static function numeric(string $str, string $encoding = null) : bool
@@ -129,8 +129,8 @@ class Is
     /**
      * Checks whether the string contains *only* lowercase characters.
      *
-     * @param   string  $str        The string to match,
-     * @param   string  $encoding   The encoding to use.
+     * @param   string  $str            The string to match,
+     * @param   string|null $encoding   The encoding to use.
      * @return  bool
      */
     public static function lowercase(string $str, string $encoding = null) : bool
@@ -146,14 +146,14 @@ class Is
      */
     public static function serialized(string $str) : bool
     {
-        return !($str !== 'b:0;' && false === $value = @unserialize($str));
+        return $str === 'b:0;' || false !== @unserialize($str);
     }
 
     /**
      * Checks whether the string contains *only* uppercase characters.
      *
-     * @param   string  $str        The string to match,
-     * @param   string  $encoding   The encoding to use.
+     * @param   string  $str            The string to match,
+     * @param   string|null $encoding   The encoding to use.
      * @return  bool
      */
     public static function uppercase(string $str, string $encoding = null) : bool
@@ -191,18 +191,18 @@ class Is
     }
 
     /**
-     * Checks whether the given string matches the supplied pattern.
+     * Checks whether the given string matches the given pattern.
      *
-     * @param   string  $str        The string to match,
-     * @param   string  $pattern    The regexp pattern to match against.
-     * @param   string  $encoding   The encoding to use.
-     * @return  bool                True if the string matches the pattern, false otherwise.
+     * @param   string  $haystack       The string to match,
+     * @param   string  $pattern        The regexp pattern to match against.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  bool                    True if the string matches the pattern, false otherwise.
      */
-    protected static function matchesPattern(string $str, string $pattern, string $encoding = null) : bool
+    protected static function matchesPattern(string $haystack, string $pattern, string $encoding = null) : bool
     {
         $initialEncoding = mb_regex_encoding();
-        mb_regex_encoding($encoding ?: utils\Str::encoding($str));
-        $result = mb_ereg_match($pattern, $str);
+        mb_regex_encoding($encoding ?: utils\Str::encoding($haystack));
+        $result = mb_ereg_match($pattern, $haystack);
         mb_regex_encoding($initialEncoding);
 
         return $result;

@@ -33,6 +33,7 @@ use nyx\core;
  * @todo        Snake case, camel case, studly caps, dashed, underscored?
  * @todo        Decide on support for Stringable and/or simply loosening the type hints.
  * @todo        Add pad(), padLeft(), padRight().
+ * @todo        Add afterFirst/Last, beforeFirst/Last instead of the current after/before?
  */
 class Str
 {
