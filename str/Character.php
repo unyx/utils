@@ -29,10 +29,10 @@ class Character
     const CHARS_LOWER       = 2;   // Lowercase letters.
     const CHARS_ALPHA       = 3;   // CHARS_UPPER and CHARS_LOWER.
     const CHARS_NUMERIC     = 4;   // Digits.
-    const CHARS_ALPHANUM    = 7;   // CHARS_ALPHA and CHARS_NUMERIC.
+    const CHARS_ALNUM       = 7;   // CHARS_ALPHA and CHARS_NUMERIC (Base62)
     const CHARS_HEX_UPPER   = 12;  // Uppercase hexadecimal symbols - CHARS_DIGITS and 8.
     const CHARS_HEX_LOWER   = 20;  // Lowercase hexadecimal symbols - CHARS_DIGITS and 16.
-    const CHARS_BASE64      = 39;  // CHARS_ALPHANUM and 32.
+    const CHARS_BASE64      = 39;  // CHARS_ALNUM and 32.
     const CHARS_SYMBOLS     = 64;  // Additional symbols ($%& etc.) accessible on most if not all keyboards.
     const CHARS_BRACKETS    = 128; // Brackets.
     const CHARS_PUNCTUATION = 256; // Punctuation marks.
@@ -112,7 +112,7 @@ class Character
         // If all we get is the ambiguous exclusion flag, we need a base set of characters
         // to work with (an exclude from).
         if ($mask === self::CHARS_LEGIBLE) {
-            $mask |= self::CHARS_ALPHANUM;
+            $mask |= self::CHARS_ALNUM;
         }
 
         // Return a cached set if we've got one. Can't do this before the check for CHARS_LEGIBLE
