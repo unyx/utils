@@ -91,35 +91,35 @@ class Character
     /**
      * Creates a list of characters based on a set of flags (CHARS_* class constants) given.
      *
-     * @param   int|core\Mask   $from       The combination of CHARS_* flags (see the class constants) to use. Can be
+     * @param   int|core\Mask   $mask       The combination of CHARS_* flags (see the class constants) to use. Can be
      *                                      passed in either as an integer or as an instance of nyx\core\Mask.
      * @return  string                      The resulting list of characters.
-     * @throws  \InvalidArgumentException   When an invalid $from mask was given.
+     * @throws  \InvalidArgumentException   When an invalid $from mask was given or the supposed bitmask is <= 0.
      */
-    public static function buildSet($from) : string
+    public static function buildSet($mask) : string
     {
         // Unpack the actual mask if we got a core\Mask (builder) instance.
-        if ($from instanceof core\Mask) {
-            $from = $from->get();
-        } else if (!is_int($from)) {
-            throw new \InvalidArgumentException('Expected an integer or an instance of \nyx\core\Mask, got ['.gettype($from).'] instead.');
+        if ($mask instanceof core\Mask) {
+            $mask = $mask->get();
+        } else if (!is_int($mask)) {
+            throw new \InvalidArgumentException('Expected an integer or an instance of \nyx\core\Mask, got ['.gettype($mask).'] instead.');
         }
 
-        if ($from <= 0) {
-            return '';
+        if ($mask <= 0) {
+            throw new \InvalidArgumentException('Expected a bitmask, got an integer with a value of ['.$mask.'] instead.');
         }
 
         // If all we get is the ambiguous exclusion flag, we need a base set of characters
         // to work with (an exclude from).
-        if ($from === self::CHARS_LEGIBLE) {
-            $from |= self::CHARS_ALPHANUM;
+        if ($mask === self::CHARS_LEGIBLE) {
+            $mask |= self::CHARS_ALPHANUM;
         }
 
         // Return a cached set if we've got one. Can't do this before the check for CHARS_LEGIBLE
         // above as the flag for alphanumeric chars gets applied to them first regardless of user given
         // params.
-        if (isset(static::$setsBuilt[$from])) {
-            return static::$setsBuilt[$from];
+        if (isset(static::$setsBuilt[$mask])) {
+            return static::$setsBuilt[$mask];
         }
 
         $result = '';
@@ -131,19 +131,19 @@ class Character
                 continue;
             }
 
-            if (($from & $flag) === $flag) {
+            if (($mask & $flag) === $flag) {
                 $result .= $characters;
             }
         }
 
         // Remove all known ambiguous characters from the set, if CHARS_LEGIBLE is set.
-        if ($from & self::CHARS_LEGIBLE) {
+        if ($mask & self::CHARS_LEGIBLE) {
             $result = str_replace(str_split(static::$setsMap[self::CHARS_LEGIBLE]), '', $result);
         }
 
         // In mode 3 count_chars() returns only unique characters. Cache the result for the
         // flag set given so we can avoid the loops later on for the exact same mask.
-        return static::$setsBuilt[$from] = count_chars($result, 3);
+        return static::$setsBuilt[$mask] = count_chars($result, 3);
     }
 
     /**
