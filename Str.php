@@ -465,26 +465,78 @@ class Str
     }
 
     /**
-     * Determines if the given string ends with the given needle or one of the given needles if an array
-     * of needles is provided. The comparison is case sensitive.
+     * Determines whether the given $haystack ends with the given needle or one of the given needles
+     * if $needles is an array.
      *
      * @param   string          $haystack   The string to search in.
      * @param   string|array    $needles    The needle(s) to look for.
-     * @param   string          $encoding   The encoding to use.
+     * @param   bool            $strict     Whether to use case-sensitive comparisons.
+     * @param   string|null     $encoding   The encoding to use.
      * @return  bool                        True when the string ends with one of the given needles, false otherwise.
      */
-    public static function endsWith(string $haystack, $needles, string $encoding = null) : bool
+    public static function endsWith(string $haystack, $needles, bool $strict = true, string $encoding = null) : bool
     {
+        if ($haystack === '') {
+            return false;
+        }
+
         $encoding = $encoding ?: static::encoding($haystack);
 
         foreach ((array) $needles as $needle) {
-            if ($needle != '' and $needle === mb_substr($haystack, -mb_strlen($needle, $encoding), $encoding)) {
+
+            // Empty needles are invalid. For philosophical reasons.
+            if ($needle === '') {
+                continue;
+            }
+
+            // Grab the substring of the haystack at an offset $needle would be at if the haystack
+            // ended with it.
+            $end = mb_substr($haystack, -mb_strlen($needle, $encoding), null, $encoding);
+
+            // For case-insensitive comparisons we need a common denominator.
+            if (!$strict) {
+                $needle = mb_strtolower($needle, $encoding);
+                $end    = mb_strtolower($end, $encoding);
+            }
+
+            // Stop looping on the first hit. Obviously we're not checking whether the $haystack
+            // ends with *all* $needles, d'oh.
+            if ($needle === $end) {
                 return true;
             }
         }
 
         return false;
     }
+
+    /**
+     * Determines whether the given $haystack starts with the given needle or one of the given needles
+     * if $needles is an array.
+     *
+     * @param   string          $haystack   The string to search in.
+     * @param   string|array    $needles    The needle(s) to look for.
+     * @param   bool            $strict     Whether to use case-sensitive comparisons.
+     * @param   string|null     $encoding   The encoding to use.
+     * @return  bool                        True when the string starts with one of the given needles, false otherwise.
+     */
+    public static function startsWith(string $haystack, $needles, bool $strict = true, string $encoding = null) : bool
+    {
+        if ($haystack === '') {
+            return false;
+        }
+
+        $encoding = $encoding ?: static::encoding($haystack);
+        $func     = $strict ? 'mb_strpos' : 'mb_stripos';
+
+        foreach ((array) $needles as $needle) {
+            if ($needle !== '' && 0 === $func($haystack, $needle, 0, $encoding)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     /**
      * Ensures the given string ends with a single instance of a given substring.
