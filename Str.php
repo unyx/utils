@@ -172,7 +172,7 @@ class Str
      * @param   string  $needle     The substring to begin with.
      * @return  string              The resulting string.
      */
-    public static function begin(string $haystack, string $needle) : string
+    public static function beginWith(string $haystack, string $needle) : string
     {
         return $needle . preg_replace('/^(?:'.preg_quote($needle, '/').')+/', '', $haystack);
     }
@@ -517,7 +517,7 @@ class Str
      * @param   string  $needle     The substring to end with.
      * @return  string              The resulting string.
      */
-    public static function finish(string $haystack, string $needle) : string
+    public static function finishWith(string $haystack, string $needle) : string
     {
         return preg_replace('/(?:'.preg_quote($needle, '/').')+$/', '', $haystack) . $needle;
     }
@@ -1059,9 +1059,9 @@ class Str
      * @param   string  $needle     The substring to surround the string with.
      * @return  string              The resulting string.
      */
-    public static function surround(string $haystack, string $needle) : string
+    public static function surroundWith(string $haystack, string $needle) : string
     {
-        return static::begin($haystack, $needle) . $needle . static::finish($haystack, $needle);
+        return static::beginWith($haystack, $needle) . $needle . static::finishWith($haystack, $needle);
     }
 
     /**
