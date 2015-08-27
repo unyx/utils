@@ -147,6 +147,24 @@ class Character
     }
 
     /**
+     * Returns the binary string representation of the given character. Multi-byte safe.
+     *
+     * @param   string  $character    The character to represent.
+     * @return  string
+     */
+    public static function toBinaryString(string $character) : string
+    {
+        $result = null;
+        $length = strlen($character); // Note: We want the raw length, not the mb length.
+
+        for ($i = 0; $i < $length; ++$i) {
+            $result .= sprintf('%08b', ord($character[$i]));
+        }
+
+        return $result;
+    }
+
+    /**
      * Returns the decimal code representation of the given character. Multi-byte safe.
      *
      * @param   string  $character    The character to represent.
