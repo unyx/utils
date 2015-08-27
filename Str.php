@@ -598,40 +598,42 @@ class Str
     }
 
     /**
-     * Inserts the given substring into the string at the provided index.
+     * Inserts the given substring into the string at the provided offset.
      *
-     * @param   string  $str                The string to insert into.
-     * @param   string  $substring          The string to be inserted.
-     * @param   int     $index              The index at which to insert the substring (>= 0). Can be 0, but you're
-     *                                      introducing needless overhead over simply prepending your string if you
-     *                                      do that.
-     * @param   string  $encoding           The encoding to use.
+     * @param   string      $str            The string to insert into.
+     * @param   string      $substring      The string to be inserted.
+     * @param   int         $offset         The offset at which to insert the substring. If negative, the $substring
+     *                                      will be inserted $offset characters from the end of $str.
+     * @param   string|null $encoding       The encoding to use.
      * @return  string                      The resulting string.
-     * @throws  \InvalidArgumentException   When trying to insert a substring at a negative index.
      * @throws  \OutOfBoundsException       When trying to insert a substring at an index above the length of the
      *                                      initial string.
      */
-    public static function insert(string $str, string $substring, int $index, string $encoding = null) : string
+    public static function insert(string $str, string $substring, int $offset, string $encoding = null) : string
     {
+        if ($substring === '') {
+            return $str;
+        }
+
         $encoding = $encoding ?: static::encoding($str);
+        $length   = mb_strlen($str, $encoding);
 
-        if ($index < 0) {
-            throw new \InvalidArgumentException('Cannot insert a string at a negative index.');
+        // Make sure the offset is contained in the initial string.
+        if (abs($offset) >= $length) {
+            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($str, 20, '...', $encoding).'].');
         }
 
-        if ($index > $length = mb_strlen($str, $encoding)) {
-            throw new \OutOfBoundsException('Cannot insert a string at a negative index.');
-        }
-
-        return mb_substr($str, 0, $index, $encoding) . $substring . mb_substr($str, $index, $length, $encoding);
+        // With a negative offset, we'll convert it to a positive one for the initial part (before the inserted
+        // substring), since we'll be using that as a length actually.
+        return mb_substr($str, 0, $offset < 0 ? $length + $offset : $offset, $encoding) . $substring . mb_substr($str, $offset, null, $encoding);
     }
 
     /**
-     * Determines the length of a given multibyte string.
+     * Determines the length of a given string. Counts multibyte characters as single characters.
      *
-     * @param   string  $str        The string to count.
+     * @param   string  $str        The string to count characters in.
      * @param   string  $encoding   The encoding to use.
-     * @return  int                 The character count.
+     * @return  int                 The length of the string.
      */
     public static function length(string $str, string $encoding = null) : int
     {
@@ -763,8 +765,8 @@ class Str
         }
 
         // Make sure the offset given exists within the $haystack.
-        if ((abs($offset) + 1) > $length) {
-            throw new \OutOfBoundsException('The requested $offset ['.$offset.'] does not exist within the string ["'.$haystack.'"].');
+        if (abs($offset) >= $length) {
+            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', $encoding).'].');
         }
 
         $func   = $strict ? 'mb_strpos' : 'mb_stripos';
