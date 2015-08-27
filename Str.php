@@ -510,35 +510,6 @@ class Str
     }
 
     /**
-     * Determines whether the given $haystack starts with the given needle or one of the given needles
-     * if $needles is an array.
-     *
-     * @param   string          $haystack   The string to search in.
-     * @param   string|array    $needles    The needle(s) to look for.
-     * @param   bool            $strict     Whether to use case-sensitive comparisons.
-     * @param   string|null     $encoding   The encoding to use.
-     * @return  bool                        True when the string starts with one of the given needles, false otherwise.
-     */
-    public static function startsWith(string $haystack, $needles, bool $strict = true, string $encoding = null) : bool
-    {
-        if ($haystack === '') {
-            return false;
-        }
-
-        $encoding = $encoding ?: static::encoding($haystack);
-        $func     = $strict ? 'mb_strpos' : 'mb_stripos';
-
-        foreach ((array) $needles as $needle) {
-            if ($needle !== '' && 0 === $func($haystack, $needle, 0, $encoding)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
-    /**
      * Ensures the given string ends with a single instance of a given substring.
      *
      * @param   string  $str    The string to cap.
