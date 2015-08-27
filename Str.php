@@ -108,12 +108,12 @@ class Str
      * Finds the first occurrence of $needle within $haystack and returns the part of $haystack
      * after the $needle (excluding the $needle).
      *
-     * @param   string  $haystack   The string to search in.
-     * @param   string  $needle     The substring to search for.
-     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The part of $haystack from where $needle starts.
-     * @throws  \RuntimeException   Upon failing to find $needle in $haystack at all.
+     * @param   string      $haystack   The string to search in.
+     * @param   string      $needle     The substring to search for.
+     * @param   bool        $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The part of $haystack after $needle.
+     * @throws  \RuntimeException       Upon failing to find $needle in $haystack at all.
      */
     public static function after(string $haystack, string $needle, bool $strict = true, string $encoding = null) : string
     {
@@ -127,35 +127,37 @@ class Str
     }
 
     /**
-     * Returns the character at the specified $index (0-indexed).
+     * Returns the character at the specified $offset (0-indexed) in $haystack.
      *
-     * @param   int     $index  The requested index. If a negative index is given, this method will return
-     *                          the $index-th character counting from the end of the string.
-     * @return  string          The character at the specified $index.
+     * @param   string      $haystack   The string to search in.
+     * @param   int         $offset     The requested index. If a negative index is given, this method will return
+     *                                  the $offset-th character counting from the end of the string.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The character at the specified $index.
      */
-    public static function at(string $str, int $index, string $encoding = null)
+    public static function at(string $haystack, int $offset, string $encoding = null) : string
     {
-        $encoding = $encoding ?: static::encoding($str);
+        $encoding = $encoding ?: static::encoding($haystack);
 
         // Check if the absolute starting index (to account for negative indexes) + 1 (since it's 0-indexed
         // while length is > 1 at this point) is within the length of the string.
-        if ((abs($index) + 1) > mb_strlen($str, $encoding)) {
-            throw new \OutOfBoundsException('The requested index ['.$index.'] is not within the string ["'.$str.'"].');
+        if (abs($offset) >= mb_strlen($haystack, $encoding)) {
+            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', $encoding).'].');
         }
 
-        return mb_substr($str, $index, 1, $encoding);
+        return mb_substr($haystack, $offset, 1, $encoding);
     }
 
     /**
      * Finds the first occurrence of $needle within $haystack and returns the part of $haystack
      * *before* the $needle.
      *
-     * @param   string  $haystack   The string to search in.
-     * @param   string  $needle     The substring to search for.
-     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The part of $haystack before $needle.
-     * @throws  \RuntimeException   Upon failing to find $needle in $haystack at all.
+     * @param   string      $haystack   The string to search in.
+     * @param   string      $needle     The substring to search for.
+     * @param   bool        $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The part of $haystack before $needle.
+     * @throws  \RuntimeException       Upon failing to find $needle in $haystack at all.
      */
     public static function before(string $haystack, string $needle, bool $strict = true, string $encoding = null) : string
     {
@@ -181,19 +183,19 @@ class Str
      * If all you need is to return part of a string when the offsets you are looking for are known,
      * you should use Str::sub() instead.
      *
-     * @param   string  $haystack           The string to search in.
-     * @param   string  $firstNeedle        The needle marking the start of the substring to return.
-     * @param   string  $secondNeedle       The needle marking the end of the substring to return.
-     * @param   int     $offset             The 0-based index at which to start the search for the first needle.
+     * @param   string      $haystack       The string to search in.
+     * @param   string      $startNeedle    The needle marking the start of the substring to return.
+     * @param   string      $endNeedle      The needle marking the end of the substring to return.
+     * @param   int         $offset         The 0-based index at which to start the search for the first needle.
      *                                      Can be negative, in which case the search will start $offset characters
      *                                      from the end of the $haystack.
-     * @param   bool    $strict             Whether to use strict comparisons when searching for the needles.
-     * @param   string  $encoding           The encoding to use.
+     * @param   bool        $strict         Whether to use strict comparisons when searching for the needles.
+     * @param   string|null $encoding       The encoding to use.
      * @return  string                      The substring between the needles.
      * @throws  \InvalidArgumentException   When $haystack or either of the needles is an empty string.
-     * @throws  \OutOfBoundsException       Upon failing to find either $firstNeedle or $secondNeedle in $haystack.
+     * @throws  \OutOfBoundsException       Upon failing to find either $startNeedle or $endNeedle in $haystack.
      */
-    public static function between(string $haystack, string $firstNeedle, string $secondNeedle, int $offset = 0, bool $strict = true, string $encoding = null) : string
+    public static function between(string $haystack, string $startNeedle, string $endNeedle, int $offset = 0, bool $strict = true, string $encoding = null) : string
     {
         // Note: We're throwing here because this method will return unpredictable results otherwise.
         // If you want to omit $firstNeedle or $secondNeedle, turn to self::after(), self::before()
@@ -201,11 +203,10 @@ class Str
         // We're not validating input args any further than the below, however, as there are a lot of
         // error-inducing combinations of invalid input which all will be caught when we attempt
         // to actually look for the indices of the needles. Anything else is just way too much overhead.
-        if ($haystack === '' || $firstNeedle === '' || $secondNeedle === '') {
-
-            $secondNeedle === '' && $arg = '$secondNeedle';
-            $firstNeedle  === '' && $arg = '$firstNeedle';
-            $haystack     === '' && $arg = '$haystack';
+        if ($haystack === '' || $startNeedle === '' || $endNeedle === '') {
+            $endNeedle   === '' && $arg = '$endNeedle';
+            $startNeedle === '' && $arg = '$startNeedle';
+            $haystack    === '' && $arg = '$haystack';
 
             throw new \InvalidArgumentException($arg.' must not be an empty string.');
         }
@@ -221,17 +222,17 @@ class Str
         $funcIndexOf = $strict ? 'mb_strpos' : 'mb_stripos';
 
         // Find the offset of the first needle.
-        if (false === $firstIndex = $funcIndexOf($haystack, $firstNeedle, $offset, $encoding)) {
-            throw new \OutOfBoundsException('Failed to find $firstNeedle ['.$firstNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+        if (false === $firstIndex = $funcIndexOf($haystack, $startNeedle, $offset, $encoding)) {
+            throw new \OutOfBoundsException('Failed to find $startNeedle ['.$startNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
         }
 
         // We're going to adjust the offset for the position of the first needle, ie. we're gonna
         // start searching for the second one right at the end of the first one.
-        $offset = $firstIndex + mb_strlen($firstNeedle, $encoding);
+        $offset = $firstIndex + mb_strlen($startNeedle, $encoding);
 
         // Find the offset of the second needle.
-        if (false === $secondIndex = $funcIndexOf($haystack, $secondNeedle, $offset, $encoding)) {
-            throw new \OutOfBoundsException('Failed to find $secondNeedle ['.$secondNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+        if (false === $secondIndex = $funcIndexOf($haystack, $endNeedle, $offset, $encoding)) {
+            throw new \OutOfBoundsException('Failed to find $endNeedle ['.$endNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
         }
 
         // Return the substring between the needles.
@@ -297,19 +298,19 @@ class Str
     }
 
     /**
-     * Returns an array containing the characters of the given string. Multi-byte safe.
+     * Returns the characters of the given $haystack as an array, in an offset => character format.
      *
-     * @param   string  $str        The string to iterate over.
-     * @param   string  $encoding   The encoding to use.
-     * @return  array
+     * @param   string      $haystack   The string to iterate over.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  array                   The array of characters.
      */
-    public static function characters(string $str, string $encoding = null) : array
+    public static function characters(string $haystack, string $encoding = null) : array
     {
         $result = [];
-        $length = mb_strlen($str, $encoding ?: static::encoding($str));
+        $length = mb_strlen($haystack, $encoding ?: static::encoding($haystack));
 
         for ($idx = 0; $idx < $length; $idx++) {
-            $result[] = mb_substr($str, $idx, 1, $encoding);
+            $result[] = mb_substr($haystack, $idx, 1, $encoding);
         }
 
         return $result;
@@ -339,7 +340,7 @@ class Str
      * @param   bool            $all        Set this to true to ensure all elements of the $needle array (if provided)
      *                                      are contained within the $haystack.
      * @param   bool            $strict     Whether to use case-sensitive comparisons.
-     * @param   string          $encoding   The encoding to use.
+     * @param   string|null     $encoding   The encoding to use.
      * @return  bool
      */
     public static function contains(string $haystack, $needle, bool $all = false, bool $strict = true, string $encoding = null) : bool
@@ -367,8 +368,7 @@ class Str
      * Determines whether the given $haystack contains any of the $needles. Alias for self::contains() with an
      * array of needles and the $all parameter set to true.
      *
-     * @see     Str::contains()
-     * @return  bool
+     * @see Str::contains()
      */
     public static function containsAll(string $haystack, array $needles, bool $strict = true, string $encoding = null) : bool
     {
@@ -379,8 +379,7 @@ class Str
      * Determines whether the given $haystack contains any of the $needles. Alias for self::contains() with an
      * array of needles and the $all parameter set to false.
      *
-     * @see     Str::contains()
-     * @return  bool
+     * @see Str::contains()
      */
     public static function containsAny(string $haystack, array $needles, bool $strict = true, string $encoding = null) : bool
     {
@@ -396,7 +395,7 @@ class Str
      *
      * @param   string      $str        The string over which to run the callable.
      * @param   callable    $callable   The callable to apply.
-     * @param   string      $encoding   The encoding to use.
+     * @param   string|null $encoding   The encoding to use.
      * @param   mixed       ...$args    Additional arguments to pass to the callable.
      * @return  string                  The string after applying the callable to each of its characters.
      */
@@ -447,10 +446,10 @@ class Str
     /**
      * Attempts to determine the encoding of a string if a string is given.
      *
-     * Upon failure/when no string is given, returns the static encoding set in this class or if that is not set,
+     * Upon failure or when no string is given, returns the static encoding set in this class or if that is not set,
      * the hardcoded default of 'utf-8'.
      *
-     * @param   string  $str
+     * @param   string|null $str
      * @return  string
      */
     public static function encoding(string $str = null) : string
@@ -527,12 +526,12 @@ class Str
      * Finds the first occurrence of $needle within $haystack and returns the part of $haystack
      * starting where the $needle starts (ie. including the $needle).
      *
-     * @param   string  $haystack   The string to search in.
-     * @param   string  $needle     The substring to search for.
-     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The part of $haystack from where $needle starts.
-     * @throws  \RuntimeException   Upon failing to find $needle in $haystack at all.
+     * @param   string      $haystack   The string to search in.
+     * @param   string      $needle     The substring to search for.
+     * @param   bool        $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The part of $haystack from where $needle starts, including $needle.
+     * @throws  \RuntimeException       Upon failing to find $needle in $haystack at all.
      */
     public static function from(string $haystack, string $needle, bool $strict = true, string $encoding = null) : string
     {
@@ -545,13 +544,13 @@ class Str
      * Important note: Differs from native PHP strpos() in that if the $needle could not be found, it returns -1
      * instead of false.
      *
-     * @param   string  $haystack   The string to search in.
-     * @param   string  $needle     The substring to search for.
-     * @param   int     $offset     The offset from which to search. Negative offsets will start the search $offset
-     *                              characters from the end of the $haystack. 0-indexed.
-     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
-     * @param   string  $encoding   The encoding to use.
-     * @return  int                 The index of the first occurrence if found, -1 otherwise.
+     * @param   string      $haystack   The string to search in.
+     * @param   string      $needle     The substring to search for.
+     * @param   int         $offset     The offset from which to search. Negative offsets will start the search $offset
+     *                                  characters from the end of the $haystack. 0-indexed.
+     * @param   bool        $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  int                     The index of the first occurrence if found, -1 otherwise.
      */
     public static function indexOf(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
     {
@@ -600,10 +599,10 @@ class Str
     }
 
     /**
-     * Inserts the given substring into the string at the provided offset.
+     * Inserts the given $needle into the $haystack at the provided offset.
      *
-     * @param   string      $str            The string to insert into.
-     * @param   string      $substring      The string to be inserted.
+     * @param   string      $haystack       The string to insert into.
+     * @param   string      $needle         The string to be inserted.
      * @param   int         $offset         The offset at which to insert the substring. If negative, the $substring
      *                                      will be inserted $offset characters from the end of $str.
      * @param   string|null $encoding       The encoding to use.
@@ -611,23 +610,23 @@ class Str
      * @throws  \OutOfBoundsException       When trying to insert a substring at an index above the length of the
      *                                      initial string.
      */
-    public static function insert(string $str, string $substring, int $offset, string $encoding = null) : string
+    public static function insert(string $haystack, string $needle, int $offset, string $encoding = null) : string
     {
-        if ($substring === '') {
-            return $str;
+        if ($needle === '') {
+            return $haystack;
         }
 
-        $encoding = $encoding ?: static::encoding($str);
-        $length   = mb_strlen($str, $encoding);
+        $encoding = $encoding ?: static::encoding($haystack);
+        $length   = mb_strlen($haystack, $encoding);
 
         // Make sure the offset is contained in the initial string.
         if (abs($offset) >= $length) {
-            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($str, 20, '...', $encoding).'].');
+            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', $encoding).'].');
         }
 
         // With a negative offset, we'll convert it to a positive one for the initial part (before the inserted
         // substring), since we'll be using that as a length actually.
-        return mb_substr($str, 0, $offset < 0 ? $length + $offset : $offset, $encoding) . $substring . mb_substr($str, $offset, null, $encoding);
+        return mb_substr($haystack, 0, $offset < 0 ? $length + $offset : $offset, $encoding) . $needle . mb_substr($haystack, $offset, null, $encoding);
     }
 
     /**
@@ -657,11 +656,11 @@ class Str
     }
 
     /**
-     * Converts the given string to lowercase.
+     * Converts all characters in the given string to lowercase.
      *
-     * @param   string  $str        The string to convert.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The converted string.
+     * @param   string      $str        The string to convert.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The converted string.
      */
     public static function lowercase(string $str, string $encoding = null) : string
     {
@@ -671,9 +670,9 @@ class Str
     /**
      * Converts the first character in the given string to lowercase.
      *
-     * @param   string  $str        The string to convert.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The converted string.
+     * @param   string  $str            The string to convert.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The converted string.
      */
     public static function lowercaseFirst(string $str, string $encoding = null) : string
     {
@@ -710,19 +709,22 @@ class Str
      */
     public static function normalizeCopypasta(string $str) : string
     {
-        static $map = [[
-            '/\x{2026}/u',
-            '/[\x{201C}\x{201D}]/u',
-            '/[\x{2018}\x{2019}]/u',
-            '/[\x{2013}\x{2014}]/u',
-        ], [
-            '...',
-            '"',
-            "'",
-            '-',
-        ]];
+        static $map = [
+            'from' => [
+                '/\x{2026}/u',
+                '/[\x{201C}\x{201D}]/u',
+                '/[\x{2018}\x{2019}]/u',
+                '/[\x{2013}\x{2014}]/u',
+            ],
+            'to' => [
+                '...',
+                '"',
+                "'",
+                '-',
+            ]
+        ];
 
-        if (null === $result = preg_replace($map[0], $map[1], $str)) {
+        if (null === $result = preg_replace($map['from'], $map['to'], $str)) {
             throw new \RuntimeException('Failed to normalize the string ['.$str.'].');
         }
 
@@ -738,13 +740,13 @@ class Str
      * or a count from a specific offset. To count the number of occurrences of $needle in $haystack using
      * this method, a simple `count(Str::occurrences($needle, $haystack));` will do the trick.
      *
-     * @param   string  $haystack           The string to search in.
-     * @param   string  $needle             The substring to search for.
-     * @param   int     $offset             The offset from which to start the search. Can be negative, in which
+     * @param   string      $haystack      The string to search in.
+     * @param   string      $needle        The substring to search for.
+     * @param   int         $offset        The offset from which to start the search. Can be negative, in which
      *                                      case this method will start searching for the occurrences $offset
      *                                      characters from the end of the $haystack. Starts from 0 by default.
-     * @param   bool    $strict             Whether to use case-sensitive comparisons. True by default.
-     * @param   string  $encoding           The encoding to use.
+     * @param   bool        $strict         Whether to use case-sensitive comparisons. True by default.
+     * @param   string|null $encoding       The encoding to use.
      * @return  array                       An array containing the 0-indexed offsets of all found occurrences
      *                                      or an empty array if none were found.
      * @throws  \OutOfBoundsException       When the $offset index is not contained in the input string.
@@ -790,7 +792,7 @@ class Str
      *   parameter or better yet, use Random::string() directly instead.
      *  --
      *
-     * Generates a pseudo-random string of the specified length using random alpha-numeric characters
+     * Generates a pseudo-random string of the specified length using alpha-numeric characters
      * or the characters provided.
      *
      * @see     Random::string()
@@ -805,7 +807,7 @@ class Str
      *                                      class constants)
      * @return  float                       The generated string.
      */
-    public static function random(int $length = 8, string $characters = null, int $strength = Random::STRENGTH_NONE) : string
+    public static function random(int $length = 8, $characters = null, int $strength = Random::STRENGTH_NONE) : string
     {
         // Note: We're duplicating ourselves by specifying the character pool directly instead of
         // relying on self::buildCharacterSet(), but this skips this process in Random::string()
@@ -814,100 +816,100 @@ class Str
     }
 
     /**
-     * Removes the given substring(s) from a string.
+     * Removes the given $needle(s) from the $haystack.
      *
-     * @param   string          $str    The string to remove from.
-     * @param   string|array    $what   What to remove from the string.
-     * @return  string                  The resulting string.
+     * @param   string          $haystack   The string to remove from.
+     * @param   string|array    $needle     The substrings to remove.
+     * @return  string                      The resulting string.
      */
-    public static function remove(string $str, string $what) : string
+    public static function remove(string $haystack, string $needle) : string
     {
-        return static::replace($str, $what, '');
+        return static::replace($haystack, $needle, '');
     }
 
     /**
-     * Removes the given substring from the beginning (only) of the string. Only the first occurrence of the substring
-     * will be removed. If the string does not start with the specified substring, nothing will be removed.
+     * Removes the given $needle from the beginning (only) of the $haystack. Only the first occurrence of the $needle
+     * will be removed. If the $haystack does not start with the specified $needle, nothing will be removed.
      *
-     * @param   string  $from       The string to remove from.
-     * @param   string  $what       The substring to remove from the beginning.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The resulting string.
+     * @param   string      $haystack   The string to remove from.
+     * @param   string      $needle     The substring to remove from the beginning.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The resulting string.
      */
-    public static function removeLeft(string $from, string $what, string $encoding = null) : string
+    public static function removeLeft(string $haystack, string $needle, string $encoding = null) : string
     {
         // Early return in obvious circumstances.
-        if ($from === '' || $what === '') {
-            return $from;
+        if ($haystack === '' || $needle === '') {
+            return $haystack;
         }
 
-        $encoding = $encoding ?: static::encoding($from);
+        $encoding = $encoding ?: static::encoding($haystack);
 
-        // This is a non-DRY version of self::startsWith(). If $from doesn't even start
-        // with the given substring, we'll just return $from.
-        if (0 !== mb_strpos($from, $what, 0, $encoding) || 0 === $whatLen = mb_strlen($what, $encoding)) {
-            return $from;
+        // This is a non-DRY version of self::startsWith(). If $haystack doesn't even start
+        // with the given substring, we'll just return $haystack.
+        if (0 !== mb_strpos($haystack, $needle, 0, $encoding) || 0 === $needleLen = mb_strlen($needle, $encoding)) {
+            return $haystack;
         }
 
         // Grab a substring of the full initial string starting from the end of the prefix
         // we're cutting off... and return it.
-        return mb_substr($from, $whatLen, null, $encoding);
+        return mb_substr($haystack, $needleLen, null, $encoding);
     }
 
     /**
-     * Removes the given substring from the end (only) of the string. Only the last occurrence of the substring
-     * will be removed. If the string does not end with the specified substring, nothing will be removed.
+     * Removes the given $needle from the end (only) of the $haystack. Only the last occurrence of the $needle
+     * will be removed. If the $haystack does not end with the specified $needle, nothing will be removed.
      *
-     * @param   string  $from       The string to remove from.
-     * @param   string  $what       The substring to remove from the end.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The resulting string.
+     * @param   string      $haystack   The string to remove from.
+     * @param   string      $needle     The substring to remove from the end.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The resulting string.
      */
-    public static function removeRight(string $from, string $what, string $encoding = null) : string
+    public static function removeRight(string $haystack, string $needle, string $encoding = null) : string
     {
         // Early return in obvious circumstances.
-        if ($from === '' || $what === '') {
-            return $from;
+        if ($haystack === '' || $needle === '') {
+            return $haystack;
         }
 
-        $encoding = $encoding ?: static::encoding($from);
-        $whatLen  = mb_strlen($what, $encoding);
+        $encoding  = $encoding ?: static::encoding($haystack);
+        $needleLen = mb_strlen($needle, $encoding);
 
-        // This is a non-DRY version of self::endsFrom(). If $from doesn't even end
-        // with the given substring, we'll just return $from.
-        if (0 === $whatLen || $what !== mb_substr($from, -$whatLen, null, $encoding)) {
-            return $from;
+        // This is a non-DRY version of self::endsWith(). If $haystack doesn't even end
+        // with the given substring, we'll just return $haystack.
+        if (0 === $needleLen || $needle !== mb_substr($haystack, -$needleLen, null, $encoding)) {
+            return $haystack;
         }
 
         // Grab a substring of the full initial string ending at the beginning of the suffix
         // we're cutting off... and return it.
-        return mb_substr($from, 0, mb_strlen($from, $encoding) - $whatLen, $encoding);
+        return mb_substr($haystack, 0, mb_strlen($haystack, $encoding) - $needleLen, $encoding);
     }
 
     /**
-     * Replaces the $what within the given string with the $with.
+     * Replaces the $needles within the given $haystack with the $replacement.
      *
-     * @param   string          $str    The string to remove from.
-     * @param   string|array    $what   What to replace in the string (a single string or an array of strings).
-     * @param   string          $with   The replacement value.
-     * @return  string                  The resulting string.
+     * @param   string          $haystack       The string to replace $needles in.
+     * @param   string|string[] $needles        What to replace in the string.
+     * @param   string          $replacement    The replacement value.
+     * @return  string                          The resulting string.
      */
-    public static function replace(string $str, $what, string $with) : string
+    public static function replace(string $haystack, $needles, string $replacement) : string
     {
         // If multiple values to replace were passed.
-        if (is_array($what)) {
-            $what = '(' .implode('|', $what). ')';
+        if (is_array($needles)) {
+            $needles = '(' .implode('|', $needles). ')';
         }
 
-        return mb_ereg_replace($what, $with, $str);
+        return mb_ereg_replace($needles, $replacement, $haystack);
     }
 
     /**
-     * Reverses a string. Multibyte equivalent of strrev().
+     * Reverses a string. Multibyte-safe equivalent of strrev().
      *
-     * @param   string  $str        The string to reverse.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The resulting string.
+     * @param   string      $str        The string to reverse.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The resulting string.
      */
     public static function reverse(string $str, string $encoding = null) : string
     {
@@ -929,12 +931,12 @@ class Str
     }
 
     /**
-     * Randomizes the order of the characters in the given string. A multibyte-safe equivalent
+     * Randomizes the order of characters in the given string. Multibyte-safe equivalent
      * of str_shuffle().
      *
-     * @param   string  $str        The string to shuffle.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The resulting string.
+     * @param   string      $str        The string to shuffle.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The resulting string.
      */
     public static function shuffle(string $str, string $encoding = null) : string
     {
@@ -957,7 +959,7 @@ class Str
     }
 
     /**
-     * Generates an URL-friendly slug from the given string.
+     * Generates a URL-friendly slug from the given string.
      *
      * @param   string  $str        The string to slugify.
      * @param   string  $separator  The separator to use instead of non-alphanumeric characters.
@@ -1009,22 +1011,22 @@ class Str
     }
 
     /**
-     * Returns a part of the given string starting at the given index.
+     * Returns a part of the given $haystack starting at the given $offset.
      *
-     * @param   string    $str              The input string.
-     * @param   int       $start            The index at which to start the slice. If a negative index is given,
-     *                                      the slice will start at the $start-th character counting from the end
+     * @param   string      $haystack       The input string.
+     * @param   int         $offset         The offset at which to start the slice. If a negative offset is given,
+     *                                      the slice will start at the $offset-th character counting from the end
      *                                      of the input string.
-     * @param   int|null  $length           The length of the slice. Must be a positive integer or null. If null,
+     * @param   int|null    $length         The length of the slice. Must be a positive integer or null. If null,
      *                                      the full string starting from $start will be returned. If a length
      *                                      which is longer than the input string is requested the method will
      *                                      silently ignore this and will act as if null was passed as length.
-     * @param   string    $encoding         The encoding to use.
+     * @param   string|null $encoding       The encoding to use.
      * @return  string                      The resulting string.
      * @throws  \InvalidArgumentException   When $length is negative.
      * @throws  \OutOfBoundsException       When the $start index is not contained in the input string.
      */
-    public static function sub(string $str, int $start, int $length = null, string $encoding = null) : string
+    public static function sub(string $haystack, int $offset, int $length = null, string $encoding = null) : string
     {
         if ($length === 0) {
             return '';
@@ -1036,15 +1038,15 @@ class Str
             throw new \InvalidArgumentException('The length of the requested substring must be > 0, ['.$length.'] requested.');
         }
 
-        $encoding = $encoding ?: static::encoding($str);
+        $encoding = $encoding ?: static::encoding($haystack);
 
         // Check if the absolute starting index (to account for negative indexes) + 1 (since it's 0-indexed
         // while length is > 1 at this point) is within the length of the string.
-        if ((abs($start) + 1) > mb_strlen($str, $encoding)) {
-            throw new \OutOfBoundsException('The requested $start index ['.$start.'] is not within the string ["'.$str.'"].');
+        if (abs($offset) >= mb_strlen($haystack, $encoding)) {
+            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', $encoding).'].');
         }
 
-        return mb_substr($str, $start, $length, $encoding);
+        return mb_substr($haystack, $offset, $length, $encoding);
     }
 
     /**
@@ -1062,11 +1064,11 @@ class Str
     }
 
     /**
-     * Converts the given string to title case. The equivalent of ucwords() albeit for multibyte strings.
+     * Converts the given string to title case. Multibyte-safe equivalent of ucwords().
      *
-     * @param   string  $str        The string to convert.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The converted string.
+     * @param   string      $str        The string to convert.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string              T   he converted string.
      */
     public static function titleCase(string $str, string $encoding = null) : string
     {
@@ -1173,13 +1175,13 @@ class Str
      * substring ("..." by default). The final length of the string, including the optionally appended $end
      * substring, will not exceed $limit.
      *
-     * @param   string  $str                The string to truncate.
-     * @param   int     $limit              The maximal number of characters to be contained in the string. Must be
+     * @param   string      $str            The string to truncate.
+     * @param   int         $limit          The maximal number of characters to be contained in the string. Must be
      *                                      a positive integer. If 0 is given, an empty string will be returned.
-     * @param   string  $end                The replacement.
-     * @param   bool    $preserveWords      Whether to preserve words, ie. allow splitting only on whitespace
+     * @param   string      $end            The replacement for the whole of the cut off string (if any).
+     * @param   bool        $preserveWords  Whether to preserve words, ie. allow splitting only on whitespace
      *                                      characters.
-     * @param   string  $encoding           The encoding to use.
+     * @param   string|null $encoding       The encoding to use.
      * @return  string                      The resulting string.
      * @throws  \InvalidArgumentException   When $limit is a negative integer.
      */
@@ -1218,11 +1220,11 @@ class Str
     }
 
     /**
-     * Converts the given string to uppercase.
+     * Converts all characters in the given string to uppercase.
      *
-     * @param   string  $str        The string to convert.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string
+     * @param   string      $str        The string to convert.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The converted string.
      */
     public static function uppercase(string $str, string $encoding = null) : string
     {
@@ -1232,9 +1234,9 @@ class Str
     /**
      * Converts the first character in the given string to uppercase.
      *
-     * @param   string  $str        The string to convert.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The converted string.
+     * @param   string      $str        The string to convert.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The converted string.
      */
     public static function uppercaseFirst(string $str, string $encoding = null) : string
     {
@@ -1247,12 +1249,12 @@ class Str
     /**
      * Limits the number of words in the given string.
      *
-     * @param   string  $str        The string to limit.
-     * @param   int     $words      The maximal number of words to be contained in the string, not counting
-     *                              the replacement.
-     * @param   string  $encoding   The encoding to use.
-     * @param   string  $end        The replacement.
-     * @return  string              The resulting string.
+     * @param   string      $str        The string to limit.
+     * @param   int         $words      The maximal number of words to be contained in the string, not counting
+     *                                  the replacement.
+     * @param   string|null $encoding   The encoding to use.
+     * @param   string      $end        The replacement for the whole of the cut off string (if any).
+     * @return  string                  The resulting string.
      */
     public static function words(string $str, int $words = 100, string $encoding = null, string $end = '...') : string
     {
@@ -1272,14 +1274,14 @@ class Str
      * before up to the beginning of the $needle or from the beginning of the $needle and including it,
      * depending on whether $before is true or false.
      *
-     * @param   string  $haystack   The string to search in.
-     * @param   string  $needle     The substring to search for.
-     * @param   bool    $strict     Whether to use case-sensitive comparisons. True by default.
-     * @param   bool    $before     Whether to return the part of $haystack before $needle or part of
-     *                              $haystack starting at $needle and including $needle.
-     * @param   string  $encoding   The encoding to use.
-     * @return  string              The part of $haystack before $needle.
-     * @throws  \RuntimeException   Upon failing to find $needle in $haystack at all.
+     * @param   string      $haystack   The string to search in.
+     * @param   string      $needle     The substring to search for.
+     * @param   bool        $strict     Whether to use case-sensitive comparisons. True by default.
+     * @param   bool        $before     Whether to return the part of $haystack before $needle or part of
+     *                                  $haystack starting at $needle and including $needle.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The part of $haystack before/from $needle.
+     * @throws  \RuntimeException       Upon failing to find $needle in $haystack at all.
      */
     protected static function partOf(string $haystack, string $needle, bool $strict, bool $before, string $encoding = null) : string
     {
