@@ -993,7 +993,7 @@ class Str
     public static function sub(string $str, int $start, int $length = null, string $encoding = null) : string
     {
         if ($length === 0) {
-            return $str;
+            return '';
         }
 
         // We could silently return the initial string, but a negative $length may be an indicator of
