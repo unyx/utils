@@ -77,7 +77,7 @@ interface BigInt extends \Serializable, \JsonSerializable, core\interfaces\Strin
      * @param   string|int|BigInt   $exponent   The positive power by which to raise the base.
      * @return  BigInt
      */
-    public function pow(int $exponent) : BigInt;
+    public function pow($exponent) : BigInt;
 
     /**
      * Raises this BigInt into the given power reduced by the given modulo.
@@ -104,9 +104,23 @@ interface BigInt extends \Serializable, \JsonSerializable, core\interfaces\Strin
     public function sub($operand) : BigInt;
 
     /**
-     * Converts the BigInt to its binary string representation.
+     * Returns the binary string representation of the BigInt.
      *
      * @return  string
      */
     public function toBinaryString() : string;
+
+    /**
+     * Returns the decimal string representation of the BigInt.
+     *
+     * @return  string
+     */
+    public function toDecimalString() : string;
+
+    /**
+     * {@inheritDoc}
+     *
+     * Implementations *must* alias this method to self::toDecimalString().
+     */
+    public function toString() : string;
 }
