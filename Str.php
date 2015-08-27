@@ -163,15 +163,16 @@ class Str
     }
 
     /**
-     * Ensures the given string begins with a single instance of a given substring.
+     * Ensures the given $haystack begins with a single instance of the given $needle. For single characters
+     * use PHP's native ltrim() instead.
      *
-     * @param   string  $str    The string to cap.
-     * @param   string  $with   The substring to begin with.
-     * @return  string          The resulting string.
+     * @param   string  $haystack   The string to cap.
+     * @param   string  $needle     The substring to begin with.
+     * @return  string              The resulting string.
      */
-    public static function begin(string $str, string $with) : string
+    public static function begin(string $haystack, string $needle) : string
     {
-        return $with.ltrim($str, $with);
+        return $needle . preg_replace('/^(?:'.preg_quote($needle, '/').')+/', '', $haystack);
     }
 
     /**
