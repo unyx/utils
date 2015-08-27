@@ -19,7 +19,7 @@ class Math
     use traits\StaticallyExtendable;
 
     /**
-     * @var array   Mathematical constants map.
+     * Mathematical constants map.
      */
     const CONSTANTS = [
         'pi'               => M_PI,
@@ -27,6 +27,13 @@ class Math
         'euler-mascheroni' => M_EULER,
         'conway'           => 1.303577269
     ];
+
+    /**
+     * Rounding constants.
+     */
+    const ROUND_ZERO     = 0;
+    const ROUND_PLUSINF  = 1;
+    const ROUND_MINUSINF = 2;
 
     /**
      * Returns the number of decimal places contained in the given number.
