@@ -32,7 +32,6 @@ use nyx\core;
  * @link        http://docs.muyo.io/nyx/utils/strings.html
  * @todo        Snake case, camel case, studly caps, dashed, underscored?
  * @todo        Decide on support for Stringable and/or simply loosening the type hints.
- * @todo        Split contains() into containsAll() and containsAny() to avoid the complexity?
  * @todo        Add pad(), padLeft(), padRight().
  */
 class Str
@@ -361,6 +360,18 @@ class Str
         // that we didn't fail on a single one. However, when looking for at least one of them, it means that none
         // returned true up to this point, so none of them is contained in the haystack.
         return $all ? true : false;
+    }
+
+    /**
+     * Determines whether the given $haystack contains any of the $needles. Alias for self::contains() with an
+     * array of needles and the $all parameter set to true.
+     *
+     * @see     Str::contains()
+     * @return  bool
+     */
+    public static function containsAll(string $haystack, array $needles, bool $strict = true, string $encoding = null) : bool
+    {
+        return static::contains($haystack, $needles, true, $strict, $encoding);
     }
 
     /**
