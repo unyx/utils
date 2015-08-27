@@ -1050,17 +1050,18 @@ class Str
     }
 
     /**
-     * Surrounds the given string with the specified substring. Works consistent with Str::begin()
-     * and Str::finish() in that it ensures only a single instance of the substring $with will be
-     * present at the beginning and end of the string.
+     * Surrounds the $haystack with the given $needle.
      *
-     * @param   string  $str    The string to surround.
-     * @param   string  $with   The substring to surround the string with.
-     * @return  string          The resulting string.
+     * Works consistent with Str::begin() and Str::finish() in that it ensures only single instances of
+     * the $needle will be present at the beginning and end of the $haystack.
+     *
+     * @param   string  $haystack   The string to surround.
+     * @param   string  $needle     The substring to surround the string with.
+     * @return  string              The resulting string.
      */
-    public static function surround(string $str, string $with) : string
+    public static function surround(string $haystack, string $needle) : string
     {
-        return $with.ltrim(rtrim($str, $with).$with, $with);
+        return static::begin($haystack, $needle) . $needle . static::finish($haystack, $needle);
     }
 
     /**
