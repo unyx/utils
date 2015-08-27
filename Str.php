@@ -33,6 +33,7 @@ use nyx\core;
  * @todo        Snake case, camel case, studly caps, dashed, underscored?
  * @todo        Decide on support for Stringable and/or simply loosening the type hints.
  * @todo        Split contains() into containsAll() and containsAny() to avoid the complexity?
+ * @todo        Add pad(), padLeft(), padRight().
  */
 class Str
 {
@@ -326,14 +327,17 @@ class Str
     }
 
     /**
-     * Determines if a given string contains a given sub-string or at least one of the values if the $needle is
-     * an array.
+     * Determines whether the given $haystack contains the given $needle.
+     *
+     * If $needle is an array, this method will check whether at least one of the substrings is contained
+     * in the $haystack. If $all is set to true, all needles in the $needle array must be contained in the
+     * $haystack for this method to return true.
      *
      * @param   string          $haystack   The string to check in.
      * @param   string|array    $needle     A string or an array of strings. If an array is given, the method returns
      *                                      true if at least one of the values is contained within the $haystack.
      * @param   bool            $all        Set this to true to ensure all elements of the $needle array (if provided)
-     *                                      are contained within the haystack.
+     *                                      are contained within the $haystack.
      * @param   bool            $strict     Whether to use case-sensitive comparisons.
      * @param   string          $encoding   The encoding to use.
      * @return  bool
@@ -357,6 +361,18 @@ class Str
         // that we didn't fail on a single one. However, when looking for at least one of them, it means that none
         // returned true up to this point, so none of them is contained in the haystack.
         return $all ? true : false;
+    }
+
+    /**
+     * Determines whether the given $haystack contains any of the $needles. Alias for self::contains() with an
+     * array of needles and the $all parameter set to false.
+     *
+     * @see     Str::contains()
+     * @return  bool
+     */
+    public static function containsAny(string $haystack, array $needles, bool $strict = true, string $encoding = null) : bool
+    {
+        return static::contains($haystack, $needles, false, $strict, $encoding);
     }
 
     /**
@@ -1074,7 +1090,7 @@ class Str
             'no'    => false
         ];
 
-        $key = static::lowerCase($str);
+        $key = static::lowercase($str);
 
         if (isset($map[$key])) {
             return $map[$key];
