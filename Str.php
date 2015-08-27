@@ -15,12 +15,9 @@
  *   you should take a look at Stringy {@see https://github.com/danielstjules/Stringy}
  *
  * Requires:
- * - Extension: mbstring
- * - Extension: intl (Normalizer)
- * - Extension: iconv
- *
- * (If your PHP installation does not have the mb, intl and iconv extensions and you can not modify the installation,
- * take a look at https://github.com/nicolas-grekas/Patchwork-UTF8).
+ * - ext-mbstring
+ * - ext-intl (Normalizer)
+ * - ext-iconv
  *
  * @package     Nyx\Utils\Strings
  * @version     0.1.0
@@ -969,7 +966,7 @@ class Str
         if (preg_match("/[\x80-\xFF]/", $str)) {
             // Grab the transliteration table since we'll need it.
             if (null === static::$ascii) {
-                static::$ascii = unserialize(file_get_contents(__DIR__ . '/resources/transliteration_table.ser'));
+                static::$ascii = unserialize(file_get_contents(__DIR__ . '/str/resources/transliteration_table.ser'));
             }
 
             $str = \Normalizer::normalize($str, \Normalizer::NFKD);
