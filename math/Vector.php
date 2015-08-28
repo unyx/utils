@@ -49,6 +49,28 @@ class Vector
     }
 
     /**
+     * Adds this Vector to $that Vector and returns the result as a new Vector.
+     *
+     * @param   Vector  $that       The Vector to add.
+     * @return  Vector              The sum of the two vectors.
+     * @throws  \DomainException
+     */
+    public function add(Vector $that) : Vector
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException();
+        }
+
+        $result = [];
+
+        foreach ($this->components as $i => $component) {
+            $result[$i] = $component + $that->components[$i];
+        }
+
+        return new static($result);
+    }
+
+    /**
      * Returns the components of the Vector.
      *
      * @return  float[]
@@ -65,7 +87,18 @@ class Vector
      */
     public function dimension() : int
     {
-        return count($this->components());
+        return count($this->components);
+    }
+
+    /**
+     * Checks whether this Vector is of the same dimension as $that Vector.
+     *
+     * @param   Vector  $that   The Vector to check against.
+     * @return  bool            True when the Vectors are of the same dimension, false otherwise.
+     */
+    public function isSameDimension(Vector $that) : bool
+    {
+        return count($this->components) === count($that->components);
     }
 
     /**
