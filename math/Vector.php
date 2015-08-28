@@ -49,6 +49,26 @@ class Vector
     }
 
     /**
+     * Returns the components of the Vector.
+     *
+     * @return  float[]
+     */
+    public function components() : array
+    {
+        return $this->components;
+    }
+
+    /**
+     * Returns the dimension of the Vector.
+     *
+     * @return  int
+     */
+    public function dimension() : int
+    {
+        return count($this->components());
+    }
+
+    /**
      * Returns the length of the Vector.
      *
      * @return  float
