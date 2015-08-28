@@ -53,7 +53,7 @@ class Vector
      *
      * @param   Vector|number    $that      The Vector or (numeric) bias to add.
      * @return  Vector                      The sum of the two vectors.
-     * @throws  \DomainException
+     * @throws  \DomainException            When a Vector is given as input and it is not in the same space.
      */
     public function add($that) : Vector
     {
@@ -88,13 +88,14 @@ class Vector
     /**
      * Computes the dot product of two Vectors (A | B).
      *
-     * @param   Vector  $that   The Vector to compute the dot product against.
-     * @return  float           The dot product of the two Vectors.
+     * @param   Vector  $that       The Vector to compute the dot product against.
+     * @return  float               The dot product of the two Vectors.
+     * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
      */
     public function dotProduct(Vector $that)
     {
         if (!$this->isSameDimension($that)) {
-            throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
+            throw new \DomainException('The given Vector is not in the same dimension as this Vector.');
         }
 
         $result = 0;
@@ -140,6 +141,34 @@ class Vector
         }
 
         return $this->multiply(1.0 / $scale);
+    }
+
+    /**
+     * Checks whether this Vector equals the given Vector, within the optional $tolerance.
+     *
+     * @param   Vector  $that               The Vector to compare to.
+     * @param   float   $tolerance          The optional tolerance (to account for precision errors). Must be >= 0.
+     * @return  bool
+     * @throws  \InvalidArgumentException   When $tolerance is less than 0.
+     * @throws  \DomainException            When the given Vector is not in the same space as this Vector.
+     */
+    public function equals(Vector $that, float $tolerance = 0.0) : bool
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException('The given Vector is not in the same dimension as this Vector.');
+        }
+
+        if ($tolerance < 0) {
+            throw new \InvalidArgumentException('The $tolerance must be greater than or equal to 0, got ['.$tolerance.'] instead.');
+        }
+
+        foreach ($this->components as $i => $component) {
+            if (abs($component - $that->components[$i]) > $tolerance) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
