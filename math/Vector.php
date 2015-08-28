@@ -47,4 +47,30 @@ class Vector
     {
         $this->components = $components;
     }
+
+    /**
+     * Returns the length of the Vector.
+     *
+     * @return  float
+     */
+    public function length() : float
+    {
+        return sqrt($this->lengthSquared());
+    }
+
+    /**
+     * Returns the square of the Vector's length.
+     *
+     * @return  float
+     */
+    public function lengthSquared() : float
+    {
+        $sum = 0;
+
+        foreach ($this->components as $component) {
+            $sum += pow($component, 2);
+        }
+
+        return $sum;
+    }
 }
