@@ -205,4 +205,15 @@ class Vector
 
         return new static($result);
     }
+
+    /**
+     * Returns the normalized Vector, ie. a Vector with the same direction but a length of 1.
+     *
+     * @return  Vector                      The normalized vector.
+     * @throws  exceptions\DivisionByZero   When the Vector's length is zero.
+     */
+    public function normalize() : Vector
+    {
+        return $this->divide($this->length());
+    }
 }
