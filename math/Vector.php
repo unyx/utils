@@ -106,6 +106,22 @@ class Vector
     }
 
     /**
+     * Divides the Vector by the given scale and returns the result as a new Vector.
+     *
+     * @param   float   $scale              The scale to divide by.
+     * @return  Vector                      The result of the division.
+     * @throws  exceptions\DivisionByZero   When $scale is 0.f.
+     */
+    public function divide(float $scale) : Vector
+    {
+        if ($scale == 0) {
+            throw new exceptions\DivisionByZero;
+        }
+
+        return $this->multiply(1.0 / $scale);
+    }
+
+    /**
      * Checks whether this Vector is of the same dimension as $that Vector.
      *
      * @param   Vector  $that   The Vector to check against.
@@ -156,7 +172,7 @@ class Vector
      * Multiplies the Vector by the given scale and returns the result as a new Vector.
      *
      * @param   float   $scale  The scale to multiply by.
-     * @return  Vector
+     * @return  Vector          The result of the multiplication.
      */
     public function multiply(float $scale) : Vector
     {
