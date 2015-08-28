@@ -27,17 +27,9 @@ class Vector3D extends math\Vector
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function dimension() : int
-    {
-        return 3;
-    }
-
-    /**
      * Computes the cross product of two 3-dimensional Vectors (A ^ B).
      *
-     * @param   Vector3D    $that   The vector to compute the cross product against.
+     * @param   Vector3D    $that   The Vector to compute the cross product against.
      * @return  Vector3D            The cross product of the two Vectors as a new Vector3D instance.
      */
     public function crossProduct(Vector3D $that)
@@ -50,5 +42,25 @@ class Vector3D extends math\Vector
             $thisC['z'] * $thatC['x'] - $thisC['x'] * $thatC['z'],
             $thisC['x'] * $thatC['y'] - $thisC['y'] * $thatC['x']
         );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function dimension() : int
+    {
+        return 3;
+    }
+
+    /**
+     * Computes the scalar triple product of this and two two other Vectors.
+     *
+     * @param   Vector3D    $second     The second Vector of the triple product.
+     * @param   Vector3D    $third      The third Vector of the triple product.
+     * @return  float                   The scalar triple product of the three Vectors.
+     */
+    public function scalarTripleProduct(Vector3D $second, Vector3D $third) : float
+    {
+        return $this->dotProduct($second->crossProduct($third));
     }
 }
