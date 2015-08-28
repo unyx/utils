@@ -151,4 +151,21 @@ class Vector
 
         return $result = $sum;
     }
+
+    /**
+     * Multiplies the Vector by the given scale and returns the result as a new Vector.
+     *
+     * @param   float   $scale  The scale to multiply by.
+     * @return  Vector
+     */
+    public function multiply(float $scale) : Vector
+    {
+        $result = [];
+
+        foreach ($this->components as $i => $component) {
+            $result[$i] = $component * $scale;
+        }
+
+        return new static($result);
+    }
 }
