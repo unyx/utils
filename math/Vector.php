@@ -55,7 +55,9 @@ class Vector
      */
     public function length() : float
     {
-        return sqrt($this->lengthSquared());
+        static $result;
+
+        return null !== $result ? $result : $result = sqrt($this->lengthSquared());
     }
 
     /**
@@ -65,12 +67,20 @@ class Vector
      */
     public function lengthSquared() : float
     {
+        static $result;
+
+        // Return the cached result if it's available.
+        if ($result !== null) {
+            return $result;
+        }
+
+        // Compute the square.
         $sum = 0;
 
         foreach ($this->components as $component) {
             $sum += pow($component, 2);
         }
 
-        return $sum;
+        return $result = $sum;
     }
 }
