@@ -53,7 +53,7 @@ class Vector3D extends math\Vector
     }
 
     /**
-     * Computes the scalar triple product of this and two two other Vectors.
+     * Computes the scalar triple product of this and two other Vectors.
      *
      * @param   Vector3D    $second     The second Vector of the triple product.
      * @param   Vector3D    $third      The third Vector of the triple product.
@@ -62,5 +62,17 @@ class Vector3D extends math\Vector
     public function scalarTripleProduct(Vector3D $second, Vector3D $third) : float
     {
         return $this->dotProduct($second->crossProduct($third));
+    }
+
+    /**
+     * Computes the vector triple product of this and two other Vectors.
+     *
+     * @param   Vector3D    $second The second Vector of the triple product.
+     * @param   Vector3D    $third  The third Vector of the triple product.
+     * @return  Vector3D            The vector triple product of the three Vectors as a new Vector3 instance.
+     */
+    public function vectorTripleProduct(Vector3D $second, Vector3D $third) : Vector3D
+    {
+        return $this->crossProduct($second->crossProduct($third));
     }
 }
