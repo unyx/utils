@@ -56,6 +56,14 @@ interface BigInt extends \Serializable, \JsonSerializable, core\interfaces\Strin
     public function div($operand) : BigInt;
 
     /**
+     * Checks whether this BigInt is equal to the given number.
+     *
+     * @param   string|int|BigInt    $operand   The number to compare this BigInt to.
+     * @return  bool                            True if the numbers are equal, false otherwise..
+     */
+    public function equals($operand) : bool;
+
+    /**
      * Calculates this BigInt modulo $modulo.
      *
      * @param   string|int|BigInt   $modulo     The module to evaluate.
