@@ -86,6 +86,27 @@ class Vector
     }
 
     /**
+     * Computes the dot product of two Vectors (A | B).
+     *
+     * @param   Vector  $that   The Vector to compute the dot product against.
+     * @return  float           The dot product of the two Vectors.
+     */
+    public function dotProduct(Vector $that)
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
+        }
+
+        $result = 0;
+
+        foreach ($this->components as $i => $component) {
+            $result += $component * $that->components[$i];
+        }
+
+        return (float) $result;
+    }
+
+    /**
      * Returns the components of the Vector.
      *
      * @return  float[]
