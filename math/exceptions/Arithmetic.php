@@ -1,7 +1,7 @@
 <?php namespace nyx\utils\math\exceptions;
 
 /**
- * Division by Zero Exception
+ * Arithmetic Exception
  *
  * @package     Nyx\Utils\Math
  * @version     0.1.0
@@ -9,7 +9,7 @@
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/math.html
  */
-class DivisionByZero extends Arithmetic
+class Arithmetic extends \RuntimeException
 {
 
 }
