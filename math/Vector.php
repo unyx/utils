@@ -51,23 +51,38 @@ class Vector
     /**
      * Adds this Vector to $that Vector and returns the result as a new Vector.
      *
-     * @param   Vector  $that       The Vector to add.
-     * @return  Vector              The sum of the two vectors.
+     * @param   Vector|number    $that      The Vector or (numeric) bias to add.
+     * @return  Vector                      The sum of the two vectors.
      * @throws  \DomainException
      */
-    public function add(Vector $that) : Vector
+    public function add($that) : Vector
     {
-        if (!$this->isSameDimension($that)) {
-            throw new \DomainException();
-        }
-
         $result = [];
 
-        foreach ($this->components as $i => $component) {
-            $result[$i] = $component + $that->components[$i];
+        if ($that instanceof Vector) {
+            if (!$this->isSameDimension($that)) {
+                throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
+            }
+
+            foreach ($this->components as $i => $component) {
+                $result[$i] = $component + $that->components[$i];
+            }
+        } elseif (is_numeric($that)) {
+            // We're accepting all numeric values but will be casting to a float, so be aware of potential
+            // precision loss.
+            $that = (float) $that;
+
+            foreach ($this->components as $i => $component) {
+                $result[$i] = $component + $that;
+            }
         }
 
-        return new static($result);
+        // Not having a result at this point simply means the input was neither a Vector nor a numeric.
+        if (!empty($result)) {
+            return new static($result);
+        }
+
+        throw new \InvalidArgumentException('Unknown type to add given - can only add other Vectors or numbers to Vectors.');
     }
 
     /**
