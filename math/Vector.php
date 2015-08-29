@@ -377,6 +377,19 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Projects this Vector onto another Vector.
+     *
+     * @param   Vector  $that   The vector to project this vector onto.
+     * @return  Vector
+     */
+    public function projectOnto(Vector $that) : Vector
+    {
+        $that = $that->normalize();
+
+        return $that->multiply($this->dotProduct($that));
+    }
+
+    /**
      * Subtracts $that Vector/number from this Vector and returns the result as a new Vector.
      *
      * @param   Vector|number    $that      The Vector or (numeric) bias to subtract from this Vector.
