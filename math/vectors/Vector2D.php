@@ -14,5 +14,24 @@ use nyx\utils\math;
  */
 class Vector2D extends math\Vector
 {
+    /**
+     * {@inheritDoc}
+     *
+     * Overridden to directly construct a zero 2-dimensional Vector.
+     */
+    public static function zero() : Vector2D
+    {
+        return new static(0.0, 0.0);
+    }
 
+    /**
+     * Constructs a new Vector2D instance.
+     *
+     * @param   float   $x  The X-component of the Vector.
+     * @param   float   $y  The Y-component of the Vector.
+     */
+    public function __construct(float $x, float $y)
+    {
+        parent::__construct(['x' => $x, 'y' => $y]);
+    }
 }

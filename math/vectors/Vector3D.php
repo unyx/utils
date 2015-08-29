@@ -15,6 +15,16 @@ use nyx\utils\math;
 class Vector3D extends math\Vector
 {
     /**
+     * {@inheritDoc}
+     *
+     * Overridden to directly construct a zero 2-dimensional Vector.
+     */
+    public static function zero() : Vector3D
+    {
+        return new static(0.0, 0.0, 0.0);
+    }
+
+    /**
      * Constructs a new Vector3D instance.
      *
      * @param   float   $x  The X-component of the Vector.
