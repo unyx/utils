@@ -60,11 +60,12 @@ class Vector implements \ArrayAccess
     }
 
     /**
-     * Adds this Vector to $that Vector and returns the result as a new Vector.
+     * Adds $that Vector/number to this Vector and returns the result as a new Vector.
      *
-     * @param   Vector|number    $that      The Vector or (numeric) bias to add.
+     * @param   Vector|number    $that      The Vector or (numeric) bias to add to this Vector.
      * @return  Vector                      The sum of the two vectors.
      * @throws  \DomainException            When a Vector is given as input and it is not in the same space.
+     * @throws  \InvalidArgumentException   When the value to add is neither a Vector nor numeric.
      */
     public function add($that) : Vector
     {
@@ -86,14 +87,11 @@ class Vector implements \ArrayAccess
             foreach ($this->components as $i => $component) {
                 $result[$i] = $component + $that;
             }
+        } else {
+            throw new \InvalidArgumentException('Unknown type to add given - can only add other Vectors or numbers to Vectors.');
         }
 
-        // Not having a result at this point simply means the input was neither a Vector nor a numeric.
-        if (!empty($result)) {
-            return new static($result);
-        }
-
-        throw new \InvalidArgumentException('Unknown type to add given - can only add other Vectors or numbers to Vectors.');
+        return new static($result);
     }
 
     /**
@@ -103,7 +101,7 @@ class Vector implements \ArrayAccess
      * @return  float               The dot product of the two Vectors.
      * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
      */
-    public function dotProduct(Vector $that)
+    public function dotProduct(Vector $that) : float
     {
         if (!$this->isSameDimension($that)) {
             throw new \DomainException('The given Vector is not in the same dimension as this Vector.');
@@ -255,6 +253,41 @@ class Vector implements \ArrayAccess
     public function normalize() : Vector
     {
         return $this->divide($this->length());
+    }
+
+    /**
+     * Subtracts $that Vector/number from this Vector and returns the result as a new Vector.
+     *
+     * @param   Vector|number    $that      The Vector or (numeric) bias to subtract from this Vector.
+     * @return  Vector                      The resulting difference as a new Vector instance.
+     * @throws  \DomainException            When a Vector is given as input and it is not in the same space.
+     * @throws  \InvalidArgumentException   When the value to add is neither a Vector nor numeric.
+     */
+    public function subtract($that) : Vector
+    {
+        $result = [];
+
+        if ($that instanceof Vector) {
+            if (!$this->isSameDimension($that)) {
+                throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
+            }
+
+            foreach ($this->components as $i => $component) {
+                $result[$i] = $component - $that->components[$i];
+            }
+        } elseif (is_numeric($that)) {
+            // We're accepting all numeric values but will be casting to a float, so be aware of potential
+            // precision loss.
+            $that = (float) $that;
+
+            foreach ($this->components as $i => $component) {
+                $result[$i] = $component - $that;
+            }
+        } else {
+            throw new \InvalidArgumentException('Unknown type to subtract given - can only subtract other Vectors or numbers from Vectors.');
+        }
+
+        return new static($result);
     }
 
     /**
