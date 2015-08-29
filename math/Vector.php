@@ -204,6 +204,29 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Returns a new Vector instance comprised of the smallest respective components
+     * out of this Vector and $that Vector.
+     *
+     * @param   Vector  $that       The Vector to compare to.
+     * @return  Vector
+     * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
+     */
+    public function componentMin(Vector $that) : Vector
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException('The given Vector is not in the same dimension as this Vector.');
+        }
+
+        $result = [];
+
+        foreach ($this->components as $i => $component) {
+            $result[$i] = min($component, $that->components[$i]);
+        }
+
+        return new static($result);
+    }
+
+    /**
      * Returns the dimension of the Vector.
      *
      * @return  int
