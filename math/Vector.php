@@ -244,6 +244,16 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Returns the smallest of the components.
+     *
+     * @return  float
+     */
+    public function min() : float
+    {
+        return min($this->components);
+    }
+
+    /**
      * Multiplies the Vector by the given scale and returns the result as a new Vector.
      *
      * @param   float   $scale  The scale to multiply by.
