@@ -75,4 +75,16 @@ class Vector3D extends math\Vector
     {
         return $this->crossProduct($second->crossProduct($third));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function __get($name)
+    {
+        if ('x' === $name || 'y' === $name || 'z' === $name) {
+            return $this->components[$name];
+        }
+
+        return parent::__get($name);
+    }
 }

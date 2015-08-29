@@ -597,4 +597,33 @@ class Vector implements \ArrayAccess
     {
         throw new \LogicException('Cannot unset ['.$key.'] - Vectors are immutable.');
     }
+
+
+    /**
+     * Magic getter. Allows access to some methods as properties and direct read access to the components.
+     */
+    public function __get($name)
+    {
+        if ('dimension' === $name || 'size' === $name) {
+            return count($this->components);
+        }
+
+        if ('length' === $name) {
+            return $this->length();
+        }
+
+        if ('min' === $name) {
+            return $this->min();
+        }
+
+        if ('max' === $name) {
+            return $this->max();
+        }
+
+        if (!isset($this->components[$name])) {
+            return $this->components[$name];
+        }
+
+        throw new \LogicException('Inaccessible method/property ['.$name.'].');
+    }
 }
