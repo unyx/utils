@@ -60,6 +60,22 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Returns the absolute value of this Vector as a new Vector instance.
+     *
+     * @return  Vector
+     */
+    public function abs() : Vector
+    {
+        $result = [];
+
+        foreach ($this->components as $i => $component) {
+            $result[$i] = abs($component);
+        }
+
+        return new static($result);
+    }
+
+    /**
      * Adds $that Vector/number to this Vector and returns the result as a new Vector.
      *
      * @param   Vector|number    $that      The Vector or (numeric) bias to add to this Vector.
