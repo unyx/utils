@@ -44,7 +44,7 @@ class Vector implements \ArrayAccess
      * @return  Vector                      A zero-length vector of the given dimension.
      * @throws  \InvalidArgumentException   When $dimension is less than 0.
      */
-    public static function null(int $dimension = 0) : static
+    public static function zero(int $dimension = 0) : static
     {
         if ($dimension === 0) {
             return new static([]);
