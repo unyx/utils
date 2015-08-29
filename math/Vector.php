@@ -18,6 +18,13 @@
 class Vector implements \ArrayAccess
 {
     /**
+     * Distance type constants.
+     */
+    const DISTANCE_CARTESIAN = 1;
+    const DISTANCE_TAXICAB   = 2; // AKA Manhattan / city block / rectilinear distance
+    const DISTANCE_CHEBYSHEV = 3; // AKA chessboard distance
+
+    /**
      * @var float[]     The components of the Vector.
      */
     protected $components;
