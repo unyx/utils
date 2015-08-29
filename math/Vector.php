@@ -95,6 +95,25 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Returns the biggest of the components compared as absolute values. This is *not* the
+     * absolute maximum (@see Vector::max() for that).
+     *
+     * @return  float
+     */
+    public function absMax() : float
+    {
+        $result = 0.0;
+
+        foreach ($this->components as $component) {
+            if ($result < $abs = abs($component)) {
+                $result = $abs;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Adds $that Vector/number to this Vector and returns the result as a new Vector.
      *
      * @param   Vector|number    $that      The Vector or (numeric) bias to add to this Vector.
