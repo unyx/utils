@@ -466,6 +466,28 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Returns the taxicab (AKA Manhattan / city block / rectilinear) distance of this Vector to the given Vector.
+     *
+     * @param   Vector  $that       The Vector to calculate the distance to.
+     * @return  float
+     * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
+     */
+    public function taxicabDistanceTo(Vector $that) : float
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
+        }
+
+        $result = [];
+
+        foreach ($this->components as $i => $component) {
+            $result[$i] = abs($component - $that->components[$i]);
+        }
+
+        return max($result);
+    }
+
+    /**
      * @see self::get()
      *
      * @throws  \LogicException     When the given $key does not exist.
