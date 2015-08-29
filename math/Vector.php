@@ -193,6 +193,29 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Returns the angle between this and $that Vector.
+     *
+     * @param   Vector   $that              The Vector to compute the angle between.
+     * @return  float                       The angle between the Vectors, in radians.
+     * @throws  \DomainException            When the given Vector is not in the same space as this Vector.
+     * @throws  exceptions\DivisionByZero   When either of the Vectors is of zero length.
+     */
+    public function angleBetween(Vector $that)
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException('The given Vector is not in the same dimension as this Vector.');
+        }
+
+        $denominator = $this->length() * $that->length();
+
+        if ($denominator === 0) {
+            throw new exceptions\DivisionByZero;
+        }
+
+        return acos($this->dotProduct($that) / $denominator);
+    }
+
+    /**
      * Computes the dot product of two Vectors (A | B).
      *
      * @param   Vector  $that       The Vector to compute the dot product against.
