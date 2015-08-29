@@ -390,6 +390,22 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Reverses the direction of this Vector.
+     *
+     * @return  Vector
+     */
+    public function reverse()
+    {
+        $result = [];
+
+        foreach ($this->components as $i => $component) {
+            $result[$i] = $component * -1;
+        }
+
+        return new static($result);
+    }
+
+    /**
      * Subtracts $that Vector/number from this Vector and returns the result as a new Vector.
      *
      * @param   Vector|number    $that      The Vector or (numeric) bias to subtract from this Vector.
