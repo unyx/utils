@@ -10,6 +10,7 @@
  * @author      Michal Chojnacki <m.chojnacki@muyo.io>
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/math.html
+ * @todo        Make Vectors actually mutable depending on use cases (considerable overhead per-tick currently)?
  */
 class Vector implements \ArrayAccess
 {
@@ -317,11 +318,11 @@ class Vector implements \ArrayAccess
             return $result;
         }
 
-        // Compute the square.
+        // Compute the square sum.
         $sum = 0;
 
         foreach ($this->components as $component) {
-            $sum += pow($component, 2);
+            $sum += $component * $component;
         }
 
         return $result = $sum;
