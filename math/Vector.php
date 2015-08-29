@@ -274,6 +274,11 @@ class Vector implements \ArrayAccess
         switch ($type) {
             case self::DISTANCE_CARTESIAN:
                 return $this->cartesianDistanceTo($that);
+
+            case self::DISTANCE_CHEBYSHEV:
+            case self::DISTANCE_CHESSBOARD:
+                return $this->chebyshevDistanceTo($that);
+
             case self::DISTANCE_TAXICAB:
             case self::DISTANCE_MANHATTAN:
                 return $this->taxicabDistanceTo($that);
@@ -305,13 +310,13 @@ class Vector implements \ArrayAccess
     }
 
     /**
-     * Returns the taxicab (AKA Manhattan / city block / rectilinear) distance of this Vector to the given Vector.
+     * Returns the Chebyshev (AKA chessboard) distance of this Vector to the given Vector.
      *
      * @param   Vector  $that       The Vector to calculate the distance to.
      * @return  float               The taxicab distance.
      * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
      */
-    public function taxicabDistanceTo(Vector $that) : float
+    public function chebyshevDistanceTo(Vector $that) : float
     {
         if (!$this->isSameDimension($that)) {
             throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
@@ -324,6 +329,28 @@ class Vector implements \ArrayAccess
         }
 
         return max($result);
+    }
+
+    /**
+     * Returns the taxicab (AKA Manhattan / city block / rectilinear) distance of this Vector to the given Vector.
+     *
+     * @param   Vector  $that       The Vector to calculate the distance to.
+     * @return  float               The taxicab distance.
+     * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
+     */
+    public function taxicabDistanceTo(Vector $that) : float
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
+        }
+
+        $result = 0;
+
+        foreach ($this->components as $i => $component) {
+            $result += abs($component - $that->components[$i]);
+        }
+
+        return $result;
     }
 
     /**
