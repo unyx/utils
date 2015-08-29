@@ -20,9 +20,17 @@ class Vector implements \ArrayAccess
     /**
      * Distance type constants.
      */
-    const DISTANCE_CARTESIAN = 1;
-    const DISTANCE_TAXICAB   = 2; // AKA Manhattan / city block / rectilinear distance
-    const DISTANCE_CHEBYSHEV = 3; // AKA chessboard distance
+    const DISTANCE_CARTESIAN   = 1;
+    const DISTANCE_TAXICAB     = 2; // AKA Manhattan / city block / rectilinear distance
+    const DISTANCE_MANHATTAN   = 2; // same as above
+    const DISTANCE_CHEBYSHEV   = 3; // AKA chessboard distance
+    const DISTANCE_CHESSBOARD  = 3; // same as above
+
+    /**
+     * @var int         The default distance type returned by the shorthand Vector::distanceTo() method. Kept
+     *                  static and public on purpose since this is a utility setting for a utility method.
+     */
+    public static $defaultDistanceType = self::DISTANCE_CARTESIAN;
 
     /**
      * @var float[]     The components of the Vector.
@@ -248,6 +256,77 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Returns the distance of this Vector to the given Vector.
+     *
+     * @param   Vector      $that           The Vector to calculate the distance to.
+     * @param   int|null    $type           The type of the distance (one of the DISTANCE_* class constants) or null
+     *                                      to use the value of the public static $defaultDistanceType (Cartesian
+     *                                      distance by default).
+     * @return  float                       The distance of the specified type.
+     * @throws  \InvalidArgumentException   When an unsupported distance type was given.
+     */
+    public function distance(Vector $that, int $type = null) : float
+    {
+        if (null === $type) {
+            $type = static::$defaultDistanceType;
+        }
+
+        switch ($type) {
+            case self::DISTANCE_CARTESIAN:
+                return $this->cartesianDistanceTo($that);
+            case self::DISTANCE_TAXICAB:
+            case self::DISTANCE_MANHATTAN:
+                return $this->taxicabDistanceTo($that);
+        }
+
+        throw new \InvalidArgumentException('Unsupported distance type ['.$type.'] given.');
+    }
+
+    /**
+     * Returns the cartesian distance of this Vector to the given Vector.
+     *
+     * @param   Vector  $that       The Vector to calculate the distance to.
+     * @return  float               The cartesian distance.
+     * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
+     */
+    public function cartesianDistanceTo(Vector $that) : float
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
+        }
+
+        $result = 0;
+
+        foreach ($this->components as $i => $component) {
+            $result += pow($component - $that->components[$i], 2);
+        }
+
+        return sqrt($result);
+    }
+
+    /**
+     * Returns the taxicab (AKA Manhattan / city block / rectilinear) distance of this Vector to the given Vector.
+     *
+     * @param   Vector  $that       The Vector to calculate the distance to.
+     * @return  float               The taxicab distance.
+     * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
+     */
+    public function taxicabDistanceTo(Vector $that) : float
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
+        }
+
+        $result = [];
+
+        foreach ($this->components as $i => $component) {
+            $result[$i] = abs($component - $that->components[$i]);
+        }
+
+        return max($result);
+    }
+
+    /**
      * Divides the Vector by the given scale and returns the result as a new Vector.
      *
      * @param   float   $scale              The scale to divide by.
@@ -448,50 +527,6 @@ class Vector implements \ArrayAccess
         }
 
         return new static($result);
-    }
-
-    /**
-     * Returns the cartesian distance of this Vector to the given Vector.
-     *
-     * @param   Vector  $that       The Vector to calculate the distance to.
-     * @return  float
-     * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
-     */
-    public function cartesianDistanceTo(Vector $that) : float
-    {
-        if (!$this->isSameDimension($that)) {
-            throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
-        }
-
-        $result = 0;
-
-        foreach ($this->components as $i => $component) {
-            $result += pow($component - $that->components[$i], 2);
-        }
-
-        return sqrt($result);
-    }
-
-    /**
-     * Returns the taxicab (AKA Manhattan / city block / rectilinear) distance of this Vector to the given Vector.
-     *
-     * @param   Vector  $that       The Vector to calculate the distance to.
-     * @return  float
-     * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
-     */
-    public function taxicabDistanceTo(Vector $that) : float
-    {
-        if (!$this->isSameDimension($that)) {
-            throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
-        }
-
-        $result = [];
-
-        foreach ($this->components as $i => $component) {
-            $result[$i] = abs($component - $that->components[$i]);
-        }
-
-        return max($result);
     }
 
     /**
