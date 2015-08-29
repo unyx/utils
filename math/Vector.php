@@ -58,6 +58,31 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Creates a Vector of the appropriate type for the given $components.
+     *
+     * @param   array   $components         The components of the Vector. All values must be integers or floats ordered
+     *                                      numerically (the order of the keys determines the order of dimensions,
+     *                                      which becomes relevant in the 2D/3D vector implementations where they are
+     *                                      named X/Y/Z).
+     * @return  Vector                      A Vector type specific to the components given.
+     */
+    public static function from(array $components) : static
+    {
+        $dimensions = count($components);
+
+        // Ordered by most common use cases.
+        if ($dimensions === 3) {
+            return new vectors\Vector3D((float) $components[0], (float) $components[1], (float) $components[2]);
+        }
+
+        if ($dimensions === 2) {
+            return new vectors\Vector2D((float) $components[0], (float) $components[1]);
+        }
+
+        return new vectors\VectorND($components);
+    }
+
+    /**
      * Constructs a new n-dimensional Vector.
      *
      * @param   float[] $components         The components of the Vector. All values must be numeric and will
