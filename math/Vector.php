@@ -5,6 +5,9 @@
  *
  * Represents an immutable Euclidean vector of n dimensions with floating point precision.
  *
+ * Note: Not using SplFixedArray internally despite always having a known array length since the possible
+ *       performance/memory benefit would only materialize with a Vector of several thousand dimensions.
+ *
  * @package     Nyx\Utils\Math
  * @version     0.1.0
  * @author      Michal Chojnacki <m.chojnacki@muyo.io>
@@ -438,6 +441,28 @@ class Vector implements \ArrayAccess
         }
 
         return new static($result);
+    }
+
+    /**
+     * Returns the cartesian distance of this Vector to the given Vector.
+     *
+     * @param   Vector  $that       The Vector to calculate the distance to.
+     * @return  float
+     * @throws  \DomainException    When the given Vector is not in the same space as this Vector.
+     */
+    public function cartesianDistanceTo(Vector $that) : float
+    {
+        if (!$this->isSameDimension($that)) {
+            throw new \DomainException('The given input Vector is not in the same dimension as this Vector.');
+        }
+
+        $result = 0;
+
+        foreach ($this->components as $i => $component) {
+            $result += pow($component - $that->components[$i], 2);
+        }
+
+        return sqrt($result);
     }
 
     /**
