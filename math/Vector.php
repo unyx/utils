@@ -3,7 +3,7 @@
 /**
  * Vector
  *
- * Represents an immutable Euclidean vector of n dimensions.
+ * Represents an immutable Euclidean vector of n dimensions with floating point precision.
  *
  * @package     Nyx\Utils\Math
  * @version     0.1.0
@@ -39,12 +39,23 @@ class Vector implements \ArrayAccess
     }
 
     /**
-     * Constructs a new Vector.
+     * Constructs a new n-dimensional Vector.
      *
-     * @param   float[]     The components of the Vector.
+     * @param   float[] $components         The components of the Vector. All values must be numeric and will
+     *                                      be cast to floats.
+     * @throws  \InvalidArgumentException   When any of the components is not a numeric value.
      */
     public function __construct(array $components)
     {
+        // Validate all components and cast them to floats.
+        foreach ($components as $d => &$component) {
+            if (!is_numeric($component)) {
+                throw new \InvalidArgumentException('The value of the component ['.$d.'] is not numeric.');
+            }
+
+            $component = (float) $component;
+        }
+
         $this->components = $components;
     }
 
