@@ -11,7 +11,7 @@
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/math.html
  */
-class Vector
+class Vector implements \ArrayAccess
 {
     /**
      * @var float[]     The components of the Vector.
@@ -244,5 +244,47 @@ class Vector
     public function normalize() : Vector
     {
         return $this->divide($this->length());
+    }
+
+    /**
+     * @see self::get()
+     *
+     * @throws  \LogicException     When the given $key does not exist.
+     */
+    public function offsetGet($key)
+    {
+        if (!isset($this->components[$key])) {
+            throw new \LogicException('The requested key ['.$key.'] does not exist.');
+        }
+
+        return $this->components[$key];
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws  \LogicException     Always, since Vectors are immutable.
+     */
+    public function offsetSet($key, $item)
+    {
+        throw new \LogicException('Cannot set ['.$key.'] - Vectors are immutable.');
+    }
+
+    /**
+     * @see self::has()
+     */
+    public function offsetExists($key)
+    {
+        return isset($this->components[$key]);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws  \LogicException     Always, since Vectors are immutable.
+     */
+    public function offsetUnset($key)
+    {
+        throw new \LogicException('Cannot unset ['.$key.'] - Vectors are immutable.');
     }
 }
