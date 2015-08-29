@@ -254,6 +254,16 @@ class Vector implements \ArrayAccess
     }
 
     /**
+     * Returns the biggest of the components.
+     *
+     * @return  float
+     */
+    public function max() : float
+    {
+        return max($this->components);
+    }
+
+    /**
      * Multiplies the Vector by the given scale and returns the result as a new Vector.
      *
      * @param   float   $scale  The scale to multiply by.
