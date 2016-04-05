@@ -660,12 +660,12 @@ class Str
      * Removes the given $needle(s) from the $haystack.
      *
      * @param   string          $haystack   The string to remove from.
-     * @param   string|array    $needle     The substrings to remove.
+     * @param   string|string[] $needles    The substrings to remove.
      * @return  string                      The resulting string.
      */
-    public static function remove(string $haystack, string $needle) : string
+    public static function remove(string $haystack, $needles) : string
     {
-        return static::replace($haystack, $needle, '');
+        return static::replace($haystack, $needles, '');
     }
 
     /**
