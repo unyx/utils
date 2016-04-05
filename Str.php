@@ -746,6 +746,41 @@ class Str
     }
 
     /**
+     * Replaces the the first occurrence of each of the $needles in $haystack with $replacement.
+     *
+     * This method will search from the beginning of $haystack after processing each needle and replacing it,
+     * meaning subsequent iterations may replace substrings resulting from previous iterations.
+     *
+     * @param   string          $haystack       The string to replace $needles in.
+     * @param   string|array    $needles        What to replace in the string.
+     * @param   string          $replacement    The replacement value for each found (first) needle.
+     * @param   bool            $strict         Whether to use case-sensitive comparisons.
+     * @param   string|null     $encoding       The encoding to use.
+     * @return  string                          The resulting string.
+     */
+    public static function replaceFirst(string $haystack, $needles, string $replacement, bool $strict = true, string $encoding = null) : string
+    {
+        if ($haystack === '') {
+            return '';
+        }
+
+        $encoding = $encoding ?: static::encoding($haystack);
+
+        foreach ((array) $needles as $needle) {
+
+            if($needle === '' || -1 === $position = static::indexOf($haystack, $needle, 0, $strict, $encoding)) {
+                continue;
+            }
+
+            // Grab the substrings before and after the needle occurs, insert the replacement in between
+            // and glue it together omitting the needle.
+            $haystack = mb_substr($haystack, 0, $position, $encoding) . $replacement . mb_substr($haystack, $position + mb_strlen($needle, $encoding), null, $encoding);
+        }
+
+        return $haystack;
+    }
+
+    /**
      * Reverses a string. Multibyte-safe equivalent of strrev().
      *
      * @param   string      $str        The string to reverse.
