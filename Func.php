@@ -6,7 +6,7 @@
  * Utilities related to functions/methods/callables/closures.
  *
  * @package     Nyx\Utils\Func
- * @version     0.0.4
+ * @version     0.0.5
  * @author      Michal Chojnacki <m.chojnacki@muyo.io>
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/func.html
@@ -20,8 +20,9 @@ class Func
     use traits\StaticallyExtendable;
 
     /**
-     * Constant used to pass through the arguments from a main wrapped callable to a related callable. Concrete
-     * behaviour depends on the method being used, therefore check the method docs for actual usage info.
+     * Special constant used to pass through the arguments from a main wrapped callable to a related callable. Concrete
+     * behaviour depends on the method being used, therefore check the method docs for actual usage info - self::unless()
+     * and self::when().
      */
     const PASSTHROUGH = "__passthrough__";
 
@@ -32,13 +33,13 @@ class Func
 
     /**
      * Creates a Closure that, when called, ensures the wrapped callable only gets invoked after being called
-     * at least $times times.
+     * at least the given number of $times.
      *
      * @param   int         $times      The number of times the function should get called before being executed.
      * @param   callable    $callback   The callable to wrap.
      * @return  \Closure                The wrapper.
      */
-    public static function after($times = 1, callable $callback)
+    public static function after(int $times = 1, callable $callback) : \Closure
     {
         return function (...$args) use ($callback, $times) {
             static $count = 0;
@@ -74,7 +75,7 @@ class Func
      * @param   array       $args       The arguments to hash.
      * @return  string                  The hash.
      */
-    public static function hash(callable $callable, array $args)
+    public static function hash(callable $callable, array $args) : string
     {
         if ($callable instanceof \Closure) {
             $callable = var_export($callable, true);
@@ -86,7 +87,8 @@ class Func
     }
 
     /**
-     * Creates a Closure that memoizes the result of the wrapped callable.
+     * Creates a Closure that memoizes the result of the wrapped callable and returns it once the wrapper gets
+     * called.
      *
      * @param   callable            $callback   The callable to wrap.
      * @param   callable|string     $key        When a callable is given, it will be invoked with 2 arguments: the
@@ -99,10 +101,8 @@ class Func
      * @todo                                    Expose the cached result inside the callable (limited to the same
      *                                          callable?)
      * @todo                                    Use the first argument for the callable as cache key if not given?
-     * @todo                                    Optionally hook into storage\cache for self::memoize() instead
-     *                                          of using an internal array?
      */
-    public static function memoize(callable $callback, $key = null)
+    public static function memoize(callable $callback, $key = null) : \Closure
     {
         return function (...$args) use ($callback, $key) {
 
@@ -126,7 +126,7 @@ class Func
      * @param   callable    $callback   The callable to wrap.
      * @return  \Closure                The wrapper.
      */
-    public static function once(callable $callback)
+    public static function once(callable $callback) : \Closure
     {
         return static::only(1, $callback);
     }
@@ -138,7 +138,7 @@ class Func
      * @param   callable    $callback   The callable to wrap.
      * @return  \Closure                The wrapper.
      */
-    public static function only($times = 1, callable $callback)
+    public static function only(int $times = 1, callable $callback) : \Closure
     {
         return function (...$args) use ($callback, $times) {
             // Keep track of how many times the Closure was already called.
@@ -159,7 +159,7 @@ class Func
      * @param   mixed       ...$prependedArgs   The arguments to prepend to the callback.
      * @return  \Closure                        The wrapper.
      */
-    public static function partial(callable $callback, ...$prependedArgs)
+    public static function partial(callable $callback, ...$prependedArgs) : \Closure
     {
         return function (...$args) use ($callback, $prependedArgs) {
             return call_user_func($callback, ...$prependedArgs, ...$args);
@@ -174,7 +174,7 @@ class Func
      * @param   mixed       ...$appendedArgs    The arguments to append to the callback.
      * @return  \Closure                        The wrapper.
      */
-    public static function partialRight(callable $callback, ...$appendedArgs)
+    public static function partialRight(callable $callback, ...$appendedArgs) : \Closure
     {
         return function (...$args) use ($callback, $appendedArgs) {
             return call_user_func($callback, ...$args, ...$appendedArgs);
@@ -188,10 +188,10 @@ class Func
      *
      * @param   callable    $callback   The callable to wrap.
      * @param   int         $wait       The time in milliseconds that must pass before the callable can be executed
-     *                                  again.
+     *                                  again after each call.
      * @return  \Closure                The wrapper.
      */
-    public static function throttle(callable $callback, $wait = null)
+    public static function throttle(callable $callback, int $wait = null) : \Closure
     {
         return function (...$args) use ($callback, $wait) {
             static $timer  = 0;
@@ -219,7 +219,7 @@ class Func
      *                                  will also be passed to the truth test.
      * @return  \Closure                The wrapper.
      */
-    public static function unless(callable $test, callable $callback, $testArgs = null)
+    public static function unless(callable $test, callable $callback, $testArgs = null) : \Closure
     {
         return static::whenInternal($test, $callback, $testArgs, false);
     }
@@ -234,7 +234,7 @@ class Func
      *                                  will also be passed to the truth test.
      * @return  \Closure                The wrapper.
      */
-    public static function when(callable $test, callable $callback, $testArgs = null)
+    public static function when(callable $test, callable $callback, $testArgs = null) : \Closure
     {
         return static::whenInternal($test, $callback, $testArgs, true);
     }
@@ -251,7 +251,7 @@ class Func
      * @param   bool        $expect     The boolean to expect to allow the callable to be invoked.
      * @return  \Closure                The wrapper.
      */
-    protected static function whenInternal(callable $test, callable $callback, $testArgs = null, $expect = true)
+    protected static function whenInternal(callable $test, callable $callback, $testArgs = null, $expect = true) : \Closure
     {
         return function (...$callbackArgs) use ($callback, $test, $testArgs, $expect) {
             $testArgs = $testArgs === self::PASSTHROUGH ? $callbackArgs : (array) $testArgs;
