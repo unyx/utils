@@ -258,36 +258,6 @@ class Str
     }
 
     /**
-     * Runs the given callable over each character in the given string and returns the resulting string.
-     *
-     * The callable should accept two arguments (in this order): the character (multibyte string)
-     * and the character's index (int). Additional arguments may also be added and will be appended to the
-     * callable in the order given. The callable should return a string or a value castable to a string.
-     *
-     * @param   string      $str        The string over which to run the callable.
-     * @param   callable    $callable   The callable to apply.
-     * @param   string|null $encoding   The encoding to use.
-     * @param   mixed       ...$args    Additional arguments to pass to the callable.
-     * @return  string                  The string after applying the callable to each of its characters.
-     */
-    public static function eachCharacter(string $str, callable $callable, string $encoding = null, ...$args) : string
-    {
-        if ($str === '') {
-            return $str;
-        }
-
-        $result   = [];
-        $encoding = $encoding ?: static::encoding($str);
-        $length   = mb_strlen($str, $encoding);
-
-        for ($idx = 0; $idx < $length; $idx++) {
-            $result[] = (string) call_user_func($callable, mb_substr($str, $idx, 1, $encoding), $idx, ...$args);
-        }
-
-        return implode('', $result);
-    }
-
-    /**
      * Runs the given callable over each line of the given string and returns the resulting string.
      *
      * The callable should accept two arguments (in this order): the contents of the line (string)
@@ -940,7 +910,7 @@ class Str
      *
      * @param   string      $str        The string to convert.
      * @param   string|null $encoding   The encoding to use.
-     * @return  string              T   he converted string.
+     * @return  string                  The converted string.
      */
     public static function titleCase(string $str, string $encoding = null) : string
     {
