@@ -60,7 +60,7 @@ class Func
      * @param   mixed       ...$between    Two or more values to alternate between, given as separate arguments.
      * @return  \Closure
      */
-    public static function alternator(...$between) : \Closure
+    public static function alternate(...$between) : \Closure
     {
         return function ($next = true) use ($between) {
             static $i = 0;
