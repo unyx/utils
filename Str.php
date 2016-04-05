@@ -395,7 +395,7 @@ class Str
      */
     public static function indexOf(string $haystack, string $needle, int $offset = 0, bool $strict = true, string $encoding = null) : int
     {
-        $func     = $strict ? 'mb_strrpos' : 'mb_strripos';
+        $func     = $strict ? 'mb_strpos' : 'mb_stripos';
         $encoding = $encoding ?: static::encoding($haystack);
 
         if ($offset < 0) {
@@ -881,7 +881,7 @@ class Str
 
         $encoding = $encoding ?: static::encoding($haystack);
 
-        // Check if the absolute starting index (to account for negative indexes) + 1 (since it's 0-indexed
+        // Check if the absolute starting index (to account for negative indices) + 1 (since it's 0-indexed
         // while length is > 1 at this point) is within the length of the string.
         if (abs($offset) >= mb_strlen($haystack, $encoding)) {
             throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', $encoding).'].');
