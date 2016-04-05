@@ -168,15 +168,15 @@ class Character
             return $str;
         }
 
-        $result   = [];
+        $result   = '';
         $encoding = $encoding ?: utils\Str::encoding($str);
         $length   = mb_strlen($str, $encoding);
 
         for ($idx = 0; $idx < $length; $idx++) {
-            $result[] = (string) call_user_func($callable, mb_substr($str, $idx, 1, $encoding), $idx, ...$args);
+            $result .= (string) call_user_func($callable, mb_substr($str, $idx, 1, $encoding), $idx, ...$args);
         }
 
-        return implode('', $result);
+        return $result;
     }
 
     /**
