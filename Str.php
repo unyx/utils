@@ -107,7 +107,7 @@ class Str
     }
 
     /**
-     * Returns the substring of $haystack between $firstNeedle and $secondNeedle.
+     * Returns the substring of $haystack between $startNeedle and $endNeedle.
      *
      * If all you need is to return part of a string when the offsets you are looking for are known,
      * you should use Str::sub() instead.
@@ -859,7 +859,7 @@ class Str
      *                                      the slice will start at the $offset-th character counting from the end
      *                                      of the input string.
      * @param   int|null    $length         The length of the slice. Must be a positive integer or null. If null,
-     *                                      the full string starting from $start will be returned. If a length
+     *                                      the full string starting from $offset will be returned. If a length
      *                                      which is longer than the input string is requested the method will
      *                                      silently ignore this and will act as if null was passed as length.
      * @param   string|null $encoding       The encoding to use.
