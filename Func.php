@@ -221,7 +221,7 @@ class Func
      */
     public static function unless(callable $test, callable $callback, ...$testArgs) : \Closure
     {
-        return static::whenInternal($test, $callback, false, $testArgs);
+        return static::whenInternal($test, $callback, false, ...$testArgs);
     }
 
     /**
@@ -236,7 +236,7 @@ class Func
      */
     public static function when(callable $test, callable $callback, ...$testArgs) : \Closure
     {
-        return static::whenInternal($test, $callback, true, $testArgs);
+        return static::whenInternal($test, $callback, true, ...$testArgs);
     }
 
     /**
