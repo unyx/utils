@@ -210,51 +210,51 @@ class Func
     }
 
     /**
-     * Wraps a callable in a Closure to only allow it to be invoked when the $test callable returns a falsy value.
+     * Wraps a callable in a Closure to only allow it to be invoked when the truth $test callable returns a falsy value.
      *
-     * @param   callable    $test       The truth test.
-     * @param   callable    $callback   The callable to wrap.
-     * @param   mixed       $testArgs   The arguments to pass to the truth test. Will be cast to an array. When
-     *                                  self::PASSTHROUGH gets passed, the same arguments passed to the callable
-     *                                  will also be passed to the truth test.
-     * @return  \Closure                The wrapper.
+     * @param   callable    $test           The truth test.
+     * @param   callable    $callback       The callable to wrap.
+     * @param   mixed       ...$testArgs    The arguments to pass to the truth test. If self::PASSTHROUGH gets passed
+     *                                      (as the first argument, so anything past that gets ignored) the same
+     *                                      arguments passed to the callable will also be passed to the truth test.
+     * @return  \Closure                    The wrapper.
      */
-    public static function unless(callable $test, callable $callback, $testArgs = null) : \Closure
+    public static function unless(callable $test, callable $callback, ...$testArgs) : \Closure
     {
-        return static::whenInternal($test, $callback, $testArgs, false);
+        return static::whenInternal($test, $callback, false, $testArgs);
     }
 
     /**
-     * Wraps a callable in a Closure to only allow it to be invoked when the $test callable returns a truthy value.
+     * Wraps a callable in a Closure to only allow it to be invoked when the truth $test callable returns a truthy value.
      *
-     * @param   callable    $test       The truth test.
-     * @param   callable    $callback   The callable to wrap.
-     * @param   mixed       $testArgs   The arguments to pass to the truth test. Will be cast to an array. When
-     *                                  self::PASSTHROUGH gets passed, the same arguments passed to the callable
-     *                                  will also be passed to the truth test.
-     * @return  \Closure                The wrapper.
+     * @param   callable    $test           The truth test.
+     * @param   callable    $callback       The callable to wrap.
+     * @param   mixed       ...$testArgs    The arguments to pass to the truth test. If self::PASSTHROUGH gets passed
+     *                                      (as the first argument, so anything past that gets ignored) the same
+     *                                      arguments passed to the callable will also be passed to the truth test.
+     * @return  \Closure                    The wrapper.
      */
-    public static function when(callable $test, callable $callback, $testArgs = null) : \Closure
+    public static function when(callable $test, callable $callback, ...$testArgs) : \Closure
     {
-        return static::whenInternal($test, $callback, $testArgs, true);
+        return static::whenInternal($test, $callback, true, $testArgs);
     }
 
     /**
-     * Wraps a callable in a Closure to only allow it to be invoked when the $test callable returns a boolean
-     * true or false. Used internally by self::unless() and self::when() to reduce some code duplication.
+     * Wraps a callable in a Closure to only allow it to be invoked when the $test callable returns a truthy or falsy
+     * value. Used internally by self::unless() and self::when() to reduce some code duplication.
      *
-     * @param   callable    $test       The truth test.
-     * @param   callable    $callback   The callable to wrap.
-     * @param   mixed       $testArgs   The arguments to pass to the truth test. Will be cast to an array. When
-     *                                  self::PASSTHROUGH gets passed, the same arguments passed to the callable
-     *                                  will also be passed to the truth test.
-     * @param   bool        $expect     The boolean to expect to allow the callable to be invoked.
-     * @return  \Closure                The wrapper.
+     * @param   callable    $test           The truth test.
+     * @param   callable    $callback       The callable to wrap.
+     * @param   bool        $expect         The boolean to expect to allow the callable to be invoked.
+     * @param   mixed       ...$testArgs    The arguments to pass to the truth test. If self::PASSTHROUGH gets passed
+     *                                      (as the first argument, so anything past that gets ignored) the same
+     *                                      arguments passed to the callable will also be passed to the truth test.
+     * @return  \Closure                    The wrapper.
      */
-    protected static function whenInternal(callable $test, callable $callback, $testArgs = null, $expect = true) : \Closure
+    protected static function whenInternal(callable $test, callable $callback, $expect = true, ...$testArgs) : \Closure
     {
         return function (...$callbackArgs) use ($callback, $test, $testArgs, $expect) {
-            $testArgs = $testArgs === self::PASSTHROUGH ? $callbackArgs : (array) $testArgs;
+            $testArgs = (isset($testArgs[0]) && $testArgs[0] === self::PASSTHROUGH) ? $callbackArgs : $testArgs;
 
             // Loose comparison on purpose to make this more elastic.
             if ($expect == call_user_func($test, ...$testArgs)) {
