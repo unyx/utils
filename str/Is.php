@@ -53,6 +53,17 @@ class Is
     }
 
     /**
+     * Checks whether the string is base64 encoded.
+     *
+     * @param   string  $str    The string to match,
+     * @return  bool
+     */
+    public static function base64(string $str)
+    {
+        return $str === base64_encode(base64_decode($str, true));
+    }
+
+    /**
      * Checks whether the string contains *only* whitespace characters.
      *
      * @param   string  $str            The string to match,
