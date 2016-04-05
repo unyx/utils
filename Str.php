@@ -235,7 +235,7 @@ class Str
     }
 
     /**
-     * Determines whether the given $haystack contains any of the $needles. Alias for self::contains() with an
+     * Determines whether the given $haystack contains all of the $needles. Alias for self::contains() with an
      * array of needles and the $all parameter set to true.
      *
      * @see Str::contains()
@@ -725,21 +725,40 @@ class Str
     }
 
     /**
-     * Replaces the $needles within the given $haystack with the $replacement.
+     * Replaces the $needles within the given $haystack with the $replacement. If $needles is a string,
+     * it will be treated as a regular expression. If it is an array, it will be treated as an array
+     * of substrings to replace (an appropriate regular expression will be constructed).
+     *
+     * Acts as an utility alias for mb_ereg_replace().
      *
      * @param   string          $haystack       The string to replace $needles in.
      * @param   string|string[] $needles        What to replace in the string.
      * @param   string          $replacement    The replacement value.
+     * @param   string          $options        The matching conditions as a string.
+     *                                          {@link http://php.net/manual/en/function.mb-ereg-replace.php}
+     * @param   string|null     $encoding       The encoding to use.
      * @return  string                          The resulting string.
      */
-    public static function replace(string $haystack, $needles, string $replacement) : string
+    public static function replace(string $haystack, $needles, string $replacement, string $options = 'msr', string $encoding = null) : string
     {
         // If multiple values to replace were passed.
         if (is_array($needles)) {
             $needles = '(' .implode('|', $needles). ')';
         }
 
-        return mb_ereg_replace($needles, $replacement, $haystack);
+        // Keep track of the internal encoding as we'll change it temporarily and then revert back to it.
+        $internalEncoding = mb_regex_encoding();
+
+        // Swap out the internal encoding for what we want...
+        mb_regex_encoding($encoding ?: static::encoding($haystack));
+
+        // ... and perform the replacement.
+        $result = mb_ereg_replace($needles, $replacement, $haystack, $options);
+
+        // Restore the initial internal encoding.
+        mb_regex_encoding($internalEncoding);
+
+        return $result;
     }
 
     /**
