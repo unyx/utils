@@ -646,7 +646,7 @@ class Str
      *                                      back to a base alphanumeric character set.
      * @param   int         $strength       The requested strength of entropy (one of the Random::STRENGTH_*
      *                                      class constants)
-     * @return  float                       The generated string.
+     * @return  string                      The generated string.
      */
     public static function random(int $length = 8, $characters = null, int $strength = Random::STRENGTH_NONE) : string
     {
@@ -760,24 +760,7 @@ class Str
      */
     public static function replaceFirst(string $haystack, $needles, string $replacement, bool $strict = true, string $encoding = null) : string
     {
-        if ($haystack === '') {
-            return '';
-        }
-
-        $encoding = $encoding ?: static::encoding($haystack);
-
-        foreach ((array) $needles as $needle) {
-
-            if($needle === '' || -1 === $position = static::indexOf($haystack, $needle, 0, $strict, $encoding)) {
-                continue;
-            }
-
-            // Grab the substrings before and after the needle occurs, insert the replacement in between
-            // and glue it together omitting the needle.
-            $haystack = mb_substr($haystack, 0, $position, $encoding) . $replacement . mb_substr($haystack, $position + mb_strlen($needle, $encoding), null, $encoding);
-        }
-
-        return $haystack;
+        return static::replaceOccurrence($haystack, $needles, $replacement, $strict, true, $encoding);
     }
 
     /**
@@ -795,24 +778,7 @@ class Str
      */
     public static function replaceLast(string $haystack, $needles, string $replacement, bool $strict = true, string $encoding = null) : string
     {
-        if ($haystack === '') {
-            return '';
-        }
-
-        $encoding = $encoding ?: static::encoding($haystack);
-
-        foreach ((array) $needles as $needle) {
-
-            if($needle === '' || -1 === $position = static::indexOfLast($haystack, $needle, 0, $strict, $encoding)) {
-                continue;
-            }
-
-            // Grab the substrings before and after the needle occurs, insert the replacement in between
-            // and glue it together omitting the needle.
-            $haystack = mb_substr($haystack, 0, $position, $encoding) . $replacement . mb_substr($haystack, $position + mb_strlen($needle, $encoding), null, $encoding);
-        }
-
-        return $haystack;
+        return static::replaceOccurrence($haystack, $needles, $replacement, $strict, false, $encoding);
     }
 
     /**
@@ -1186,6 +1152,8 @@ class Str
      * before up to the beginning of the $needle or from the beginning of the $needle and including it,
      * depending on whether $before is true or false.
      *
+     * Used internally by {@see self::after()} and {@see self::before()}.
+     *
      * @param   string      $haystack   The string to search in.
      * @param   string      $needle     The substring to search for.
      * @param   bool        $strict     Whether to use case-sensitive comparisons. True by default.
@@ -1205,5 +1173,45 @@ class Str
         }
 
         return $result;
+    }
+
+    /**
+     * Replaces a single occurrence of each of the $needles in $haystack with $replacement - either the first or
+     * the last occurence, depending whether $first is true or false.
+     *
+     * This method will search from the beginning/end of $haystack after processing each needle and replacing it,
+     * meaning subsequent iterations may replace substrings resulting from previous iterations.
+     *
+     * Used internally by {@see self::replaceFirst()} and {@see self::replaceLast()}.
+     *
+     * @param   string          $haystack       The string to replace $needles in.
+     * @param   string|array    $needles        What to replace in the string.
+     * @param   string          $replacement    The replacement value for each found (last) needle.
+     * @param   bool            $strict         Whether to use case-sensitive comparisons.
+     * @param   bool            $first          Whether to replace the first or the last occurrence of the needle(s).
+     * @param   string|null     $encoding       The encoding to use.
+     * @return  string                          The resulting string.
+     */
+    protected static function replaceOccurrence(string $haystack, $needles, string $replacement, bool $strict, bool $first, string $encoding = null) : string
+    {
+        if ($haystack === '') {
+            return '';
+        }
+
+        $encoding = $encoding ?: static::encoding($haystack);
+        $method   = $first    ? 'indexOf' : 'indexOfLast';
+
+        foreach ((array) $needles as $needle) {
+
+            if($needle === '' || -1 === $position = static::$method($haystack, $needle, 0, $strict, $encoding) || 0 === $needleLen = mb_strlen($needle, $encoding)) {
+                continue;
+            }
+
+            // Grab the substrings before and after the needle occurs, insert the replacement in between
+            // and glue it together omitting the needle.
+            $haystack = mb_substr($haystack, 0, $position, $encoding) . $replacement . mb_substr($haystack, $position + $needleLen, null, $encoding);
+        }
+
+        return $haystack;
     }
 }
