@@ -73,7 +73,7 @@ class Str
         // We're gonna use strstr internally to grab the part of $haystack starting at $needle
         // and including the $needle, and then simply remove the starting $needle.
         // Note: Removing 1 from the length of $needle since we're using it as start offset
-        // for mb_substr, and that is 0-indexed.
+        // for mb_substr which is 0-indexed.
         return mb_substr(static::partOf($haystack, $needle, $strict, false, $encoding), mb_strlen($needle, $encoding) - 1);
     }
 
@@ -110,7 +110,7 @@ class Str
      * Returns the substring of $haystack between $startNeedle and $endNeedle.
      *
      * If all you need is to return part of a string when the offsets you are looking for are known,
-     * you should use Str::sub() instead.
+     * you should use {@see self::sub()} instead.
      *
      * @param   string      $haystack       The string to search in.
      * @param   string      $startNeedle    The needle marking the start of the substring to return.
@@ -140,15 +140,14 @@ class Str
             throw new \InvalidArgumentException($arg.' must not be an empty string.');
         }
 
-        $encoding = $encoding ?: static::encoding($haystack);
+        $encoding    = $encoding ?: static::encoding($haystack);
+        $funcIndexOf = $strict ? 'mb_strpos' : 'mb_stripos';
 
         // mb_strpos does not natively support negative offsets, so we'll add the negative offset
         // to the length of the $haystack to get the offset from its end.
         if ($offset < 0) {
             $offset = mb_strlen($haystack, $encoding) + $offset;
         }
-
-        $funcIndexOf = $strict ? 'mb_strpos' : 'mb_stripos';
 
         // Find the offset of the first needle.
         if (false === $firstIndex = $funcIndexOf($haystack, $startNeedle, $offset, $encoding)) {
@@ -471,7 +470,7 @@ class Str
     }
 
     /**
-     * Determines the length of a given string. Counts multibyte characters as single characters.
+     * Determines the length of a given string. Counts multi-byte characters as single characters.
      *
      * @param   string  $str        The string to count characters in.
      * @param   string  $encoding   The encoding to use.
@@ -618,11 +617,9 @@ class Str
         $result = [];
 
         while (false !== $offset = $func($haystack, $needle, $offset, $encoding)) {
-            $result[] = $offset;
-
             // We could count the length of $needle here but just going +1 ensures we don't catch
             // the same needle again while at the same time we're avoiding the overhead of mb_strlen.
-            $offset++;
+            $result[] = $offset++;
         }
 
         return $result;
@@ -641,7 +638,7 @@ class Str
      * @param   int         $length         The expected length of the generated string.
      * @param   string|int  $characters     The character list to use. Can be either a string
      *                                      with the characters to use or an int | nyx\core\Mask
-     *                                      to generate a list (@see Str::buildCharacterSet()).
+     *                                      to generate a list (@see self::buildCharacterSet()).
      *                                      If not provided or an invalid mask, the method will fall
      *                                      back to a base alphanumeric character set.
      * @param   int         $strength       The requested strength of entropy (one of the Random::STRENGTH_*
@@ -782,7 +779,7 @@ class Str
     }
 
     /**
-     * Reverses a string. Multibyte-safe equivalent of strrev().
+     * Reverses a string. Multi-byte-safe equivalent of strrev().
      *
      * @param   string      $str        The string to reverse.
      * @param   string|null $encoding   The encoding to use.
@@ -808,7 +805,7 @@ class Str
     }
 
     /**
-     * Randomizes the order of characters in the given string. Multibyte-safe equivalent
+     * Randomizes the order of characters in the given string. Multi-byte-safe equivalent
      * of str_shuffle().
      *
      * @param   string      $str        The string to shuffle.
@@ -823,8 +820,7 @@ class Str
 
         $result   = '';
         $encoding = $encoding ?: static::encoding($str);
-        $length   = mb_strlen($str, $encoding);
-        $indices  = range(0, $length - 1);
+        $indices  = range(0, mb_strlen($str, $encoding) - 1);
 
         shuffle($indices);
 
@@ -942,7 +938,7 @@ class Str
     }
 
     /**
-     * Converts the given string to title case. Multibyte-safe equivalent of ucwords().
+     * Converts the given string to title case. Multi-byte-safe equivalent of ucwords().
      *
      * @param   string      $str        The string to convert.
      * @param   string|null $encoding   The encoding to use.
@@ -1152,7 +1148,7 @@ class Str
      * before up to the beginning of the $needle or from the beginning of the $needle and including it,
      * depending on whether $before is true or false.
      *
-     * Used internally by {@see self::after()} and {@see self::before()}.
+     * Used internally by {@see self::after()}, {@see self::before()} and {@see self::from()}.
      *
      * @param   string      $haystack   The string to search in.
      * @param   string      $needle     The substring to search for.
@@ -1185,7 +1181,7 @@ class Str
      * Used internally by {@see self::replaceFirst()} and {@see self::replaceLast()}.
      *
      * @param   string          $haystack       The string to replace $needles in.
-     * @param   string|array    $needles        What to replace in the string.
+     * @param   string|string[] $needles        What to replace in the string.
      * @param   string          $replacement    The replacement value for each found (last) needle.
      * @param   bool            $strict         Whether to use case-sensitive comparisons.
      * @param   bool            $first          Whether to replace the first or the last occurrence of the needle(s).
@@ -1203,13 +1199,15 @@ class Str
 
         foreach ((array) $needles as $needle) {
 
-            if($needle === '' || -1 === $position = static::$method($haystack, $needle, 0, $strict, $encoding) || 0 === $needleLen = mb_strlen($needle, $encoding)) {
+            // Pass to the next needle if this one is an empty string or if it couldn't be found
+            // in the haystack at all.
+            if($needle === '' || -1 === $offset = static::$method($haystack, $needle, 0, $strict, $encoding) || 0 === $needleLen = mb_strlen($needle, $encoding)) {
                 continue;
             }
 
             // Grab the substrings before and after the needle occurs, insert the replacement in between
             // and glue it together omitting the needle.
-            $haystack = mb_substr($haystack, 0, $position, $encoding) . $replacement . mb_substr($haystack, $position + $needleLen, null, $encoding);
+            $haystack = mb_substr($haystack, 0, $offset, $encoding) . $replacement . mb_substr($haystack, $offset + $needleLen, null, $encoding);
         }
 
         return $haystack;
