@@ -634,7 +634,7 @@ class Str
      * or the characters provided.
      *
      * @see     Random::string()
-
+     *
      * @param   int         $length         The expected length of the generated string.
      * @param   string|int  $characters     The character list to use. Can be either a string
      *                                      with the characters to use or an int | nyx\core\Mask

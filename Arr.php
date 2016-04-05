@@ -124,7 +124,7 @@ class Arr
      */
     public static function clean(array $array) : array
     {
-        return array_filter($array, function ($value) {
+        return array_filter($array, function($value) {
             return (bool) $value;
         });
     }
@@ -342,7 +342,7 @@ class Arr
     {
         $results = [];
 
-        array_walk_recursive($array, function ($x) use (&$results) {
+        array_walk_recursive($array, function($x) use (&$results) {
             $results[] = $x;
         });
 
@@ -853,7 +853,7 @@ class Arr
      */
     public static function without(array $array, ...$values) : array
     {
-        return array_filter($array, function ($value) use ($values) {
+        return array_filter($array, function($value) use ($values) {
             return !in_array($value, $values, true);
         });
     }

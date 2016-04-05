@@ -41,7 +41,7 @@ class Func
      */
     public static function after(int $times = 1, callable $callback) : \Closure
     {
-        return function (...$args) use ($callback, $times) {
+        return function(...$args) use ($callback, $times) {
             static $count = 0;
 
             if (++$count >= $times) {
@@ -62,7 +62,7 @@ class Func
      */
     public static function alternate(...$between) : \Closure
     {
-        return function ($next = true) use ($between) {
+        return function($next = true) use ($between) {
             static $i = 0;
             return $between[($next ? $i++ : $i) % count($between)];
         };
@@ -104,7 +104,7 @@ class Func
      */
     public static function memoize(callable $callback, $key = null) : \Closure
     {
-        return function (...$args) use ($callback, $key) {
+        return function(...$args) use ($callback, $key) {
 
             // Determine which cache key to use.
             $key = null === $key
@@ -140,7 +140,7 @@ class Func
      */
     public static function only(int $times = 1, callable $callback) : \Closure
     {
-        return function (...$args) use ($callback, $times) {
+        return function(...$args) use ($callback, $times) {
             // Keep track of how many times the Closure was already called.
             static $called = 0;
 
@@ -161,7 +161,7 @@ class Func
      */
     public static function partial(callable $callback, ...$prependedArgs) : \Closure
     {
-        return function (...$args) use ($callback, $prependedArgs) {
+        return function(...$args) use ($callback, $prependedArgs) {
             return call_user_func($callback, ...$prependedArgs, ...$args);
         };
     }
@@ -176,7 +176,7 @@ class Func
      */
     public static function partialRight(callable $callback, ...$appendedArgs) : \Closure
     {
-        return function (...$args) use ($callback, $appendedArgs) {
+        return function(...$args) use ($callback, $appendedArgs) {
             return call_user_func($callback, ...$args, ...$appendedArgs);
         };
     }
@@ -193,7 +193,7 @@ class Func
      */
     public static function throttle(callable $callback, int $wait = null) : \Closure
     {
-        return function (...$args) use ($callback, $wait) {
+        return function(...$args) use ($callback, $wait) {
             static $timer  = 0;
             static $result = null;
 
@@ -253,7 +253,7 @@ class Func
      */
     protected static function whenInternal(callable $test, callable $callback, $expect = true, ...$testArgs) : \Closure
     {
-        return function (...$callbackArgs) use ($callback, $test, $testArgs, $expect) {
+        return function(...$callbackArgs) use ($callback, $test, $testArgs, $expect) {
             $testArgs = (isset($testArgs[0]) && $testArgs[0] === self::PASSTHROUGH) ? $callbackArgs : $testArgs;
 
             // Loose comparison on purpose to make this more elastic.

@@ -256,7 +256,7 @@ class Random
      *                                      If not provided or an invalid mask, the method will fall
      *                                      back to the Base64 character set.
      * @param   int         $strength       The requested strength of entropy (one of the STRENGTH_* class constants)
-     * @return  float                       The generated string.
+     * @return  string                      The generated string.
      * @throws  \InvalidArgumentException   When a expected length smaller than 1 was given.
      */
     public static function string(int $length = 8, $characters = str\Character::CHARS_BASE64, int $strength = self::STRENGTH_MEDIUM) : string
@@ -363,8 +363,7 @@ class Random
                 // by exceptions being thrown by Source::generate() itself and will prevent the return.
                 try {
                     return $source['instance']->generate($length);
-                }
-                catch(\RuntimeException $exception) {
+                } catch(\RuntimeException $exception) {
 
                 }
             }

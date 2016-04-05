@@ -93,8 +93,9 @@ class Gmp implements math\interfaces\BigInt
     /**
      * Creates a BigInt instance from the given int.
      *
-     * @param   string|int  $number
+     * @param   int         $number
      * @param   int         $base
+     * @return  static
      */
     public static function fromInt(int $number, $base = null)
     {
