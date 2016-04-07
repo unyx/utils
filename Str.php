@@ -1163,7 +1163,7 @@ class Str
      */
     public static function trim(string $str, string $characters = null, string $encoding = null) : string
     {
-        $characters = $characters ? preg_quote($characters) : '[:space:]';
+        $characters = null !== $characters ? preg_quote($characters) : '[:space:]';
 
         return static::replace($str, "^[$characters]+|[$characters]+\$", '', 'msr', $encoding);
     }
@@ -1182,7 +1182,7 @@ class Str
      */
     public static function trimLeft(string $str, string $characters = null, string $encoding = null) : string
     {
-        $characters = $characters ? preg_quote($characters) : '[:space:]';
+        $characters = null !== $characters ? preg_quote($characters) : '[:space:]';
 
         return static::replace($str, "^[$characters]+", '', 'msr', $encoding);
     }
@@ -1201,7 +1201,7 @@ class Str
      */
     public static function trimRight(string $str, string $characters = null, string $encoding = null) : string
     {
-        $characters = $characters ? preg_quote($characters) : '[:space:]';
+        $characters = null !== $characters ? preg_quote($characters) : '[:space:]';
 
         return static::replace($str, "[$characters]+\$", '', 'msr', $encoding);
     }
@@ -1361,7 +1361,7 @@ class Str
 
             // Pass to the next needle if this one is an empty string or if it couldn't be found
             // in the haystack at all.
-            if($needle === '' || -1 === $offset = static::$method($haystack, $needle, 0, $strict, $encoding) || 0 === $needleLen = mb_strlen($needle, $encoding)) {
+            if ($needle === '' || -1 === $offset = static::$method($haystack, $needle, 0, $strict, $encoding) || 0 === $needleLen = mb_strlen($needle, $encoding)) {
                 continue;
             }
 
