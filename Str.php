@@ -1246,18 +1246,6 @@ class Str
     }
 
     /**
-     * Converts all characters in the given string to uppercase.
-     *
-     * @param   string      $str        The string to convert.
-     * @param   string|null $encoding   The encoding to use.
-     * @return  string                  The converted string.
-     */
-    public static function uppercase(string $str, string $encoding = null) : string
-    {
-        return mb_strtoupper($str, $encoding ?: static::encoding($str));
-    }
-
-    /**
      * Limits the number of words in the given string.
      *
      * @param   string      $str        The string to limit.
