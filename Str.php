@@ -1146,10 +1146,8 @@ class Str
             return $str;
         }
 
-        // Determine the final length of the substring of $str we might return.
+        // Determine the final length of the substring of $str we might return and grab it.
         $length = $limit - mb_strlen($end, $encoding);
-
-        // $result = mb_substr($str, 0, $limit - mb_strlen($end, $encoding), $encoding).$end;
         $result = mb_substr($str, 0, $length, $encoding);
 
         // If we are to preserve words, see whether the last word got truncated by checking if
@@ -1160,7 +1158,7 @@ class Str
             $result = mb_substr($result, 0, mb_strrpos($result, ' ', 0, $encoding), $encoding);
         }
 
-        return $result;
+        return $result . $end;
     }
 
     /**
