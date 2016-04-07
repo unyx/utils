@@ -185,14 +185,21 @@ class Str
     }
 
     /**
-     * Trims the given string and replaces multiple consecutive whitespaces with a single space.
+     * Trims the given string and replaces multiple consecutive whitespaces with a single whitespace.
      *
-     * @param   string  $str    The string to clean.
-     * @return  string          The resulting string.
+     * Note: This includes multi-byte whitespace characters, tabs and newlines, which effectively means
+     * that the string may also be collapsed down. This is mostly a utility for processing natural language
+     * user input for displaying.
+     *
+     * @param   string          $str        The string to collapse.
+     * @param   string|null     $encoding   The encoding to use.
+     * @return  string                      The resulting string.
      */
-    public static function clean(string $str) : string
+    public static function collapse(string $str, string $encoding = null) : string
     {
-        return preg_replace('/\s+/u', ' ', trim($str));
+        $encoding = $encoding ?: static::encoding($str);
+
+        return static::trim(static::replace($str, '[[:space:]]+', ' ', 'msr', $encoding), null, $encoding);
     }
 
     /**
