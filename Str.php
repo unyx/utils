@@ -1258,21 +1258,6 @@ class Str
     }
 
     /**
-     * Converts the first character in the given string to uppercase.
-     *
-     * @param   string      $str        The string to convert.
-     * @param   string|null $encoding   The encoding to use.
-     * @return  string                  The converted string.
-     */
-    public static function uppercaseFirst(string $str, string $encoding = null) : string
-    {
-        $encoding = $encoding ?: static::encoding($str);
-
-        // Uppercase the first character and append the remainder.
-        return mb_strtoupper(mb_substr($str, 0, 1, $encoding), $encoding) . mb_substr($str, 1, null, $encoding);
-    }
-
-    /**
      * Limits the number of words in the given string.
      *
      * @param   string      $str        The string to limit.

@@ -35,4 +35,19 @@ class Cases
         // Lowercase the first character and append the remainder.
         return mb_strtolower(mb_substr($str, 0, 1, $encoding), $encoding) . mb_substr($str, 1, null, $encoding);
     }
+
+    /**
+     * Converts the first character in the given string to uppercase.
+     *
+     * @param   string      $str        The string to convert.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The converted string.
+     */
+    public static function upperFirst(string $str, string $encoding = null) : string
+    {
+        $encoding = $encoding ?: utils\Str::encoding($str);
+
+        // Uppercase the first character and append the remainder.
+        return mb_strtoupper(mb_substr($str, 0, 1, $encoding), $encoding) . mb_substr($str, 1, null, $encoding);
+    }
 }
