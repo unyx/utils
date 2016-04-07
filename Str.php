@@ -1058,6 +1058,25 @@ class Str
     }
 
     /**
+     * Removes whitespaces (or other characters, if given) from the beginning and end of the given string.
+     * Handles multi-byte whitespaces.
+     *
+     * Note: If you simply want to remove whitespace and multi-byte whitespaces are of no concern,
+     * use PHP's native trim() instead, for obvious performance reasons.
+     *
+     * @param   string      $str        The string in which to convert the whitespaces to tabs.
+     * @param   string      $characters Optional characters to strip off (instead of the default whitespace chars).
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The resulting string.
+     */
+    public static function trim(string $str, string $characters = null, string $encoding = null) : string
+    {
+        $characters = $characters ? preg_quote($characters) : '[:space:]';
+
+        return static::replace($str, "^[$characters]+|[$characters]+\$", '', 'msr', $encoding);
+    }
+
+    /**
      * Trims the string to the given length, replacing the cut off characters from the end with an optional
      * substring ("..." by default). The final length of the string, including the optionally appended $end
      * substring, will not exceed $limit.
@@ -1075,7 +1094,7 @@ class Str
     public static function truncate(string $str, int $limit = 100, string $end = '...', bool $preserveWords = false, string $encoding = null) : string
     {
         if ($limit < 0) {
-            throw new \InvalidArgumentException('The limit must be a positive integer, but ['.$limit.'] was given.');
+            throw new \InvalidArgumentException('The $limit must be a positive integer but ['.$limit.'] was given.');
         }
 
         if ($limit === 0) {
