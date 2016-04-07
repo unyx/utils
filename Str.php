@@ -518,38 +518,6 @@ class Str
     }
 
     /**
-     * Returns a string with common Windows-125* (used in MS Office documents) characters replaced
-     * by their ASCII counterparts.
-     *
-     * @param   string  $str        The string to normalize.
-     * @return  string              The normalized string.
-     * @throws  \RuntimeException   Upon failing to replace the characters.
-     */
-    public static function normalizeCopypasta(string $str) : string
-    {
-        static $map = [
-            'from' => [
-                '/\x{2026}/u',
-                '/[\x{201C}\x{201D}]/u',
-                '/[\x{2018}\x{2019}]/u',
-                '/[\x{2013}\x{2014}]/u',
-            ],
-            'to' => [
-                '...',
-                '"',
-                "'",
-                '-',
-            ]
-        ];
-
-        if (null === $result = preg_replace($map['from'], $map['to'], $str)) {
-            throw new \RuntimeException('Failed to normalize the string ['.$str.'].');
-        }
-
-        return $result;
-    }
-
-    /**
      * Returns an array containing the offsets of all occurrences of $needle in $haystack. The offsets
      * are 0-indexed. If no occurrences could be found, an empty array will be returned.
      *
@@ -720,7 +688,7 @@ class Str
     public static function random(int $length = 8, $characters = null, int $strength = Random::STRENGTH_NONE) : string
     {
         // Note: We're duplicating ourselves by specifying the character pool directly instead of
-        // relying on self::buildCharacterSet(), but this skips this process in Random::string()
+        // relying on str\Character::buildSet(), but this skips this process in Random::string()
         // and is therefore faster.
         return Random::string($length, $characters ?: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', $strength);
     }
