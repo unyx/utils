@@ -694,6 +694,16 @@ class Str
         return static::pad($str, $length, $with, STR_PAD_BOTH, $encoding);
     }
 
+    /**
+     * Alias for self::pad() with the $type set to apply padding only to the left side of the input string.
+     *
+     * @see Str::pad()
+     */
+    public static function padLeft(string $str, int $length, string $with = ' ', string $encoding = null) : string
+    {
+        return static::pad($str, $length, $with, STR_PAD_LEFT, $encoding);
+    }
+
     /** --
      *   Do *not* use this method in a cryptographic context without passing in a higher $strength
      *   parameter or better yet, use Random::string() directly instead.
