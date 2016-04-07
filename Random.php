@@ -86,8 +86,11 @@ class Random
     const STRENGTH_STRONG  = 7;
 
     /**
-     * @var random\interfaces\Source[]  An array of Source instances. Remains null until an edge-case is hit
-     *                                  and may be empty if no fallback sources are available on this platform.
+     * @var array   A map of Source classes grouped together by their STRENGTH_*. Remains null until an edge-case
+     *              is hit and this class needs to fall back to non-native entropy sources.
+     *
+     * @see Random::fallbackBytes()
+     * @see Random::getSources()
      */
     protected static $sources;
 
@@ -246,6 +249,8 @@ class Random
      * in repeating that character $length number of times and is a dangerous op in a cryptographic
      * context.
      *
+     * Note: Does *not* support multi-byte characters!
+     *
      * Aliases:
      *  - @see Str::random()
      *
@@ -364,7 +369,7 @@ class Random
                 try {
                     return $source['instance']->generate($length);
                 } catch(\RuntimeException $exception) {
-
+                    // Ignoring the Exception since we handled it by not returning any valid result.
                 }
             }
         }
@@ -421,11 +426,7 @@ class Random
      */
     protected static function getSources() : array
     {
-        if (null !== static::$sources) {
-            return static::$sources;
-        }
-
-        return static::$sources = [
+        return static::$sources ?? (static::$sources = [
             self::STRENGTH_MEDIUM => [
                 [
                     'class'     => 'nyx\utils\random\sources\OpenSSL',
@@ -438,6 +439,6 @@ class Random
                     'dependsOn' => 'mcrypt_create_iv'
                 ]
             ]
-        ];
+        ]);
     }
 }
