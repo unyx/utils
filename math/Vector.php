@@ -66,7 +66,7 @@ class Vector implements \ArrayAccess
      *                                      named X/Y/Z).
      * @return  Vector                      A Vector type specific to the components given.
      */
-    public static function from(array $components) : static
+    public static function from(array $components) : Vector
     {
         $dimensions = count($components);
 
