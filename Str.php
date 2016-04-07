@@ -25,7 +25,6 @@
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/strings.html
  * @todo        Snake case, camel case, studly caps, dashed, underscored?
- * @todo        Add pad(), padLeft(), padRight().
  * @todo        Add afterFirst/Last, beforeFirst/Last instead of the current after/before?
  */
 class Str
@@ -683,6 +682,16 @@ class Str
 
         // Apply the padding and return the glued string.
         return $leftPadding . $str . $rightPadding;
+    }
+
+    /**
+     * Alias for self::pad() with the $type set to apply padding to both sides of the input string.
+     *
+     * @see Str::pad()
+     */
+    public static function padBoth(string $str, int $length, string $with = ' ', string $encoding = null) : string
+    {
+        return static::pad($str, $length, $with, STR_PAD_BOTH, $encoding);
     }
 
     /** --
