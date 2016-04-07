@@ -151,7 +151,7 @@ class Str
 
         // Find the offset of the first needle.
         if (false === $firstIndex = $funcIndexOf($haystack, $startNeedle, $offset, $encoding)) {
-            throw new \OutOfBoundsException('Failed to find $startNeedle ['.$startNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+            throw new \OutOfBoundsException('Failed to find $startNeedle ['.$startNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', false, $encoding).'].');
         }
 
         // We're going to adjust the offset for the position of the first needle, ie. we're gonna
@@ -160,7 +160,7 @@ class Str
 
         // Find the offset of the second needle.
         if (false === $secondIndex = $funcIndexOf($haystack, $endNeedle, $offset, $encoding)) {
-            throw new \OutOfBoundsException('Failed to find $endNeedle ['.$endNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+            throw new \OutOfBoundsException('Failed to find $endNeedle ['.$endNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', false, $encoding).'].');
         }
 
         // Return the substring between the needles.
@@ -461,7 +461,7 @@ class Str
 
         // Make sure the offset is contained in the initial string.
         if (abs($offset) >= $length) {
-            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', $encoding).'].');
+            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', false, $encoding).'].');
         }
 
         // With a negative offset, we'll convert it to a positive one for the initial part (before the inserted
@@ -610,7 +610,7 @@ class Str
 
         // Make sure the offset given exists within the $haystack.
         if (abs($offset) >= $length) {
-            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', $encoding).'].');
+            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', false, $encoding).'].');
         }
 
         $func   = $strict ? 'mb_strpos' : 'mb_stripos';
@@ -768,7 +768,7 @@ class Str
      * meaning subsequent iterations may replace substrings resulting from previous iterations.
      *
      * @param   string          $haystack       The string to replace $needles in.
-     * @param   string|array    $needles        What to replace in the string.
+     * @param   string|string[] $needles        What to replace in the string.
      * @param   string          $replacement    The replacement value for each found (first) needle.
      * @param   bool            $strict         Whether to use case-sensitive comparisons.
      * @param   string|null     $encoding       The encoding to use.
@@ -786,7 +786,7 @@ class Str
      * meaning subsequent iterations may replace substrings resulting from previous iterations.
      *
      * @param   string          $haystack       The string to replace $needles in.
-     * @param   string|array    $needles        What to replace in the string.
+     * @param   string|string[] $needles        What to replace in the string.
      * @param   string          $replacement    The replacement value for each found (last) needle.
      * @param   bool            $strict         Whether to use case-sensitive comparisons.
      * @param   string|null     $encoding       The encoding to use.
@@ -935,7 +935,7 @@ class Str
         // Check if the absolute starting index (to account for negative indices) + 1 (since it's 0-indexed
         // while length is > 1 at this point) is within the length of the string.
         if (abs($offset) >= mb_strlen($haystack, $encoding)) {
-            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', $encoding).'].');
+            throw new \OutOfBoundsException('The given $offset ['.$offset.'] does not exist within the string ['.static::truncate($haystack, 20, '...', false, $encoding).'].');
         }
 
         return mb_substr($haystack, $offset, $length, $encoding);
@@ -1233,7 +1233,7 @@ class Str
         $encoding = $encoding ?: static::encoding($haystack);
 
         if (false === $result = $func($haystack, $needle, $before, $encoding)) {
-            throw new \RuntimeException('Failed to find $needle ['.$needle.'] in $haystack ['.static::truncate($haystack, 20, '...', $encoding).'].');
+            throw new \RuntimeException('Failed to find $needle ['.$needle.'] in $haystack ['.static::truncate($haystack, 20, '...', false, $encoding).'].');
         }
 
         return $result;
