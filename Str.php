@@ -513,21 +513,6 @@ class Str
     }
 
     /**
-     * Converts the first character in the given string to lowercase.
-     *
-     * @param   string  $str            The string to convert.
-     * @param   string|null $encoding   The encoding to use.
-     * @return  string                  The converted string.
-     */
-    public static function lowercaseFirst(string $str, string $encoding = null) : string
-    {
-        $encoding = $encoding ?: static::encoding($str);
-
-        // Lowercase the first character and append the remainder.
-        return mb_strtolower(mb_substr($str, 0, 1, $encoding), $encoding) . mb_substr($str, 1, null, $encoding);
-    }
-
-    /**
      * Determines whether the given string matches the given pattern. Asterisks are translated into zero or more
      * regexp wildcards, allowing for glob-style patterns.
      *
