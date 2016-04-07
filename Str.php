@@ -1029,18 +1029,6 @@ class Str
     }
 
     /**
-     * Converts the given string to title case. Multi-byte-safe equivalent of ucwords().
-     *
-     * @param   string      $str        The string to convert.
-     * @param   string|null $encoding   The encoding to use.
-     * @return  string                  The converted string.
-     */
-    public static function titleCase(string $str, string $encoding = null) : string
-    {
-        return mb_convert_case($str, MB_CASE_TITLE, $encoding ?: static::encoding($str));
-    }
-
-    /**
      * Alias for @see Str::characters()
      */
     public static function toArray(string $str, string $encoding = null) : array
