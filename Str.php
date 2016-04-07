@@ -501,18 +501,6 @@ class Str
     }
 
     /**
-     * Converts all characters in the given string to lowercase.
-     *
-     * @param   string      $str        The string to convert.
-     * @param   string|null $encoding   The encoding to use.
-     * @return  string                  The converted string.
-     */
-    public static function lowercase(string $str, string $encoding = null) : string
-    {
-        return mb_strtolower($str, $encoding ?: static::encoding($str));
-    }
-
-    /**
      * Determines whether the given string matches the given pattern. Asterisks are translated into zero or more
      * regexp wildcards, allowing for glob-style patterns.
      *

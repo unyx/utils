@@ -22,6 +22,18 @@ class Cases
     use utils\traits\StaticallyExtendable;
 
     /**
+     * Converts all characters in the given string to lowercase.
+     *
+     * @param   string      $str        The string to convert.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The converted string.
+     */
+    public static function lower(string $str, string $encoding = null) : string
+    {
+        return mb_strtolower($str, $encoding ?: utils\Str::encoding($str));
+    }
+
+    /**
      * Converts the first character in the given string to lowercase.
      *
      * @param   string      $str        The string to convert.
