@@ -879,7 +879,7 @@ class Str
      * if $needles is an array.
      *
      * @param   string          $haystack   The string to search in.
-     * @param   string|array    $needles    The needle(s) to look for.
+     * @param   string|string[] $needles    The needle(s) to look for.
      * @param   bool            $strict     Whether to use case-sensitive comparisons.
      * @param   string|null     $encoding   The encoding to use.
      * @return  bool                        True when the string starts with one of the given needles, false otherwise.
@@ -1030,13 +1030,7 @@ class Str
             'no'    => false
         ];
 
-        $key = static::lowercase($str);
-
-        if (isset($map[$key])) {
-            return $map[$key];
-        }
-
-        return (bool) trim($str);
+        return $map[mb_strtolower($str)] ?? (bool) trim($str);
     }
 
     /**
@@ -1192,7 +1186,7 @@ class Str
 
     /**
      * Replaces a single occurrence of each of the $needles in $haystack with $replacement - either the first or
-     * the last occurence, depending whether $first is true or false.
+     * the last occurrence, depending whether $first is true or false.
      *
      * This method will search from the beginning/end of $haystack after processing each needle and replacing it,
      * meaning subsequent iterations may replace substrings resulting from previous iterations.
