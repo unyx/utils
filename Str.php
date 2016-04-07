@@ -25,7 +25,6 @@
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/strings.html
  * @todo        Snake case, camel case, studly caps, dashed, underscored?
- * @todo        Decide on support for Stringable and/or simply loosening the type hints.
  * @todo        Add pad(), padLeft(), padRight().
  * @todo        Add afterFirst/Last, beforeFirst/Last instead of the current after/before?
  */
@@ -623,6 +622,67 @@ class Str
         }
 
         return $result;
+    }
+
+    /**
+     * Pads the given string to a given $length using $with as padding. This has no effect on input strings which are
+     * longer than or equal in length to the requested $length.
+     *
+     * Padding can be applied to the left, the right or both sides of the input string simultaneously depending
+     * on the $type chosen (one of PHP's native STR_PAD_* constants).
+     *
+     * @param   string      $str                The string to pad.
+     * @param   int         $length             The desired length of the string after padding.
+     * @param   string      $with               The character(s) to pad the string with.
+     * @param   int         $type               One of the STR_PAD_* constants supported by PHP's native str_pad().
+     * @param   string|null $encoding           The encoding to use.
+     * @return  string                          The resulting string.
+     * @throws  \InvalidArgumentException       when an unrecognized $type is given.
+     */
+    public static function pad(string $str, int $length, string $with = ' ', int $type = STR_PAD_RIGHT, string $encoding = null) : string
+    {
+        $encoding = $encoding ?: static::encoding($str);
+
+        // Get the length of the input string - we'll need it to determine how much padding to apply.
+        // Note: We're not returning early when the input string is empty - this is acceptable input for this
+        // method. We will, however, return early when $with (the padding) is empty.
+        $strLen  = mb_strlen($str, $encoding);
+        $padding = $length - $strLen;
+
+        // Determine how much padding to apply to either of the sides depending on which padding type
+        // we were asked to perform.
+        switch ($type) {
+            case STR_PAD_LEFT:
+                $left  = $padding;
+                $right = 0;
+                break;
+
+            case STR_PAD_RIGHT:
+                $left  = 0;
+                $right = $padding;
+                break;
+
+            case STR_PAD_BOTH:
+                $left  = floor($padding / 2);
+                $right = ceil($padding / 2);
+                break;
+
+            default:
+                throw new \InvalidArgumentException('Expected $type to be one of [STR_PAD_RIGHT|STR_PAD_LEFT|STR_PAD_BOTH], got ['.$type.'] instead.');
+        }
+
+        // If there's no actual padding or if the final length of the string would be longer than the
+        // input string, we'll do nothing and return the input string.
+        if (0 === $padLen = mb_strlen($with, $encoding) || $strLen >= $paddedLength = $strLen + $left + $right) {
+            return $str;
+        }
+
+        // Construct the requested padding strings.
+        $leftPadding  = 0 === $left  ? '' : mb_substr(str_repeat($with, ceil($left / $padLen)), 0, $left, $encoding);
+        $rightPadding = 0 === $right ? '' : mb_substr(str_repeat($with, ceil($right / $padLen)), 0, $right, $encoding);
+
+        // Apply the padding and return the glued string.
+        return $leftPadding . $str . $rightPadding;
     }
 
     /** --
