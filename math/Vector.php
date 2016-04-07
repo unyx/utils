@@ -44,7 +44,7 @@ class Vector implements \ArrayAccess
      * @return  Vector                      A zero-length vector of the given dimension.
      * @throws  \InvalidArgumentException   When $dimension is less than 0.
      */
-    public static function zero(int $dimension = 0) : static
+    public static function zero(int $dimension = 0) : Vector
     {
         if ($dimension === 0) {
             return new static([]);
@@ -79,7 +79,7 @@ class Vector implements \ArrayAccess
             return new vectors\Vector2D((float) $components[0], (float) $components[1]);
         }
 
-        return new vectors\VectorND($components);
+        return new Vector($components);
     }
 
     /**
@@ -646,7 +646,6 @@ class Vector implements \ArrayAccess
         throw new \LogicException('Cannot unset ['.$key.'] - Vectors are immutable.');
     }
 
-
     /**
      * Magic getter. Allows access to some methods as properties and direct read access to the components.
      */
@@ -668,7 +667,7 @@ class Vector implements \ArrayAccess
             return $this->max();
         }
 
-        if (!isset($this->components[$name])) {
+        if (isset($this->components[$name])) {
             return $this->components[$name];
         }
 
