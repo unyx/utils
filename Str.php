@@ -1096,6 +1096,25 @@ class Str
     }
 
     /**
+     * Removes whitespaces (or other characters, if given) from the end of the given string.
+     * Handles multi-byte whitespaces.
+     *
+     * Note: If you simply want to remove whitespace and multi-byte whitespaces are of no concern,
+     * use PHP's native rtrim() instead, for obvious performance reasons.
+     *
+     * @param   string      $str        The string in which to convert the whitespaces to tabs.
+     * @param   string      $characters Optional characters to strip off (instead of the default whitespace chars).
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The resulting string.
+     */
+    public static function trimRight(string $str, string $characters = null, string $encoding = null) : string
+    {
+        $characters = $characters ? preg_quote($characters) : '[:space:]';
+
+        return static::replace($str, "[$characters]+\$", '', 'msr', $encoding);
+    }
+
+    /**
      * Trims the string to the given length, replacing the cut off characters from the end with an optional
      * substring ("..." by default). The final length of the string, including the optionally appended $end
      * substring, will not exceed $limit.
