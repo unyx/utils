@@ -76,7 +76,7 @@ class Is
     }
 
     /**
-     * Determines whether the given string represents a valid email address.
+     * Checks whether the given string represents a valid email address.
      *
      * @param   string  $str    The string to check.
      * @return  bool
@@ -114,7 +114,7 @@ class Is
     }
 
     /**
-     * Determines whether the given string represents a valid IP address.
+     * Checks whether the given string represents a valid IP address.
      *
      * @param   string  $str    The string to check.
      * @return  bool
@@ -125,7 +125,7 @@ class Is
     }
 
     /**
-     * Determines whether the given string is JSON-encoded.
+     * Checks whether the given string is JSON-encoded.
      *
      * @param   string  $str    The string to check.
      * @return  bool
@@ -150,7 +150,19 @@ class Is
     }
 
     /**
-     * Determines whether the given string is a serialized representation of a value.
+     * Checks whether the given string represents a valid regular expression. Supports PCRE
+     * but will fail on POSIX regex nuances.
+     *
+     * @param   string  $str    The string to check.
+     * @return  bool
+     */
+    public static function regexp(string $str) : bool
+    {
+        return false !== filter_var($str, FILTER_VALIDATE_REGEXP);
+    }
+
+    /**
+     * Checks whether the given string is a serialized representation of a value.
      *
      * @param   string  $str    The string to check.
      * @return  bool
@@ -173,7 +185,7 @@ class Is
     }
 
     /**
-     * Determines whether the given string represents a valid URL address.
+     * Checks whether the given string represents a valid URL address.
      *
      * @param   string  $str    The string to check.
      * @return  bool
