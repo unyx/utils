@@ -25,6 +25,7 @@ class Cases
      * Delimits the given string on spaces, underscores and dashes and before uppercase characters using the
      * given delimiter string. The resulting string will also be trimmed and lower-cased.
      *
+     * @param   string          $str        The string to delimit.
      * @param   string          $delimiter  The delimiter to use. Can be a sequence of multiple characters.
      * @param   string|null     $encoding   The encoding to use.
      * @return  string                      The resulting string.
@@ -76,6 +77,28 @@ class Cases
 
         // Lowercase the first character and append the remainder.
         return mb_strtolower(mb_substr($str, 0, 1, $encoding), $encoding) . mb_substr($str, 1, null, $encoding);
+    }
+
+    /**
+     * Converts the string to StudlyCaps using whitespace as case delimiter. This is, essentially,
+     * simply a variant of camelCase which starts with a capital letter.
+     *
+     * @param   string      $str        The string to convert.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The converted string.
+     */
+    public static function studly(string $str, string $encoding = null) : string
+    {
+        $encoding = $encoding ?: utils\Str::encoding($str);
+
+        // Convert dashes and underscores to spaces, then convert the string to title case (ie. ucwords()).
+        // Note: We are using a simple str_replace here since we are looking for exact characters known
+        // to not be multi-byte.
+        $str = mb_convert_case(str_replace(['-', '_'], ' ', $str), MB_CASE_TITLE, $encoding);
+
+        // Lastly we are going to remove *all* whitespace characters, including multi-byte whitespace, tabs,
+        // newlines etc., which will effectively trim and collapse the string.
+        return utils\Str::replace($str, '[[:space:]]', ' ', 'msr', $encoding);
     }
 
     /**
