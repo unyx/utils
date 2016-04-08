@@ -29,6 +29,33 @@ class Is
     use utils\traits\StaticallyExtendable;
 
     /**
+     * @var array   An array of strings (keys) => true (values) to be treated as affirmative values
+     *              by self::affirmative().
+     *              Note: The keys will be used as the values - this format allows to avoid some function
+     *              calling overhead. Intentionally public, this being a non-critical utility.
+     */
+    public static $affirmativeValues = [
+        'true' => true,
+        '1'    => true,
+        'on'   => true,
+        'yes'  => true,
+        'y'    => true
+    ];
+
+    /**
+     * Checks whether the given string represents a boolean true, as understood in natural language, ie.
+     * strings like "true", "1", "on", "yes", "y" will be treated as a boolean true. Case-insensitive.
+     *
+     * @param   string          $str        The string to check.
+     * @param   string|null     $encoding   The encoding to use.
+     * @return  bool                        True when the string represents an affirmative value, false otherwise.
+     */
+    public static function affirmative(string $str, string $encoding = null) : bool
+    {
+        return isset(static::$affirmativeValues[mb_strtolower($str, $encoding ?: utils\Str::encoding($str))]);
+    }
+
+    /**
      * Checks whether the string contains *only* alphabetic characters.
      *
      * @param   string      $str        The string to match,
