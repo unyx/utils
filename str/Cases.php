@@ -22,6 +22,20 @@ class Cases
     use utils\traits\StaticallyExtendable;
 
     /**
+     * Converts the string to camelCase using whitespace as case delimiter.
+     *
+     * @param   string      $str        The string to convert.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  string                  The converted string.
+     */
+    public static function camel(string $str, string $encoding = null) : string
+    {
+        $encoding = $encoding ?: utils\Str::encoding($str);
+
+        return static::lowerFirst(static::studly($str, $encoding), $encoding);
+    }
+
+    /**
      * Delimits the given string on spaces, underscores and dashes and before uppercase characters using the
      * given delimiter string. The resulting string will also be trimmed and lower-cased.
      *
