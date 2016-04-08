@@ -1030,22 +1030,23 @@ class Str
     /**
      * Checks whether the given string represents a boolean value. Case insensitive.
      *
-     * Works different than simply casting a string to a bool in that strings like "yes"/"no"
-     * and "on"/"off", "1"/"0" and "true"/"false" are interpreted based on the natural language
+     * Works different than simply casting a string to a bool in that strings like "yes"/"no",
+     * "y"/"n", "on"/"off", "1"/"0" and "true"/"false" are interpreted based on the natural language
      * value they represent.
      *
      * Numeric strings are left as in native PHP typecasting, ie. only 0 represents false. Every
      * other numeric string, including negative numbers, will be treated as a truthy value.
      *
      * Non-empty strings containing only whitespaces, tabs or newlines will also be interpreted
-     * as empty (false) strings.
+     * as empty (false) strings. Other than that normal typecasting rules apply.
      *
-     * @param   string  $str    The string to check.
-     * @return  bool            True when the string represents a boolean value, false otherwise.
+     * @param   string      $str        The string to check.
+     * @param   string|null $encoding   The encoding to use.
+     * @return  bool                    True when the string represents a boolean value, false otherwise.
      * @todo    Grab the map from a separate method to allow easier extending with locale specific values?
      * @todo    Rename to asBool() to make a more explicit distinction between this and normal typecasting?
      */
-    public static function toBool(string $str) : bool
+    public static function toBool(string $str, string $encoding = null) : bool
     {
         static $map = [
             'true'  => true,
@@ -1060,7 +1061,9 @@ class Str
             'n'     => false
         ];
 
-        return $map[mb_strtolower($str)] ?? (bool) trim($str);
+        $encoding = $encoding ?: static::encoding($str);
+
+        return $map[mb_strtolower($str, $encoding)] ?? (bool) static::replace($str, '[[:space:]]', '', 'msr', $encoding);
     }
 
     /**
