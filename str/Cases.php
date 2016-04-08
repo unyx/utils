@@ -22,7 +22,8 @@ class Cases
     use utils\traits\StaticallyExtendable;
 
     /**
-     * Converts the string to camelCase using whitespace as case delimiter.
+     * Converts the string to "camelCase" using whitespace, dashes and underscores as case delimiters (all of
+     * which will be effectively removed).
      *
      * @param   string      $str        The string to convert.
      * @param   string|null $encoding   The encoding to use.
@@ -94,8 +95,24 @@ class Cases
     }
 
     /**
-     * Converts the string to StudlyCaps using whitespace as case delimiter. This is, essentially,
-     * simply a variant of camelCase which starts with a capital letter.
+     * Converts the string to "snake_case" using whitespace, dashes and underscores as case delimiters (all of
+     * which will be effectively removed).
+     *
+     * Shorthand alias for @see Cases::delimit() using an uderscore as delimiter.
+     *
+     * @param   string          $str        The string to convert.
+     * @param   string|null     $encoding   The encoding to use.
+     * @return  string                      The resulting string.
+     */
+    public static function snake(string $str, string $encoding = null) : string
+    {
+        return static::delimit($str, '_', $encoding);
+    }
+
+    /**
+     * Converts the string to "StudlyCaps" using whitespace, dashes and underscores as case delimiters (all of
+     * which will be effectively removed). This is, essentially, simply a variant of camelCase which starts
+     * with a capital letter.
      *
      * @param   string      $str        The string to convert.
      * @param   string|null $encoding   The encoding to use.

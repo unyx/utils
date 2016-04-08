@@ -24,7 +24,6 @@
  * @author      Michal Chojnacki <m.chojnacki@muyo.io>
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/strings.html
- * @todo        Snake case, camel case, studly caps, dashed, underscored?
  * @todo        Add afterFirst/Last, beforeFirst/Last instead of the current after/before?
  */
 class Str
@@ -894,24 +893,24 @@ class Str
      * Generates a URL-friendly slug from the given string.
      *
      * @param   string  $str        The string to slugify.
-     * @param   string  $separator  The separator to use instead of non-alphanumeric characters.
+     * @param   string  $delimiter  The delimiter to replace non-alphanumeric characters with.
      * @return  string              The resulting slug.
      */
-    public static function slug(string $str, string $separator = '-') : string
+    public static function slug(string $str, string $delimiter = '-') : string
     {
         $str = static::toAscii($str);
 
         // Remove all characters that are neither alphanumeric, nor the separator nor a whitespace.
-        $str = preg_replace('![^'.preg_quote($separator).'\pL\pN\s]+!u', '', mb_strtolower($str));
+        $str = preg_replace('![^'.preg_quote($delimiter).'\pL\pN\s]+!u', '', mb_strtolower($str));
 
         // Standardize the separator.
-        $flip = $separator == '-' ? '_' : '-';
-        $str = preg_replace('!['.preg_quote($flip).']+!u', $separator, $str);
+        $flip = $delimiter == '-' ? '_' : '-';
+        $str = preg_replace('!['.preg_quote($flip).']+!u', $delimiter, $str);
 
         // Replace all separator characters and whitespace by a single separator.
-        $str = preg_replace('!['.preg_quote($separator).'\s]+!u', $separator, $str);
+        $str = preg_replace('!['.preg_quote($delimiter).'\s]+!u', $delimiter, $str);
 
-        return trim($str, $separator);
+        return trim($str, $delimiter);
     }
 
     /**
