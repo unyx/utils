@@ -37,6 +37,18 @@ class Cases
     }
 
     /**
+     * Shorthand alias for @see Cases::delimit() using a dash as delimiter.
+     *
+     * @param   string          $str        The string to convert.
+     * @param   string|null     $encoding   The encoding to use.
+     * @return  string                      The resulting string.
+     */
+    public static function dashed(string $str, string $encoding = null) : string
+    {
+        return static::delimit($str, '-', $encoding);
+    }
+
+    /**
      * Delimits the given string on spaces, underscores and dashes and before uppercase characters using the
      * given delimiter string. The resulting string will also be trimmed and lower-cased.
      *
