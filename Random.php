@@ -36,11 +36,10 @@ use nyx\core;
  * This class is primarily a strict wrapper around PHP's native random_bytes() and random_int() functions,
  * which make use of the following sources:
  *   - Windows: CryptGenRandom() (only)
- *   - Others: arc4random_buf(), then /dev/arandom, then /dev/urandom
+ *   - Others: getrandom(2) syscall (Linux only), then /dev/urandom
  *
  * The first valid source in those orders gets used. In the edge case where that procedure fails,
- * this class throws exceptions instead of simply returning false like random_bytes() does but attempts
- * two (by default) additional fallbacks first (in this order):
+ * this class throws exceptions does but attempts two (by default) additional fallbacks first (in this order):
  *   - openssl_random_pseudo_bytes(), if available (which uses a userspace hash algo making it
  *     potentially an additional point of failure and thus only valid for the STRENGTH_MEDIUM setting
  *     and below);
@@ -63,7 +62,7 @@ use nyx\core;
  * of this utility.
  *
  * @package     Nyx\Utils
- * @version     0.0.5
+ * @version     0.0.6
  * @author      Michal Chojnacki <m.chojnacki@muyo.io>
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/random.html
@@ -97,17 +96,10 @@ class Random
     /**
      * Generates a sequence of pseudo-random bytes of the given $length.
      *
-     * Note: This is just a wrapper for random_bytes() provided for completeness of the API.
-     *       However, as opposed to the native function simply returning false and raising a warning,
-     *       we bump this up to an Exception to be on the safe side.
-     *       Please {@see http://php.net/manual/en/function.random-bytes.php} for when this may be the case.
-     *
      * @param   int     $length             The length of the random string of bytes that should be generated.
      * @param   int     $strength           The requested strength of entropy (one of the STRENGTH_* class constants)
      * @return  string                      The resulting string in binary format.
      * @throws  \InvalidArgumentException   When a expected length smaller than 1 was given.
-     * @throws  \RuntimeException           When no sufficient source of entropy could be successfully used to generate
-     *                                      the random bytes.
      */
     public static function bytes(int $length, int $strength = self::STRENGTH_MEDIUM) : string
     {
@@ -118,21 +110,21 @@ class Random
         // For any strength above the lowest we are gonna rely on sources with proper entropy.
         // Note that on platforms with a full Suhosin patch mt_rand() isn't actually *that* weak.
         if ($strength > self::STRENGTH_WEAK) {
-            if (false === $result = random_bytes($length)) {
-                // Try a fallback if native PHP failed us. The fallback will return an empty string
-                // if it fails as well, but until then we're not throwing an exception just yet.
-                $result = static::fallbackBytes($length, $strength);
-
-                if (empty($result)) {
-                    throw new \RuntimeException('No source with sufficient entropy is available on this platform.');
-                }
+            try {
+                return random_bytes($length);
+            } catch (\Exception $exception) {
+                // Try a fallback if native PHP failed us. The fallback will also throw an exception if it fails
+                // to generate random bytes of sufficient entropy.
+                return static::fallbackBytes($length, $strength);
             }
-        } else {
-            $result = '';
+        }
 
-            for ($i = 0; $i < $length; $i++) {
-                $result .= chr((mt_rand() ^ mt_rand()) % 256);
-            }
+        // At STRENGTH_WEAK or lower we will simply fall back to mt_rand().
+        // Note that on platforms with a full Suhosin patch mt_rand() isn't actually *that* weak.
+        $result = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $result .= chr((mt_rand() ^ mt_rand()) % 256);
         }
 
         return $result;
@@ -145,17 +137,11 @@ class Random
      * The arguments can be passed in in any order. The resulting range must be <= PHP_INT_MAX and neither of the
      * arguments may exceed PHP_INT_MIN nor PHP_INT_MAX.
      *
-     * Note: This is just a wrapper for random_bytes() provided for completeness of the API.
-     *       However, as opposed to the native function simply returning false and raising a warning,
-     *       we bump this up to an Exception to be on the safe side.
-     *       Please {@see http://php.net/manual/en/function.random-int.php} for when this may be the case.
-     *
      * @param   int     $min                The minimal expected value of the generated integer (>= than PHP_INT_MIN).
      * @param   int     $max                The maximal expected value of the generated integer (<= than PHP_INT_MAX).
      * @param   int     $strength           The requested strength of entropy (one of the STRENGTH_* class constants)
      * @return  int                         The generated integer.
      * @throws  \RangeException             When the specified range is invalid.
-     * @throws  \RuntimeException           When failed to generate the random integer.
      */
     public static function int(int $min = 0, int $max = PHP_INT_MAX, int $strength = self::STRENGTH_MEDIUM) : int
     {
@@ -175,23 +161,20 @@ class Random
         }
 
         // For any strength above the lowest we are gonna rely on sources with proper entropy.
-        // Note that on platforms with a full Suhosin patch mt_rand() isn't actually *that* weak.
         if ($strength > self::STRENGTH_WEAK) {
-            if (false === $result = random_int($min, $max)) {
+            try {
+                return random_int($min, $max);
+            } catch (\Exception $exception) {
                 // Note: We're not checking for entropy sources here. self::fallbackInt() makes use of self::bytes()
-                // so the exception will be thrown there if the process fails. We only need to make sure we got
-                // a valid fallback value.
-                $result = static::fallbackInt($min, $max, $strength);
-
-                if (!$result || $result < $min || $result > $max) {
-                    throw new \RuntimeException('Failed to generate a random integer in the ['.$min.' - '.$max.'] range. Possibly due to lack of sources with sufficient entropy.');
-                }
+                // so the exception will be thrown there if no pseudo-random bytes could be generated or in
+                // self::fallbackInt() itself when the result is not a valid integer in the requested range.
+                return static::fallbackInt($min, $max, $strength);
             }
-        } else {
-            return mt_rand($min, $max);
         }
 
-        return $result;
+        // At STRENGTH_WEAK or lower we will simply fall back to mt_rand().
+        // Note that on platforms with a full Suhosin patch mt_rand() isn't actually *that* weak.
+        return mt_rand($min, $max);
     }
 
     /**
@@ -208,7 +191,6 @@ class Random
      * @param   int     $strength           The requested strength of entropy (one of the STRENGTH_* class constants)
      * @return  float                       The generated float.
      * @throws  \RangeException             When the specified range is invalid.
-     * @throws  \InvalidArgumentException   When the minimal expected value is bigger than the maximal expected value.
      */
     public static function float(float $min = 0, float $max = 1, int $strength = self::STRENGTH_MEDIUM) : float
     {
@@ -323,11 +305,8 @@ class Random
      * by self::getSources() and this mechanism respects the requested entropy strength (ie. stronger
      * sources may satisfy the request but weaker sources won't).
      *
-     * Note: This method catches all potential exceptions from the Sources it uses and *does not* throw
-     *       any itself. It's assumed to be used from within self::bytes() which will throw when sources
-     *       fail, but if you override this class, make sure you handle this properly. For the same reason
-     *       we are not checking whether $length is valid, as that check is performed within self::bytes()
-     *       as well.
+     * Note: Does *not* check whether $length is valid - intended to be called internally by self::bytes()
+     *       which does perform all relevant checks (and throws exceptions), so take this into account when overriding.
      *
      * @param   int     $length     The length of the random string of bytes that should be generated.
      * @param   int     $strength   The requested strength of entropy (one of the STRENGTH_* class constants)
@@ -336,6 +315,8 @@ class Random
      * @throws  \DomainException    When one of the sources returned by self::getSources() has either no
      *                              specified 'class' value or that value points to a class which is not
      *                              an instance of random\interfaces\Source.
+     * @throws  \RuntimeException   When pseudo-random bytes of the requested entropy could not be generated
+     *                              (most likely due to lack of appropriate sources).
      */
     protected static function fallbackBytes(int $length, int $strength) : string
     {
@@ -374,22 +355,23 @@ class Random
             }
         }
 
-        // At this stage we didn't get a single valid result from the loop so we're returning
-        // an empty string to conform to the signature.
-        return '';
+        // At this stage we didn't get a single valid result.
+        throw new \RuntimeException('No source with sufficient entropy is available on this platform.');
     }
 
     /**
      * Generates a pseudo-random integer in the specified range from fallback sources if the default
      * implementation in self::int() failed for any reason.
      *
-     * Note: Similar to self::fallbackBytes() and opposite to self::int() this method does not throw any
-     * exceptions in itself.
+     * Note: Does *not* check whether the specified range is valid for integers - intended to be called
+     *       internally by self::int() which does perform all relevant checks (and throws exceptions), so take
+     *       this into account when overriding.
      *
-     * @param   int     $min                The minimal expected value of the generated integer (>= than PHP_INT_MIN).
-     * @param   int     $max                The maximal expected value of the generated integer (<= than PHP_INT_MAX).
-     * @param   int     $strength           The requested strength of entropy (one of the STRENGTH_* class constants)
-     * @return  int                         The generated integer.
+     * @param   int     $min        The minimal expected value of the generated integer (>= than PHP_INT_MIN).
+     * @param   int     $max        The maximal expected value of the generated integer (<= than PHP_INT_MAX).
+     * @param   int     $strength   The requested strength of entropy (one of the STRENGTH_* class constants)
+     * @return  int                 The generated integer.
+     * @throws  \RuntimeException   When failing to generate a pseudo-random integer in the specified range.
      */
     protected static function fallbackInt(int $min, int $max, int $strength) : int
     {
@@ -410,11 +392,17 @@ class Random
         $mask   = (1 << $bits) - 1;
 
         do {
-            $result  = hexdec(bin2hex(static::bytes($bytes, $strength)));
-            $result &= $mask;
+            $result = hexdec(bin2hex(static::bytes($bytes, $strength))) & $mask;
         } while ($result > $range);
 
-        return $min + $result;
+        $result = $min + $result;
+
+        // Assert we got a integer in the requested range.
+        if (!is_int($result) || $result < $min || $result > $max) {
+            throw new \RuntimeException('Failed to generate a random integer in the ['.$min.' - '.$max.'] range. Possibly due to lack of sources with sufficient entropy.');
+        }
+
+        return $result;
     }
 
     /**
