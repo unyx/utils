@@ -29,22 +29,30 @@ class Is
     use utils\traits\StaticallyExtendable;
 
     /**
-     * @var array   An array of strings (keys) => true (values) to be treated as affirmative values
-     *              by self::affirmative().
-     *              Note: The keys will be used as the values - this format allows to avoid some function
-     *              calling overhead. Intentionally public, this being a non-critical utility.
+     * @var array   A mapping of arrays of strings (keys) => true (values) used by various methods for interpreting
+     *              natural language values.
      */
-    public static $affirmativeValues = [
-        'true' => true,
-        '1'    => true,
-        'on'   => true,
-        'yes'  => true,
-        'y'    => true
+    public static $dictionary = [
+        'affirmative' => [
+            'true' => true,
+            '1'    => true,
+            'on'   => true,
+            'yes'  => true,
+            'y'    => true
+        ],
+        'negative' => [
+            'false' => false,
+            '0'     => false,
+            'off'   => false,
+            'no'    => false,
+            'n'     => false
+        ]
     ];
 
     /**
-     * Checks whether the given string represents a boolean true, as understood in natural language, ie.
-     * strings like "true", "1", "on", "yes", "y" will be treated as a boolean true. Case-insensitive.
+     * Checks whether the given string represents a boolean true as understood in natural language, ie.
+     * strings like "true", "on", "yes", "y" will be treated as a boolean true. @see Is::$dictionary on which
+     * strings will be treated as affirmative. Case-insensitive.
      *
      * @param   string          $str        The string to check.
      * @param   string|null     $encoding   The encoding to use.
@@ -52,7 +60,7 @@ class Is
      */
     public static function affirmative(string $str, string $encoding = null) : bool
     {
-        return isset(static::$affirmativeValues[mb_strtolower($str, $encoding ?: utils\Str::encoding($str))]);
+        return isset(static::$dictionary['affirmative'][mb_strtolower($str, $encoding ?: utils\Str::encoding($str))]);
     }
 
     /**
@@ -123,6 +131,20 @@ class Is
     public static function hexadecimal(string $str, string $encoding = null) : bool
     {
         return static::matchesPattern($str, '^[[:xdigit:]]*$', $encoding);
+    }
+
+    /**
+     * Checks whether the given string represents a boolean false as understood in natural language, ie.
+     * strings like "false", "off", "no", "n" will be treated as a boolean false. @see Is::$dictionary on which
+     * strings will be treated as negative. Case-insensitive.
+     *
+     * @param   string          $str        The string to check.
+     * @param   string|null     $encoding   The encoding to use.
+     * @return  bool                        True when the string represents an affirmative value, false otherwise.
+     */
+    public static function negative(string $str, string $encoding = null) : bool
+    {
+        return isset(static::$dictionary['negative'][mb_strtolower($str, $encoding ?: utils\Str::encoding($str))]);
     }
 
     /**
