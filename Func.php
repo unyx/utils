@@ -91,12 +91,14 @@ class Func
      * called.
      *
      * @param   callable            $callback   The callable to wrap.
-     * @param   callable|string     $key        When a callable is given, it will be invoked with 2 arguments: the
-     *                                          wrapped callable and the arguments for the call. Its return value
-     *                                          will be cast to a string and used as the cache key for the result.
-     *                                          When any other value except for null is given, it will be cast to
-     *                                          a string and used as the cache key. When not given, self::hash()
-     *                                          will be used to create a hash of the call signature to use as key.
+     * @param   callable|string     $key        - When a (resolver) callable is given, it will be invoked with 1
+     *                                            or more arguments: the wrapped callable and any arguments
+     *                                            passed to the wrapped callable (variadic). Its return value
+     *                                            will be cast to a string and used as the cache key for the result.
+     *                                          - When any other value except for null is given, it will be cast to
+     *                                            a string and used as the cache key.
+     *                                          - When not given, self::hash() will be used to create a hash
+     *                                            of the call signature to use as key.
      * @return  \Closure                        The wrapper.
      * @todo                                    Expose the cached result inside the callable (limited to the same
      *                                          callable?)
@@ -109,7 +111,7 @@ class Func
             // Determine which cache key to use.
             $key = null === $key
                 ? static::hash($callback, $args)
-                : (string) (is_callable($key) ? $key($callback, $args) : $key);
+                : (string) (is_callable($key) ? call_user_func($key, $callback, ...$args) : $key);
 
             // If we don't already have a hit for the cache key, populate it with the result of invocation.
             if (!array_key_exists($key, static::$memory)) {
