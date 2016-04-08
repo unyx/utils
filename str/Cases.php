@@ -22,6 +22,36 @@ class Cases
     use utils\traits\StaticallyExtendable;
 
     /**
+     * Delimits the given string on spaces, underscores and dashes and before uppercase characters using the
+     * given delimiter string. The resulting string will also be trimmed and lower-cased.
+     *
+     * @param   string          $delimiter  The delimiter to use. Can be a sequence of multiple characters.
+     * @param   string|null     $encoding   The encoding to use.
+     * @return  string                      The resulting string.
+     * @todo    Decide whether to keep the trimming and case change in here (too much responsibility).
+     */
+    public static function delimit(string $str, string $delimiter, string $encoding = null) : string
+    {
+        $encoding = $encoding ?: utils\Str::encoding($str);
+
+        // Keep track of the internal encoding as we'll change it temporarily and then revert back to it.
+        $internalEncoding = mb_regex_encoding();
+
+        // Swap out the internal encoding for what we want...
+        mb_regex_encoding($encoding);
+
+        // ... trim the input string, convert it to lowercase, insert the delimiter.
+        $str = mb_ereg_replace('\B([A-Z])', '-\1', mb_ereg_replace("^[[:space:]]+|[[:space:]]+\$", '', $str));
+        $str = mb_strtolower($str, $encoding);
+        $str = mb_ereg_replace('[-_\s]+', $delimiter, $str);
+
+        // Restore the initial internal encoding.
+        mb_regex_encoding($internalEncoding);
+
+        return $str;
+    }
+
+    /**
      * Converts all characters in the given string to lowercase.
      *
      * @param   string      $str        The string to convert.
