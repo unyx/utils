@@ -1055,7 +1055,9 @@ class Str
             'on'    => true,
             'off'   => false,
             'yes'   => true,
-            'no'    => false
+            'no'    => false,
+            'y'     => true,
+            'n'     => false
         ];
 
         return $map[mb_strtolower($str)] ?? (bool) trim($str);
