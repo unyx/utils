@@ -42,12 +42,12 @@ class Arr
     use traits\StaticallyExtendable;
 
     /**
-     * @var string  The delimiter to use to separate array dimensions.
+     * @var string  The default delimiter to use to separate array dimensions.
      */
     public static $delimiter = '.';
 
     /**
-     * Adds an element to an array but only if it does not yet exist.
+     * Adds an element to the given array but only if it does not yet exist.
      *
      * Note: Null as value of an item is considered a non-existing item for the purposes
      *       of this method.
@@ -65,7 +65,7 @@ class Arr
     }
 
     /**
-     * Checks if all elements in the given array pass the given truth test.
+     * Checks whether all elements in the given array pass the given truth test.
      *
      * Aliases:
      *  - @see Arr::every()
@@ -83,7 +83,7 @@ class Arr
     }
 
     /**
-     * Checks if any of the elements in the given array passes the given truth test.
+     * Checks whether any of the elements in the given array passes the given truth test.
      *
      * Aliases:
      *  - @see Arr::some()
@@ -130,7 +130,14 @@ class Arr
     }
 
     /**
-     * Collapses an array of arrays into a single array.
+     * Collapses an array of arrays into a single array. Not recursive, ie. only the first dimension of arrays
+     * will be collapsed down.
+     *
+     * Standard array_merge() rules apply - @link http://php.net/manual/en/function.array-merge.php -
+     * non-array values with numeric keys will be appended to the resulting array in the order they are given, while
+     * non-array values with non-numeric keys will have their keys preserved but the values may be overwritten by
+     * the nested arrays being collapsed down if those contain values with the same non-numeric keys. Latter arrays
+     * overwrite previous arrays' keys on collisions.
      *
      * @param   array   $array  The array to collapse.
      * @return  array           The resulting array.
@@ -139,16 +146,32 @@ class Arr
     {
         $results = [];
 
-        foreach ($array as $item) {
-            $results = array_merge($results, $item);
+        foreach ($array as $key => $item) {
+
+            // Nested arrays will be merged in (non-recursively).
+            if (is_array($item)) {
+                $results = array_merge($results, $item); continue;
+            }
+
+            // Values with numeric keys will be appended in any case.
+            if (is_int($key)) {
+                $results[] = $item; continue;
+            }
+
+            // Non-numeric keys. If we've got the given key in $results already, it means it was merged
+            // in from one of the nested arrays and those are meant to overwrite the initial values on collisions -
+            // thus we're not going to do anything in that case.
+            if (!array_key_exists($key, $results)) {
+                $results[$key] = $item;
+            }
         }
 
         return $results;
     }
 
     /**
-     * Checks if the given value is contained within the given array. Equivalent of a recursive in_array. When you
-     * are sure you are dealing with a 1-dimensional array, use in_array instead to avoid the overhead.
+     * Checks whether the given value is contained within the given array. Equivalent of a recursive in_array.
+     * When you are sure you are dealing with a 1-dimensional array, use in_array instead to avoid the overhead.
      *
      * @param   array   $haystack   The array to search in.
      * @param   mixed   $needle     The value to search for.
@@ -158,11 +181,11 @@ class Arr
     public static function contains(array $haystack, $needle, bool $strict = true)
     {
         foreach ($haystack as $value) {
-            if ((!$strict and $needle == $value) or $needle === $value) {
+            if ((!$strict && $needle == $value) || $needle === $value) {
                 return true;
             }
 
-            if (is_array($value) and static::contains($needle, $value, $strict)) {
+            if (is_array($value) && static::contains($needle, $value, $strict)) {
                 return true;
             }
         }
@@ -189,7 +212,7 @@ class Arr
         }
 
         foreach ($array as $key => $value) {
-            if (is_array($value)) {
+            if (is_array($value) && !empty($value)) {
                 $results = array_merge($results, static::delimit($value, $prepend.$key.$delimiter));
             } else {
                 $results[$prepend.$key] = $value;
@@ -351,7 +374,11 @@ class Arr
 
     /**
      * Returns a string delimited key from an array, with a default value if the given key does not exist. If null
-     * is given instead of a key, the whole initial array will be returned.
+     * is given instead of a key, the whole initial array will be returned. If an empty array is given, the $default
+     * will be returned.
+     *
+     * Note: Nested objects will not be accessed as if they were arrays, ie. if "some.nested.object" is an object,
+     *       not an array, then looking for "some.nested.object.key" will always return the $default.
      *
      * @param   array   $array      The array to search in.
      * @param   string  $key        The string delimited key.
@@ -372,7 +399,7 @@ class Arr
         // Note: This also makes it possible to have keys including the specified delimiter ("some.array.key")
         // in the *first* dimension of the given array. However, nested items are expected to follow the convention
         // of the delimiter specifying the dimension.
-        if (isset($array[$key])) {
+        if (array_key_exists($key, $array)) {
             return $array[$key];
         }
 
@@ -383,8 +410,7 @@ class Arr
 
         // One dimension at a time.
         foreach (explode($delimiter, $key) as $segment) {
-            if (!array_key_exists($segment, $array)) {
-                // @todo Invoke closures right away or return them like currently? Ie. Laravel's value() helper function.
+            if (!is_array($array) || !array_key_exists($segment, $array)) {
                 return $default;
             }
 
@@ -395,7 +421,10 @@ class Arr
     }
 
     /**
-     * Check if the given string delimited key exists in the array.
+     * Checks whether the given string delimited key exists in the array.
+     *
+     * Note: Nested objects will not be accessed as if they were arrays, ie. if "some.nested.object" is an object,
+     *       not an array, then looking for "some.nested.object.key" will always return false.
      *
      * @param   array   $array      The array to search in.
      * @param   string  $key        The string delimited key.
@@ -410,7 +439,7 @@ class Arr
         }
 
         foreach (explode($delimiter, $key) as $segment) {
-            if (!is_array($array) or !array_key_exists($segment, $array)) {
+            if (!is_array($array) || !array_key_exists($segment, $array)) {
                 return false;
             }
 
@@ -556,11 +585,12 @@ class Arr
     }
 
     /**
-     * Merges 2 or more arrays recursively. Differs in two important aspects from array_merge_recursive():
+     * Merges 2 or more arrays recursively. Differs in two important aspects from array_merge_recursive(), to
+     * more closely resemble the standard behaviour of the non-recursive array_merge():
      *   - In case of 2 different values, when they are not arrays, the latter one overwrites the earlier instead
      *     of merging them into an array;
-     *   - Non-conflicting numeric keys are left unchanged. In case of a conflict, the new value will be pushed
-     *     to the resulting array.
+     *   - Non-conflicting numeric keys are left unchanged. In case of a conflict, the new value will be appended
+     *     to the resulting array (not preserving its key).
      *
      * @param   array   $array      The initial array.
      * @param   array   ...$with    One or more (ie. separate arguments) arrays to merge in.
@@ -572,10 +602,10 @@ class Arr
             foreach ($arr as $key => $value) {
                 // Append numeric keys.
                 if (is_int($key)) {
-                    array_key_exists($key, $array) ? array_push($array, $value) : $array[$key] = $value;
+                    array_key_exists($key, $array) ? $array[] = $value : $array[$key] = $value;
                 }
-                // Merge multi-dimensional arrays recursively..
-                elseif (is_array($value) and array_key_exists($key, $array) and is_array($array[$key])) {
+                // Merge multi-dimensional arrays recursively.
+                elseif (is_array($value) && array_key_exists($key, $array) && is_array($array[$key])) {
                     $array[$key] = static::merge($array[$key], $value);
                 } else {
                     $array[$key] = $value;
@@ -715,7 +745,7 @@ class Arr
         $keys = explode($delimiter, $key);
 
         while ($key = array_shift($keys)) {
-            if (!isset($array[$key]) or !is_array($array[$key])) {
+            if (!isset($array[$key]) || !is_array($array[$key])) {
                 return;
             }
 
