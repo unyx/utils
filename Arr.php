@@ -253,7 +253,7 @@ class Arr
      * Returns a subset of the given array, containing all keys except for the ones specified.
      *
      * @param   array   $array  The initial array.
-     * @param   array   $keys   An array of keys (the keys are expected to be values of this array).
+     * @param   array   $keys   An array of keys to exclude from the initial array.
      * @return  array
      */
 
@@ -529,9 +529,9 @@ class Arr
      * or the last element which passes the given truth test when the $callback is a callable.
      *
      * @param   array               $array      The array to traverse.
-     * @param   callable|int|bool   $callback   The truth test the value should pass or an integer denoting how many
-     *                                          of the final elements of the array should be returned.
-     *                                          When a falsy value is given, the method will return the last
+     * @param   callable|int|bool   $callback   The truth test the value should pass or an integer / numeric string 
+     *                                          denoting how many of the final elements of the array should be returned.
+     *                                          When *any* other value is given, the method will return the last
      *                                          element of the array.
      * @param   mixed               $default    The default value to be returned if none of the elements passes
      *                                          the test or the array is empty.
@@ -560,8 +560,8 @@ class Arr
             return $default;
         }
 
-        // Return only the last element when the callback equals 1, otherwise return the final $callback elements.
-        return (1 === $callback = -1 * abs((int) $callback)) ? end($array) : array_slice($array, $callback);
+        // Return only the last element when abs(callback) equals 1, otherwise return the final $callback elements.
+        return (-1 === $callback = -1 * abs((int) $callback)) ? end($array) : array_slice($array, $callback);
     }
 
     /**
