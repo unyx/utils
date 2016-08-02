@@ -169,7 +169,7 @@ class Platform
      * @param   string          $name
      * @return  string|null
      */
-    public static function getShell($name)
+    public static function getShell(string $name)
     {
         return static::getShells()[$name] ?? null;
     }
@@ -180,7 +180,7 @@ class Platform
      * @param   string  $name
      * @return  bool
      */
-    public static function hasShell($name) : bool
+    public static function hasShell(string $name) : bool
     {
         return isset(static::getShells()[$name]);
     }

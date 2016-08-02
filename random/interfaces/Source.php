@@ -3,7 +3,7 @@
 /**
  * Source
  *
- * Represents a source of pseudorandom numbers. Each concrete source defines its strength on its
+ * Represents a source of pseudo-random numbers. Each concrete source defines its strength on its
  * own.
  *
  * Note - the constants representing the strength are in utils\Random::STRENGTH_* since that
