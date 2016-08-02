@@ -7,12 +7,7 @@ use nyx\utils;
 /**
  * OpenSSL Source
  *
- * Uses RAND_bytes() from the OpenSSL lib to generate random bytes. We classify this as a medium
- * strength source since it's a userspace CSPRNG. See Thomas Ptacek's explanation:
- * http://sockpuppet.org/blog/2014/02/25/safely-generate-random-numbers
- *
- * RAND_bytes() still *can* of course be used in a cryptography context - it only means that if
- * security is of utmost concern, there are better sources.
+ * Uses RAND_bytes() from the OpenSSL lib to generate random bytes.
  *
  * @package     Nyx\Utils
  * @version     0.0.5
@@ -25,9 +20,9 @@ class OpenSSL implements interfaces\Source
     /**
      * {@inheritDoc}
      */
-    public static function strength()
+    public static function strength() : int
     {
-        return utils\Random::STRENGTH_MEDIUM;
+        return utils\Random::STRENGTH_STRONG;
     }
 
     /**

@@ -39,13 +39,9 @@ use nyx\core;
  *   - Others: getrandom(2) syscall (Linux only), then /dev/urandom
  *
  * The first valid source in those orders gets used. In the edge case where that procedure fails,
- * this class throws exceptions does but attempts two (by default) additional fallbacks first (in this order):
+ * this class throws exceptions does attempt one additional fallback:
  *   - openssl_random_pseudo_bytes(), if available (which uses a userspace hash algo making it
  *     potentially an additional point of failure and thus only valid for the STRENGTH_MEDIUM setting
- *     and below);
- *   - mcrypt_create_iv(), if available (which basically uses the exact same sources as random_bytes()
- *     although in a slightly different execution process, so it's merely a second attempt at doing what
- *     random_bytes() should've done);
  *
  * No additional userspace entropy sources are used nor introduced by this utility. Libsodium may be
  * introduced as additional primary fallback at a later date.
@@ -415,16 +411,10 @@ class Random
     protected static function getSources() : array
     {
         return static::$sources ?? (static::$sources = [
-            self::STRENGTH_MEDIUM => [
-                [
-                    'class'     => 'nyx\utils\random\sources\OpenSSL',
-                    'dependsOn' => 'openssl_random_pseudo_bytes'
-                ]
-            ],
             self::STRENGTH_STRONG => [
                 [
-                    'class'     => 'nyx\utils\random\sources\Mcrypt',
-                    'dependsOn' => 'mcrypt_create_iv'
+                    'class'     => random\sources\OpenSSL::class,
+                    'dependsOn' => 'openssl_random_pseudo_bytes'
                 ]
             ]
         ]);
