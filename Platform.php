@@ -49,8 +49,8 @@ class Platform
     private static $hasStty;
 
     /**
-     * Guesses and returns the platform PHP is running on. If it can't be determined, the default of Unix will
-     * be returned.
+     * Guesses and returns the platform PHP is running on. If it can't be determined, the default
+     * of self::TYPE_UNIX will be returned.
      *
      * @return  int     One of the platform TYPE_ constants defined in this class.
      */

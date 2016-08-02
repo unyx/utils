@@ -1,5 +1,8 @@
 <?php namespace nyx\utils\math\bigint;
 
+// External dependencies
+use nyx\diagnostics;
+
 // Internal dependencies
 use nyx\utils\math;
 use nyx\utils;
@@ -328,6 +331,6 @@ class Gmp implements math\interfaces\BigInt
             return $operand;
         }
 
-        throw new \InvalidArgumentException('Invalid operand given. Expected an instance of \nyx\utils\math\interfaces\BigInt or a numeric string, got ['.gettype($operand).'] instead.');
+        throw new \InvalidArgumentException('Invalid operand given. Expected an instance of \nyx\utils\math\interfaces\BigInt or a numeric string, got ['.diagnostics\Debug::getTypeName($operand).'] instead.');
     }
 }

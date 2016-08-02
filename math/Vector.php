@@ -1,5 +1,8 @@
 <?php namespace nyx\utils\math;
 
+// External dependencies
+use nyx\diagnostics;
+
 /**
  * Vector
  *
@@ -433,7 +436,7 @@ class Vector implements \ArrayAccess
         }
 
         if ($tolerance < 0) {
-            throw new \InvalidArgumentException('The $tolerance must be greater than or equal to 0, got ['.$tolerance.'] instead.');
+            throw new \InvalidArgumentException("Expected tolerance to be greater than or equal to 0, got [$tolerance] instead.");
         }
 
         foreach ($this->components as $i => $component) {
@@ -598,7 +601,7 @@ class Vector implements \ArrayAccess
                 $result[$i] = $component - $that;
             }
         } else {
-            throw new \InvalidArgumentException('Unknown type to subtract given - can only subtract other Vectors or numbers from Vectors.');
+            throw new \InvalidArgumentException('Expected a Vector or a number to subtract, got ['.diagnostics\Debug::getTypeName($that).'] instead.');
         }
 
         return new static($result);
@@ -612,7 +615,7 @@ class Vector implements \ArrayAccess
     public function offsetGet($key)
     {
         if (!isset($this->components[$key])) {
-            throw new \LogicException('The requested key ['.$key.'] does not exist.');
+            throw new \LogicException("The requested key [$key] does not exist.");
         }
 
         return $this->components[$key];
@@ -625,7 +628,7 @@ class Vector implements \ArrayAccess
      */
     public function offsetSet($key, $item)
     {
-        throw new \LogicException('Cannot set ['.$key.'] - Vectors are immutable.');
+        throw new \LogicException("Cannot set [$key] - Vectors are immutable.");
     }
 
     /**
@@ -643,7 +646,7 @@ class Vector implements \ArrayAccess
      */
     public function offsetUnset($key)
     {
-        throw new \LogicException('Cannot unset ['.$key.'] - Vectors are immutable.');
+        throw new \LogicException("Cannot unset [$key] - Vectors are immutable.");
     }
 
     /**
@@ -671,6 +674,6 @@ class Vector implements \ArrayAccess
             return $this->components[$name];
         }
 
-        throw new \LogicException('Inaccessible method/property ['.$name.'].');
+        throw new \LogicException("Inaccessible method/property [$name].");
     }
 }

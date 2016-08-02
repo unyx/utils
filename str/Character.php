@@ -1,9 +1,10 @@
 <?php namespace nyx\utils\str;
 
-// External includes
+// External dependencies
 use nyx\core;
+use nyx\diagnostics;
 
-// Internal includes
+// Internal dependencies
 use nyx\utils;
 
 /**
@@ -102,11 +103,11 @@ class Character
         if ($mask instanceof core\Mask) {
             $mask = $mask->get();
         } else if (!is_int($mask)) {
-            throw new \InvalidArgumentException('Expected an integer or an instance of \nyx\core\Mask, got ['.gettype($mask).'] instead.');
+            throw new \InvalidArgumentException('Expected an integer or an instance of \nyx\core\Mask, got ['.diagnostics\Debug::getTypeName($mask).'] instead.');
         }
 
         if ($mask <= 0) {
-            throw new \InvalidArgumentException('Expected a bitmask, got an integer with a value of ['.$mask.'] instead.');
+            throw new \InvalidArgumentException("Expected a bitmask, got an integer with a value of [$mask] instead.");
         }
 
         // If all we get is the ambiguous exclusion flag, we need a base set of characters
