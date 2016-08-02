@@ -256,7 +256,6 @@ class Arr
      * @param   array   $keys   An array of keys to exclude from the initial array.
      * @return  array
      */
-
     public static function except(array $array, array $keys)
     {
         return array_diff_key($array, array_flip($keys));
@@ -529,7 +528,7 @@ class Arr
      * or the last element which passes the given truth test when the $callback is a callable.
      *
      * @param   array               $array      The array to traverse.
-     * @param   callable|int|bool   $callback   The truth test the value should pass or an integer / numeric string 
+     * @param   callable|int|bool   $callback   The truth test the value should pass or an integer / numeric string
      *                                          denoting how many of the final elements of the array should be returned.
      *                                          When *any* other value is given, the method will return the last
      *                                          element of the array.

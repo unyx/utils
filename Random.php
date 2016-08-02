@@ -271,7 +271,7 @@ class Random
 
             // Since this might be done in a cryptographic context, at least be sassy about it
             // and notify the user that we do not find this amusing.
-            trigger_error('Attempted to generate a random string of '.$length.' characters but was given only 1 character to create it out of. This is potentially unsafe.');
+            trigger_error("Attempted to generate a random string of [$length] characters but was given only 1 character to create it out of. This is potentially unsafe.");
 
             // We're gonna repeat it $length times in a *totally random* order, d'oh.
             return str_repeat($charactersLen, $length);

@@ -140,12 +140,6 @@ class Str
         $encoding    = $encoding ?: static::encoding($haystack);
         $funcIndexOf = $strict ? 'mb_strpos' : 'mb_stripos';
 
-        // mb_strpos does not natively support negative offsets, so we'll add the negative offset
-        // to the length of the $haystack to get the offset from its end.
-        if ($offset < 0) {
-            $offset = mb_strlen($haystack, $encoding) + $offset;
-        }
-
         // Find the offset of the first needle.
         if (false === $firstIndex = $funcIndexOf($haystack, $startNeedle, $offset, $encoding)) {
             throw new \OutOfBoundsException('Failed to find $startNeedle ['.$startNeedle.'] in $haystack ['.static::truncate($haystack, 20, '...', false, $encoding).'].');
@@ -401,10 +395,6 @@ class Str
         $func     = $strict ? 'mb_strpos' : 'mb_stripos';
         $encoding = $encoding ?: static::encoding($haystack);
 
-        if ($offset < 0) {
-            $offset = mb_strlen($haystack, $encoding) + $offset;
-        }
-
         if (false === $result = $func($haystack, $needle, $offset, $encoding)) {
             return -1;
         }
@@ -430,10 +420,6 @@ class Str
     {
         $func     = $strict ? 'mb_strrpos' : 'mb_strripos';
         $encoding = $encoding ?: static::encoding($haystack);
-
-        if ($offset < 0) {
-            $offset = mb_strlen($haystack, $encoding) + $offset;
-        }
 
         if (false === $result = $func($haystack, $needle, $offset, $encoding)) {
             return -1;
@@ -525,9 +511,9 @@ class Str
      * or a count from a specific offset. To count the number of occurrences of $needle in $haystack using
      * this method, a simple `count(Str::occurrences($needle, $haystack));` will do the trick.
      *
-     * @param   string      $haystack      The string to search in.
-     * @param   string      $needle        The substring to search for.
-     * @param   int         $offset        The offset from which to start the search. Can be negative, in which
+     * @param   string      $haystack       The string to search in.
+     * @param   string      $needle         The substring to search for.
+     * @param   int         $offset         The offset from which to start the search. Can be negative, in which
      *                                      case this method will start searching for the occurrences $offset
      *                                      characters from the end of the $haystack. Starts from 0 by default.
      * @param   bool        $strict         Whether to use case-sensitive comparisons. True by default.
@@ -545,13 +531,6 @@ class Str
 
         $encoding = $encoding ?: static::encoding($haystack);
         $length   = mb_strlen($haystack, $encoding);
-
-        // With a negative offset, we'll be starting at $offset characters from the end of $haystack.
-        // mb_strpos does not natively support negative offsets, which is why we're simply converting
-        // the negative one to a positive one.
-        if ($offset < 0) {
-            $offset = $length + $offset;
-        }
 
         // Make sure the offset given exists within the $haystack.
         if (abs($offset) >= $length) {
