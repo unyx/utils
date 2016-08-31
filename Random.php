@@ -278,7 +278,7 @@ class Random
         // the process of getting a random seed of the specified strength and actually generating
         // the string.
         if (self::STRENGTH_NONE) {
-            return substr(str_shuffle(str_repeat($characters, $length)), 0, $length);
+            return substr(str_shuffle(str_repeat($characters, ceil($length / 2))), 0, $length);
         }
 
         $result = '';
