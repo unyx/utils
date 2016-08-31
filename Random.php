@@ -2,6 +2,7 @@
 
 // External dependencies
 use nyx\core;
+use nyx\diagnostics;
 
 /**
  * Random
@@ -232,37 +233,43 @@ class Random
      * Aliases:
      *  - @see Str::random()
      *
-     * @param   int         $length         The expected length of the generated string.
-     * @param   string|int  $characters     The character list to use. Can be either a string
-     *                                      with the characters to use or an int | nyx\core\Mask
-     *                                      to generate a list (@see utils\str\Character::buildSet()).
-     *                                      If not provided or an invalid mask, the method will fall
-     *                                      back to the Base64 character set.
-     * @param   int         $strength       The requested strength of entropy (one of the STRENGTH_* class constants)
-     * @return  string                      The generated string.
-     * @throws  \InvalidArgumentException   When a expected length smaller than 1 was given.
+     * @param   int         $length          The expected length of the generated string.
+     * @param   string|int  $charset         The character list to use. Can be either a string
+     *                                       with the characters to use or an int | nyx\core\Mask
+     *                                       to generate a list - @see \nyx\utils\str\Character::buildSet().
+     *                                       If not provided or an invalid mask, the method will fall
+     *                                       back to the Base64 character set.
+     * @param   int         $strength        The requested strength of entropy (one of the STRENGTH_* class constants)
+     * @return  string                       The generated string.
+     * @throws  \InvalidArgumentException    When a expected length smaller than 1 was given.
+     * @throws
      */
-    public static function string(int $length = 8, $characters = str\Character::CHARS_BASE64, int $strength = self::STRENGTH_MEDIUM) : string
+    public static function string(int $length = 8, $charset = str\Character::CHARS_BASE64, int $strength = self::STRENGTH_MEDIUM) : string
     {
         if ($length < 1) {
             throw new \InvalidArgumentException('The expected length of the generated string must be at least 1.');
         }
 
-        if (is_int($characters) || $characters instanceof core\Mask) {
-            $characters = str\Character::buildSet($characters);
+        if (is_int($charset) || $charset instanceof core\Mask) {
+            if (empty($charset = str\Character::buildSet($charset))) {
+                throw new \LogicException('The provided bitmask did not resolve into a valid character set.');
+            }
         }
-
-        // Fall back to the Base64 character set if necessary.
-        if (empty($characters)) {
-            $characters = str\Character::buildSet(str\Character::CHARS_BASE64);
+        // Fall back to the Base64 character set if none was provided.
+        elseif (empty($charset)) {
+            $charset = str\Character::buildSet(str\Character::CHARS_BASE64);
+        }
+        // Otherwise, if it's a truthy value but not a string - we riot.
+        elseif (!is_string($charset)) {
+            throw new \InvalidArgumentException('Expected $characters to be a string or bitmask, got ['.diagnostics\Debug::getTypeName($charset).'] instead.');
         }
 
         // If only a single character was given...
-        if (1 === $charactersLen = strlen($characters)) {
+        if (1 === $charsetLength = strlen($charset)) {
 
             // ... and we only expected one to be generated, d'oh, we're gonna return it.
-            if ($charactersLen === $length) {
-                return $characters;
+            if ($charsetLength === $length) {
+                return $charset;
             }
 
             // Since this might be done in a cryptographic context, at least be sassy about it
@@ -270,7 +277,7 @@ class Random
             trigger_error("Attempted to generate a random string of [$length] characters but was given only 1 character to create it out of. This is potentially unsafe.");
 
             // We're gonna repeat it $length times in a *totally random* order, d'oh.
-            return str_repeat($charactersLen, $length);
+            return str_repeat($charsetLength, $length);
         }
 
         // With a STRENGTH_NONE (exclusively) setting we will simply shuffle the characters.
@@ -278,7 +285,7 @@ class Random
         // the process of getting a random seed of the specified strength and actually generating
         // the string.
         if (self::STRENGTH_NONE) {
-            return substr(str_shuffle(str_repeat($characters, ceil($length / 2))), 0, $length);
+            return substr(str_shuffle(str_repeat($charset, ceil($length / 2))), 0, $length);
         }
 
         $result = '';
@@ -288,8 +295,8 @@ class Random
         // Generate one character at a time until we reach the expected length.
         // @todo Benchmark for faster/less predictable implementations.
         for ($idx = 0; $idx < $length; $idx++) {
-            $pos     = ($pos + ord($bytes[$idx])) % $charactersLen;
-            $result .= $characters[$pos];
+            $pos     = ($pos + ord($bytes[$idx])) % $charsetLength;
+            $result .= $charset[$pos];
         }
 
         return $result;
