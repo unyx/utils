@@ -331,27 +331,36 @@ class Random
                 continue;
             }
 
-            foreach ($sources as &$source) {
-                // If no instance was made yet, we will try to create one it we meet its dependencies.
-                if(!isset($source['instance'])) {
+            foreach ($sources as $class => &$source) {
 
-                    if(!isset($source['class']) || !$source['class'] instanceof random\interfaces\Source) {
-                        throw new \DomainException('Sources must have a specified [class] key pointing to a class implementing nyx\utils\random\interfaces\Source');
+                // Sources with a value of false are marked as not available on this platform and will
+                // be omitted.
+                if (false === $source) {
+                    continue;
+                }
+
+                // If no instance was made yet, we will try to create one it we meet its dependencies.
+                if (null === $source) {
+
+                    if (!$class instanceof random\interfaces\Source) {
+                        throw new \DomainException('Sources must have a key pointing to a class implementing '.random\interfaces\Source::class);
                     }
 
-                    // We have to pass to the next available source if we can't meet the requirements
-                    // of this one.
-                    if(isset($source['dependsOn']) && !function_exists($source['dependsOn'])) {
+                    // Try to instantiate - Sources that aren't supported MUST throw during construction.
+                    // On failure just skip this iteration entirely, but mark the failure to avoid retrying
+                    // this source.
+                    try {
+                        $source = new $class;
+                    } catch(\RuntimeException $exception) {
+                        $source = false;
                         continue;
                     }
-
-                    $source['instance'] = new $source['class'];
                 }
 
                 // First valid result is good enough to return. Any failed attempts will be handled
                 // by exceptions being thrown by Source::generate() itself and will prevent the return.
                 try {
-                    return $source['instance']->generate($length);
+                    return $source->generate($length);
                 } catch(\RuntimeException $exception) {
                     // Ignoring the Exception since we handled it by not returning any valid result.
                 }
@@ -419,10 +428,7 @@ class Random
     {
         return static::$sources ?? (static::$sources = [
             self::STRENGTH_STRONG => [
-                [
-                    'class'     => random\sources\OpenSSL::class,
-                    'dependsOn' => 'openssl_random_pseudo_bytes'
-                ]
+                random\sources\OpenSSL::class => null
             ]
         ]);
     }
