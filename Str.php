@@ -229,7 +229,7 @@ class Str
         // When we reach this point, if we were ensuring all needles are contained within the haystack, it means
         // that we didn't fail on a single one. However, when looking for at least one of them, it means that none
         // returned true up to this point, so none of them is contained in the haystack.
-        return $all ? true : false;
+        return $all;
     }
 
     /**
