@@ -40,12 +40,12 @@ use nyx\diagnostics;
  *   - Others: getrandom(2) syscall (Linux only), then /dev/urandom
  *
  * The first valid source in those orders gets used. In the edge case where that procedure fails,
- * this class throws exceptions does attempt one additional fallback:
+ * this class throws exceptions, but does attempt one additional fallback before doing so:
  *   - openssl_random_pseudo_bytes(), if available (which uses a userspace hash algo making it
  *     potentially an additional point of failure and thus only valid for the STRENGTH_MEDIUM setting
  *
  * No additional userspace entropy sources are used nor introduced by this utility. Libsodium may be
- * introduced as additional primary fallback at a later date.
+ * introduced as an additional primary fallback at a later date.
  *
  * The fallback mechanism is lazily instantiated - unless PHP's native functions fail us, there will
  * be minimal overhead of using this class over random_bytes() directly, but with added verbosity.
@@ -76,10 +76,10 @@ class Random
      * Strength constants. The default for all methods is STRENGTH_MEDIUM. Consult the class description
      * for more information on when and how to use these constants.
      */
-    const STRENGTH_NONE    = 1;
-    const STRENGTH_WEAK    = 3;
-    const STRENGTH_MEDIUM  = 5;
-    const STRENGTH_STRONG  = 7;
+    const STRENGTH_NONE   = 1;
+    const STRENGTH_WEAK   = 2;
+    const STRENGTH_MEDIUM = 3;
+    const STRENGTH_STRONG = 4;
 
     /**
      * @var array   A map of Source classes grouped together by their STRENGTH_*. Remains null until an edge-case
@@ -189,7 +189,7 @@ class Random
      * @return  float                       The generated float.
      * @throws  \RangeException             When the specified range is invalid.
      */
-    public static function float(float $min = 0, float $max = 1, int $strength = self::STRENGTH_MEDIUM) : float
+    public static function float(float $min = 0.0, float $max = 1.0, int $strength = self::STRENGTH_MEDIUM) : float
     {
         // Allow for passing in the range in reverse order.
         $tmp   = max($min, $max);
@@ -313,11 +313,9 @@ class Random
      *
      * @param   int     $length     The length of the random string of bytes that should be generated.
      * @param   int     $strength   The requested strength of entropy (one of the STRENGTH_* class constants)
-     * @return  string              The resulting string in binary format or an empty string if no actual
-     *                              random bytes were generated.
-     * @throws  \DomainException    When one of the sources returned by self::getSources() has either no
-     *                              specified 'class' value or that value points to a class which is not
-     *                              an instance of random\interfaces\Source.
+     * @return  string              The resulting string in binary format.
+     * @throws  \DomainException    When one of the sources returned by self::getSources() does not have a key pointing
+     *                              to a class implementing random\interfaces\Source.
      * @throws  \RuntimeException   When pseudo-random bytes of the requested entropy could not be generated
      *                              (most likely due to lack of appropriate sources).
      */
@@ -339,8 +337,8 @@ class Random
                     continue;
                 }
 
-                // If no instance was made yet, we will try to create one it we meet its dependencies.
-                if (null === $source) {
+                // If no instance was made yet, we will try to create one.
+                if (!isset($source)) {
 
                     if (!$class instanceof random\interfaces\Source) {
                         throw new \DomainException('Sources must have a key pointing to a class implementing '.random\interfaces\Source::class);
@@ -349,6 +347,7 @@ class Random
                     // Try to instantiate - Sources that aren't supported MUST throw during construction.
                     // On failure just skip this iteration entirely, but mark the failure to avoid retrying
                     // this source.
+                    /* @var random\interfaces\Source $source */
                     try {
                         $source = new $class;
                     } catch(\RuntimeException $exception) {
