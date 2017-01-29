@@ -12,7 +12,7 @@ use nyx\utils\Func;
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/index.html
  */
-class FuncTest extends \PHPUnit_Framework_TestCase
+class FuncTest extends \PHPUnit\Framework\TestCase
 {
     // Used by the when/unless tests.
     private $whenExists;

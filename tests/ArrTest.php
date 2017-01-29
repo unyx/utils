@@ -12,7 +12,7 @@ use nyx\utils\Arr;
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/index.html
  */
-class ArrTest extends \PHPUnit_Framework_TestCase
+class ArrTest extends \PHPUnit\Framework\TestCase
 {
     // Arr::add()
     public function testArrayAdd()

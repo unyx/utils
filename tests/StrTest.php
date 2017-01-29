@@ -12,7 +12,7 @@ use nyx\utils\Str;
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/index.html
  */
-class StrTest extends \PHPUnit_Framework_TestCase
+class StrTest extends \PHPUnit\Framework\TestCase
 {
     // Str::occurrences()
     public function testStrOccurrences()
@@ -39,7 +39,7 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([6, 12], Str::occurrences($source, 'foobar', -12));
 
         // Start at an offset not within the $source
-        $this->setExpectedException('OutOfBoundsException', 'The given $offset [100]');
+        $this->expectException('OutOfBoundsException');
         Str::occurrences($source, 'foobar', 100);
     }
 }
