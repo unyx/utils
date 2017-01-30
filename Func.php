@@ -84,7 +84,7 @@ class Func
             $callable = is_string($callable[0]) ? implode('::', $callable) : $callable[1];
         }
 
-        return md5(join('_', [$callable, var_export($args, true)]));
+        return md5(implode('_', [$callable, var_export($args, true)]));
     }
 
     /**
