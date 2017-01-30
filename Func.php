@@ -46,7 +46,7 @@ class Func
             static $count = 0;
 
             if (++$count >= $times) {
-                return call_user_func($callback, ...$args);
+                return $callback(...$args);
             }
         };
     }
@@ -112,11 +112,11 @@ class Func
             // Determine which cache key to use.
             $key = null === $key
                 ? static::hash($callback, $args)
-                : (string) (is_callable($key) ? call_user_func($key, $callback, ...$args) : $key);
+                : (string) (is_callable($key) ? $key($callback, ...$args) : $key);
 
             // If we don't already have a hit for the cache key, populate it with the result of invocation.
             if (!array_key_exists($key, static::$memory)) {
-                static::$memory[$key] = call_user_func($callback, ...$args);
+                static::$memory[$key] = $callback(...$args);
             }
 
             return static::$memory[$key];
@@ -149,7 +149,7 @@ class Func
 
             // Invoke the callback when we didn't hit our limit yet.
             if ($times >= ++$called) {
-                return call_user_func($callback, ...$args);
+                return $callback(...$args);
             }
         };
     }
@@ -165,7 +165,7 @@ class Func
     public static function partial(callable $callback, ...$prependedArgs) : \Closure
     {
         return function(...$args) use ($callback, $prependedArgs) {
-            return call_user_func($callback, ...$prependedArgs, ...$args);
+            return $callback(...$prependedArgs, ...$args);
         };
     }
 
@@ -180,7 +180,7 @@ class Func
     public static function partialRight(callable $callback, ...$appendedArgs) : \Closure
     {
         return function(...$args) use ($callback, $appendedArgs) {
-            return call_user_func($callback, ...$args, ...$appendedArgs);
+            return $callback(...$args, ...$appendedArgs);
         };
     }
 
@@ -205,7 +205,7 @@ class Func
                 $timer = $microtime + $wait / 1000;
 
                 // And call the actual callable.
-                $result = call_user_func($callback, ...$args);
+                $result = $callback(...$args);
             }
 
             return $result;
@@ -297,8 +297,8 @@ class Func
             $testArgs = (isset($testArgs[0]) && $testArgs[0] === self::PASSTHROUGH) ? $callbackArgs : $testArgs;
 
             // Loose comparison on purpose to make this more elastic.
-            if ($expect == call_user_func($test, ...$testArgs)) {
-                return call_user_func($callback, ...$callbackArgs);
+            if ($expect == $test(...$testArgs)) {
+                return $callback(...$callbackArgs);
             }
         };
     }
