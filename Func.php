@@ -10,7 +10,8 @@
  * @author      Michal Chojnacki <m.chojnacki@muyo.io>
  * @copyright   2012-2016 Nyx Dev Team
  * @link        http://docs.muyo.io/nyx/utils/func.html
- * @todo        Return a custom value instead of null when a Closure prevents the invocation of a callable?
+ * @todo        Decide: Return a custom value instead of null when a Closure prevents the invocation of a callable?
+ * @todo        Decide: Add Func::timeout()?
  */
 class Func
 {
@@ -209,6 +210,43 @@ class Func
 
             return $result;
         };
+    }
+
+    /**
+     * Retries the execution of a callable for a given number of $times, optionally delaying each retry
+     * by $delay seconds. The only condition of failure triggering a retry is when the callable throws
+     * an Exception.
+     *
+     * Unlike most other methods in this utility, this method does not return a Closure due to its nature.
+     * If you require a "retrier" function, you could of course just wrap the call to Func::retry inside a Closure
+     * of your own.
+     *
+     * Note: Delay is *blocking*. When running though an event loop, instead of using the delay, you should
+     * schedule retries of your code on loop ticks or via timers (unless, of course, blocking is of no concern
+     * or even desired).
+     *
+     * @param   callable    $callback       The callable to invoke.
+     * @param   int         $times          The number of times the callable should be invoked upon failure.
+     * @param   float       $delay          The delay between each retry, in seconds.
+     * @return  mixed                       The result of the callable's invocation (upon success).
+     * @throws  \Exception                  When the last allowed retry fails (the type of the exception is a re-throw
+     *                                      of the last exception thrown by the callable).
+     */
+    public static function retry(callable $callback, int $times = 1, float $delay = null)
+    {
+        retry: try {
+            return $callback();
+        } catch (\Exception $exception) {
+            if (0 < $times--) {
+                if (isset($delay)) {
+                    usleep($delay * 1000000);
+                }
+
+                goto retry;
+            }
+
+            throw $exception;
+        }
     }
 
     /**

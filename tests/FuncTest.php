@@ -233,7 +233,78 @@ class FuncTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(1, $counter, 'function called twice');
     }
 
-    // Func::when()
+    /**
+     * @see Func::retry()
+     * ----------------------------------------------------------------------------------------------------------------
+     */
+
+    public function testRetryAlwaysSuccessful()
+    {
+        $expected = 'foo';
+        $result   = Func::retry(function () use ($expected) {
+            return $expected;
+        });
+
+        static::assertEquals('foo', $result);
+    }
+
+    public function testRetryAlwaysFailing()
+    {
+        $this->expectException('InvalidArgumentException');
+
+        Func::retry(function () {
+            throw new \InvalidArgumentException;
+        });
+    }
+
+    public function testRetryWithSingleException()
+    {
+        $shouldThrow = true;
+        $result = Func::retry(function () use (&$shouldThrow) {
+            if ($shouldThrow) {
+                $shouldThrow = false;
+                throw new \Exception;
+            }
+
+            return 'foo';
+        });
+
+        static::assertEquals('foo', $result);
+    }
+
+    public function testRetryAttemptsCount()
+    {
+        $count = 0;
+        try {
+            Func::retry(function () use (&$count) {
+                $count++;
+                throw new \Exception;
+            }, 5);
+        } catch (\Exception $e) { }
+
+        // We expect to have counted to 6, since we requested 5 retries (+1 initial attempt).
+        static::assertEquals(6, $count);
+    }
+
+    public function testRetryWithDelay()
+    {
+        $startTime = microtime(true);
+
+        try {
+            Func::retry(function () use (&$count) {
+                throw new \Exception;
+            }, 4, 0.25);
+        } catch (\Exception $e) {
+            // We expect at least 1 second to have passed (1 initial attempt + 4 retries after 0.25 seconds each).
+            static::assertGreaterThan(1, (microtime(true) - $startTime));
+        }
+    }
+
+    /**
+     * @see Func::unless()
+     * ----------------------------------------------------------------------------------------------------------------
+     */
+
     public function testUnless()
     {
         // -- Basic test. No params for the test nor the callable.
