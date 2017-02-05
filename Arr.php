@@ -72,14 +72,13 @@ class Arr
      *
      * @param   array       $array      The array to traverse.
      * @param   callable    $callback   The truth test the elements should pass.
-     * @param   bool        $strict     Whether strict equality matches should be performed on the results.
      * @return  bool                    True when the elements passed the truth test, false otherwise.
      */
-    public static function all(array $array, callable $callback, bool $strict = true) : bool
+    public static function all(array $array, callable $callback) : bool
     {
-        // Map the array and then search for a 'false' boolean. If none is found, we assume all elements passed
-        // the test.
-        return false === array_search(false, array_map($callback, $array), $strict);
+        // Map the array and then search for a 'false' boolean. If none is found,
+        // we assume all elements passed the test.
+        return !in_array(false, array_map($callback, $array), true);
     }
 
     /**
@@ -90,15 +89,14 @@ class Arr
      *
      * @param   array       $array      The array to traverse.
      * @param   callable    $callback   The truth test the elements should pass.
-     * @param   bool        $strict     Whether strict equality matches should be performed on the results.
      * @return  bool                    True when at least on the the elements passed the truth test, false
      *                                  otherwise.
      */
-    public static function any(array $array, callable $callback, bool $strict = true) : bool
+    public static function any(array $array, callable $callback) : bool
     {
-        // Map the array and then search for a 'true' boolean. If at least one is found, we assume at least one
-        // element passed the test.
-        return false !== array_search(true, array_map($callback, $array), $strict);
+        // Map the array and then search for a 'true' boolean. If at least one is found,
+        // we assume at least one element passed the test.
+        return in_array(true, array_map($callback, $array), true);
     }
 
     /**
@@ -863,9 +861,9 @@ class Arr
     /**
      * Alias for {@see static::any()}
      */
-    public static function some(array $array, callable $callback, bool $strict = true) : bool
+    public static function some(array $array, callable $callback) : bool
     {
-        return static::any($array, $callback, $strict);
+        return static::any($array, $callback);
     }
 
     /**
