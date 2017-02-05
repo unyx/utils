@@ -500,10 +500,7 @@ class Arr
         }
 
         // At this point we need a positive integer, 1 at minimum.
-        $callback = (int) $callback;
-        $callback = !$callback ? 1 : abs($callback);
-
-        return array_slice($array, 0, count($array) - $callback);
+        return array_slice($array, 0, -(int) (!$callback ? 1 : abs($callback)));
     }
 
     /**
