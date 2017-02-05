@@ -373,47 +373,52 @@ class Arr
 
     /**
      * Returns a string delimited key from an array, with a default value if the given key does not exist. If null
-     * is given instead of a key, the whole initial array will be returned. If an empty array is given, the $default
-     * will be returned.
+     * is given instead of a key, the whole initial array will be returned.
      *
-     * Note: Nested objects will not be accessed as if they were arrays, ie. if "some.nested.object" is an object,
-     *       not an array, then looking for "some.nested.object.key" will always return the $default.
+     * Note: Nested objects will be accessed as if they were arrays, eg. if "some.nested.object" is an object,
+     *       then looking for "some.nested.object.property" will be handled just as a normal array would.
      *
-     * @param   array   $array      The array to search in.
-     * @param   string  $key        The string delimited key.
-     * @param   mixed   $default    The default value.
-     * @param   string  $delimiter  The delimiter to use when exploding the key into parts.
+     * @param   array           $array      The array to search in.
+     * @param   string|array    $key        The string delimited key or a chain (array) of nested keys pointing
+     *                                      to the desired key.
+     * @param   mixed           $default    The default value.
+     * @param   string          $delimiter  The delimiter to use when exploding the key into parts.
      * @return  mixed
      */
-    public static function get(array $array, string $key = null, $default = null, string $delimiter = null)
+    public static function get(array $array, $key = null, $default = null, string $delimiter = null)
     {
         // Make loops easier for the end-user - return the initial array if the key is null instead of forcing
         // a valid value.
-        if (null === $key) {
+        if (!isset($key)) {
             return $array;
         }
 
-        // More often than not we will simply be looking for a non-nested item it a one-dimensional array
-        // so let's avoid some overhead if possible.
-        // Note: This also makes it possible to have keys including the specified delimiter ("some.array.key")
-        // in the *first* dimension of the given array. However, nested items are expected to follow the convention
-        // of the delimiter specifying the dimension.
-        if (array_key_exists($key, $array)) {
-            return $array[$key];
-        }
-
         // Which string delimiter should we use?
-        if (null === $delimiter) {
+        if (!isset($delimiter)) {
             $delimiter = static::$delimiter;
         }
 
+        // If the key is string delimited, we need to explode it into an array of segments.
+        $segments = is_array($key) ? $key : explode($delimiter, $key);
+
         // One dimension at a time.
-        foreach (explode($delimiter, $key) as $segment) {
-            if (!is_array($array) || !array_key_exists($segment, $array)) {
-                return $default;
+        while ($segment = array_shift($segments)) {
+
+            // If the current segment is a wildcard, make sure the it points to an array
+            // and pluck the remaining segments from it.
+            if ($segment === '*') {
+                return is_array($array) ? static::pluck($array, $segments, $delimiter) : $default;
             }
 
-            $array = $array[$segment];
+            // Note: isset() is the cheapest condition to check for while being rather probable at the same time,
+            // thus the seemingly unintuitive condition ordering.
+            if (isset($array->{$segment})) {
+                $array = $array->{$segment};
+            } elseif (is_array($array) && array_key_exists($segment, $array)) {
+                $array = $array[$segment];
+            } else {
+                return $default;
+            }
         }
 
         return $array;
@@ -655,26 +660,36 @@ class Arr
      * When the optional $key parameter is given, the resulting array will be indexed by the values corresponding
      * to the given $key.
      *
-     * @param   array   $array  The array to search in.
-     * @param   string  $value  The key of the value to look for.
-     * @param   string  $key    The key of the value to index the resulting array by.
+     * @see     array_column()  A faster and simpler alternative, if you do not need to pluck data with support
+     *                          for delimited keys or wildcards.
+     *
+     * @param   array           $array      The array to search in.
+     * @param   string|array    $value      The key of the value to look for.
+     * @param   string|array    $key        The key of the value to index the resulting array by.
+     * @param   string          $delimiter  The delimiter to use when exploding the key into parts.
      * @return  array
      */
-    public static function pluck(array $array, $value, string $key = null) : array
+    public static function pluck(array $array, $value, $key = null, string $delimiter = null) : array
     {
         $results = [];
 
+        // Which string delimiter should we use?
+        if (!isset($delimiter)) {
+            $delimiter = static::$delimiter;
+        }
+
         foreach ($array as $item) {
-            $curValue = is_object($item) ? $item->{$value} : $item[$value];
+
+            $itemValue = static::get($item, $value, $delimiter);
 
             // If the key given is null, the resulting array will contain numerically indexed keys.
-            if (null === $key) {
-                $results[] = $curValue;
+            if (!isset($key)) {
+                $results[] = $itemValue;
             }
             // Otherwise we are going use the value of the given key and use it in the resulting array as key
             // for the value determined earlier.
             else {
-                $results[is_object($item) ? $item->{$key} : $item[$key]] = $curValue;
+                $results[static::get($item, $key, $delimiter)] = $itemValue;
             }
         }
 
