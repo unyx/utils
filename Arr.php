@@ -242,9 +242,9 @@ class Arr
     /**
      * Alias for @see Arr::all()
      */
-    public static function every(array $array, callable $callback, bool $strict = true)
+    public static function every(array $array, callable $callback)
     {
-        return static::all($array, $callback, $strict);
+        return static::all($array, $callback);
     }
 
     /**
