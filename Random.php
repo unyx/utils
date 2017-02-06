@@ -284,7 +284,7 @@ class Random
         // This is faster but not doesn't come close to random. Every higher setting will go through
         // the process of getting a random seed of the specified strength and actually generating
         // the string.
-        if (self::STRENGTH_NONE) {
+        if ($strength === self::STRENGTH_NONE) {
             return substr(str_shuffle(str_repeat($charset, ceil($length / 2))), 0, $length);
         }
 
