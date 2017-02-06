@@ -70,6 +70,31 @@ class Func
     }
 
     /**
+     * Returns a Closure which, once invoked, applies each given callable to the result of the previous callable,
+     * in right-to-left order. As such, the arguments passed to the Closure are passed through to the last
+     * callable given to the composition.
+     *
+     * Example: Func::compose(f, g, h)(x) is the equivalent of f(g(h(x))).
+     *
+     * @param   callable[]  ...$callables   The callables to compose.
+     * @return  \Closure
+     */
+    public static function compose(callable ...$callables) : \Closure
+    {
+        // Reverse the order of the given callables outside of the Closure. With the assumption
+        // the Closure may get invoked n > 1 times, this shaves off some execution time.
+        $callables = array_reverse($callables);
+
+        return function(...$args) use ($callables) {
+            foreach ($callables as $callable) {
+                $args = [$callable(...$args)];
+            }
+
+            return current($args);
+        };
+    }
+
+    /**
      * Generates a hash (signature) for a given callable with the given arguments.
      *
      * @param   callable    $callable   The callable to hash.

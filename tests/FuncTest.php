@@ -50,7 +50,26 @@ class FuncTest extends \PHPUnit\Framework\TestCase
         $test($wrapper, $func2, 'foo');
     }
 
-    // Func::hash()
+    /**
+     * @see Func::compose()
+     * ----------------------------------------------------------------------------------------------------------------
+     */
+
+    public function testCompose()
+    {
+        $countFiltered = Func::compose('count', 'array_filter');
+        $data = [1, 'foo', 2, 'bar', 3, [1, 2, 3]];
+
+        static::assertEquals(3, $countFiltered($data, 'is_int'));
+        static::assertEquals(1, $countFiltered($data, 'is_array'));
+        static::assertEquals(2, $countFiltered($data, 'is_string'));
+    }
+
+    /**
+     * @see Func::hash()
+     * ----------------------------------------------------------------------------------------------------------------
+     */
+
     public function testHash()
     {
         // Prepare our functions.
