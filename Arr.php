@@ -663,6 +663,26 @@ class Arr
     }
 
     /**
+     * Returns a random value from the given array, or $elements random values when $elements is a positive integer, or
+     * the first random element that passes the given truth test when $elements is a callable.
+     *
+     * @param   array           $array      The array to search in.
+     * @param   callable|int    $elements   The number of random values to return or a callable to return the first
+     *                                      randomly shuffled element that passes the given truth test.
+     * @param   mixed           $default    The default value to be returned if none of the elements passes
+     *                                      the test or the array is empty.
+     * @return  mixed
+     */
+    public static function pick(array $array, $elements = null, $default = null)
+    {
+        // There are *slightly* better performing alternatives, but simply shuffling and delegating
+        // the actual picking to static::first() allows us to avoid a fair amount of duplicated code.
+        shuffle($array);
+
+        return static::first($array, $elements, $default);
+    }
+
+    /**
      * Given an array containing other arrays or objects, this method will look for the value with the given
      * key/property of $value within them and return a new array containing all values of said key from the
      * initial array. Essentially like fetching a column from a classic database table.
@@ -724,44 +744,16 @@ class Arr
     }
 
     /**
-     * Returns a random value from the given array. If a number is given as the second argument, $number random
-     * values will be returned.
-     *
-     * @param   array           $array  The array to search in.
-     * @param   callable|int    $number The number of random values to return or a callable to return the first
-     *                                  randomly shuffled element that passes the given truth test. When $number
-     *                                  is falsy, only a single element will be returned.
-     * @return  mixed
-     */
-    public static function random(array $array, $number = null)
-    {
-        // Avoid some errors if possible.
-        if (empty($array)) {
-            return null;
-        }
-
-        // Falsy values result in just a single random element being returned.
-        if (!$number) {
-            return $array[array_rand($array)];
-        }
-
-        shuffle($array);
-
-        // Return the first $number elements of the randomly shuffled array.
-        return static::first($array, $number);
-    }
-
-    /**
      * Removes a string delimited key from the given array.
      *
-     * @param   array   $array      The array to search in.
+     * @param   array&  $array      The array to search in.
      * @param   string  $key        The string delimited key.
      * @param   string  $delimiter  The delimiter to use when exploding the key into parts.
      */
     public static function remove(array& $array, string $key, string $delimiter = null)
     {
         // Which string delimiter should we use?
-        if (null === $delimiter) {
+        if (!isset($delimiter)) {
             $delimiter = static::$delimiter;
         }
 
