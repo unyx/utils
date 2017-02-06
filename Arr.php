@@ -1,5 +1,8 @@
 <?php namespace nyx\utils;
 
+// External dependencies
+use nyx\diagnostics;
+
 /**
  * Arr
  *
@@ -315,41 +318,53 @@ class Arr
     }
 
     /**
-     * Returns the first element of the array, the first $callback elements of the array when $callback is a number,
-     * or the first element which passes the given truth test when the $callback is a callable.
+     * Returns the first element of the array, the first $elements of the array when $elements is a positive integer,
+     * or the first element which passes the given truth test when the $elements is a callable.
      *
-     * Aliases:
-     *  - @see Arr::head()
-     *  - @see Arr::take()
+     * Aliases:  @see \nyx\utils\Arr::head(), \nyx\utils\Arr::take()
+     * Opposite: @see \nyx\utils\Arr::last()
      *
-     * @param   array               $array      The array to traverse.
-     * @param   callable|int|bool   $callback   The truth test the value should pass or an integer denoting how many
-     *                                          of the initial elements of the array should be returned.
-     *                                          When a falsy value is given, the method will return the first
-     *                                          element of the array.
-     * @param   mixed               $default    The default value to be returned if none of the elements passes
-     *                                          the test or the array is empty.
+     * @param   array           $array      The array to traverse.
+     * @param   callable|int    $elements   The truth test the value should pass or an integer denoting how many
+     *                                      of the initial elements of the array should be returned.
+     *                                      When not given, the method will return the first element of the array.
+     * @param   mixed           $default    The default value to be returned if none of the elements passes
+     *                                      the test or the array is empty.
+     * @throws  \UnderflowException         When more values are requested than there are items in the array.
+     * @throws  \InvalidArgumentException   When $elements is neither a valid integer nor a callable.
      * @return  mixed
      */
-    public static function first(array $array, $callback = false, $default = null)
+    public static function first(array $array, $elements = null, $default = null)
     {
-        // Avoid some overhead at this point already if possible.
         if (empty($array)) {
             return $default;
         }
 
         // Most common use case - simply return the first value of the array.
-        if (!$callback) {
+        if (!isset($elements) || $elements === 1) {
             return reset($array);
         }
 
-        // With a callable given, return the first value which passes the given truth test.
-        if (is_callable($callback)) {
-            return static::find($array, $callback, $default);
+        // With a integer given, return a slice containing the first $callback elements.
+        if (is_int($elements)) {
+
+            if ($elements < 1) {
+                throw new \InvalidArgumentException("At least 1 element must be requested, while [$elements] were requested.");
+            }
+
+            if ($elements > ($count = count($array))) {
+                throw new \UnderflowException("Requested [$elements] items, but the structure only contains [$count] items.");
+            }
+
+            return array_slice($array, 0, $elements);
         }
 
-        // Return only the first element when the callback equals 1, otherwise return the initial $callback elements.
-        return (1 === $callback = abs((int) $callback)) ? reset($array) : array_slice($array, 0, $callback);
+        // With a callable given, return the first value which passes the given truth test.
+        if (is_callable($elements)) {
+            return static::find($array, $elements, $default);
+        }
+
+        throw new \InvalidArgumentException('Expected $callback to be a positive integer or a callable, got ['.diagnostics\Debug::getTypeName($elements).'] instead.');
     }
 
     /**
@@ -452,15 +467,15 @@ class Arr
     }
 
     /**
-     * Alias for {@see static::first()}
+     * @see \nyx\utils\Arr::first()
      */
-    public static function head(array $array, $callback = false, $default = null)
+    public static function head(array $array, $callback = null, $default = null)
     {
         return static::first($array, $callback, $default);
     }
 
     /**
-     * Returns all but the last value of the given array.
+     * Returns all but the last value(s) of the given array.
      *
      * If a callable is passed, elements at the end of the array are excluded from the result as long as the
      * callback returns a truthy value. If a number is passed, the last n values are excluded from the result.
@@ -875,9 +890,9 @@ class Arr
     }
 
     /**
-     * Alias for {@see static::first()}
+     * @see \nyx\utils\Arr::first()
      */
-    public static function take(array $array, $callback = false, $default = null)
+    public static function take(array $array, $callback = null, $default = null)
     {
         return static::first($array, $callback, $default);
     }
