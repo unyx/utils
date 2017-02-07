@@ -318,8 +318,9 @@ class Arr
     }
 
     /**
-     * Returns the first element of the array, the first $elements of the array when $elements is a positive integer,
-     * or the first element which passes the given truth test when the $elements is a callable.
+     * Returns the first element of the array,
+     *   OR the first $elements of the array when $elements is a positive integer,
+     *   OR the first element which passes the given truth test when $elements is a callable.
      *
      * Aliases:  @see \nyx\utils\Arr::head(), \nyx\utils\Arr::take()
      * Opposite: @see \nyx\utils\Arr::last()
@@ -330,7 +331,7 @@ class Arr
      *                                      When not given, the method will return the first element of the array.
      * @param   mixed           $default    The default value to be returned if none of the elements passes
      *                                      the test or the array is empty.
-     * @throws  \UnderflowException         When more values are requested than there are items in the array.
+     * @throws  \InvalidArgumentException   When $elements is an integer smaller than 1.
      * @throws  \InvalidArgumentException   When $elements is neither a valid integer nor a callable.
      * @return  mixed
      */
@@ -350,10 +351,6 @@ class Arr
 
             if ($elements < 1) {
                 throw new \InvalidArgumentException("At least 1 element must be requested, while [$elements] were requested.");
-            }
-
-            if ($elements > ($count = count($array))) {
-                throw new \UnderflowException("Requested [$elements] items, but the structure only contains [$count] items.");
             }
 
             return array_slice($array, 0, $elements);
