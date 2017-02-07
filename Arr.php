@@ -536,43 +536,49 @@ class Arr
     }
 
     /**
-     * Returns the last element of the array, the final $callback elements of the array when $callback is a number,
-     * or the last element which passes the given truth test when the $callback is a callable.
+     * Returns the last element of the array,
+     *   OR the last $elements of the array when $elements is a positive integer,
+     *   OR the last element which passes the given truth test when $elements is a callable.
      *
-     * @param   array               $array      The array to traverse.
-     * @param   callable|int|bool   $callback   The truth test the value should pass or an integer / numeric string
-     *                                          denoting how many of the final elements of the array should be returned.
-     *                                          When *any* other value is given, the method will return the last
-     *                                          element of the array.
-     * @param   mixed               $default    The default value to be returned if none of the elements passes
-     *                                          the test or the array is empty.
+     * Opposite: @see \nyx\utils\Arr::first()
+     *
+     * @param   array           $array      The array to traverse.
+     * @param   callable|int    $elements   The truth test the value should pass or a positive integer
+     *                                      denoting how many of the final elements of the array should be returned.
+     *                                      When not given, the method will return the first element of the array.
+     * @param   mixed           $default    The default value to be returned if none of the elements passes
+     *                                      the test or the array is empty.
+     * @throws  \InvalidArgumentException   When $elements is an integer smaller than 1.
+     * @throws  \InvalidArgumentException   When $elements is neither a valid integer nor a callable.
      * @return  mixed
      */
-    public static function last(array $array, $callback = false, $default = null)
+    public static function last(array $array, $elements = null, $default = null)
     {
-        // Avoid some overhead at this point already if possible.
         if (empty($array)) {
             return $default;
         }
 
         // Most common use case - simply return the last value of the array.
-        if (!$callback) {
+        if (!isset($elements) || $elements === 1) {
             return end($array);
         }
 
-        // With a callable given, return the last value which passes the given truth test.
-        if (is_callable($callback)) {
-            foreach (array_reverse($array) as $key => $value) {
-                if (call_user_func($callback, $key, $value)) {
-                    return $value;
-                }
+        // With a integer given, return a slice containing the last $elements elements.
+        if (is_int($elements)) {
+
+            if ($elements < 1) {
+                throw new \InvalidArgumentException("At least 1 element must be requested, while [$elements] were requested.");
             }
 
-            return $default;
+            return array_slice($array, -$elements);
         }
 
-        // Return only the last element when abs(callback) equals 1, otherwise return the final $callback elements.
-        return (-1 === $callback = -1 * abs((int) $callback)) ? end($array) : array_slice($array, $callback);
+        // With a callable given, return the last value which passes the given truth test.
+        if (is_callable($elements)) {
+            return static::find(array_reverse($array), $elements, $default);
+        }
+
+        throw new \InvalidArgumentException('Expected $elements to be a positive integer or a callable, got ['.diagnostics\Debug::getTypeName($elements).'] instead.');
     }
 
     /**
