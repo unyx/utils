@@ -309,7 +309,7 @@ class Arr
     public static function find(array $array, callable $callback, $default = null)
     {
         foreach ($array as $key => $value) {
-            if (call_user_func($callback, $key, $value)) {
+            if ($callback($value, $key)) {
                 return $value;
             }
         }
