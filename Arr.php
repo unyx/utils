@@ -686,23 +686,23 @@ class Arr
     }
 
     /**
-     * Given an array containing other arrays or objects, this method will look for the value with the given
-     * key/property of $value within them and return a new array containing all values of said key from the
-     * initial array. Essentially like fetching a column from a classic database table.
+     * Given an array containing other arrays or objects, looks for the value with the given key/property
+     * of $key within them and returns a new array containing all values of said key from the initial array.
+     * Essentially like fetching a single column from a classic database table.
      *
-     * When the optional $key parameter is given, the resulting array will be indexed by the values corresponding
-     * to the given $key.
+     * When the optional $index parameter is given, the resulting array will be indexed by the values corresponding
+     * to the given $index.
      *
      * @see     array_column()  A faster and simpler alternative, if you do not need to pluck data with support
      *                          for delimited keys or wildcards.
      *
      * @param   array           $array      The array to search in.
-     * @param   string|array    $value      The key of the value to look for.
-     * @param   string|array    $key        The key of the value to index the resulting array by.
+     * @param   string|array    $key        The key of the value to look for.
+     * @param   string|array    $index      The key of the value to index the resulting array by.
      * @param   string          $delimiter  The delimiter to use when exploding the key into parts.
      * @return  array
      */
-    public static function pluck(array $array, $value, $key = null, string $delimiter = null) : array
+    public static function pluck(array $array, $key, $index = null, string $delimiter = null) : array
     {
         $results = [];
 
@@ -713,16 +713,16 @@ class Arr
 
         foreach ($array as $item) {
 
-            $itemValue = static::get($item, $value, $delimiter);
+            $itemValue = static::get($item, $key, $delimiter);
 
             // If the key given is null, the resulting array will contain numerically indexed keys.
-            if (!isset($key)) {
+            if (!isset($index)) {
                 $results[] = $itemValue;
             }
             // Otherwise we are going use the value of the given key and use it in the resulting array as key
             // for the value determined earlier.
             else {
-                $results[static::get($item, $key, $delimiter)] = $itemValue;
+                $results[static::get($item, $index, $delimiter)] = $itemValue;
             }
         }
 
