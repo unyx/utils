@@ -15,7 +15,7 @@
   },
 
   "require": {
-    "php": ">=7.1.0-dev",
+    "php": "~7.1",
     "ext-mbstring": "*",
     "nyx/core": "*",
     "nyx/diagnostics": "*"
