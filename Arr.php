@@ -492,7 +492,7 @@ class Arr
             $i = 0;
 
             foreach (array_reverse($array) as $key => $value) {
-                if (!call_user_func($callback, $key, $value)) {
+                if (!$callback($value, $key)) {
                     break;
                 }
 
@@ -803,7 +803,7 @@ class Arr
             $i = 0;
 
             foreach ($array as $key => $value) {
-                if (!call_user_func($callback, $key, $value)) {
+                if (!$callback($value, $key)) {
                     break;
                 }
 
